@@ -6,7 +6,7 @@
 
     <groupId>org.aoju</groupId>
     <artifactId>bus-all</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.5</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -71,6 +71,16 @@
         </dependency>
         <dependency>
             <groupId>org.aoju</groupId>
+            <artifactId>bus-boot</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aoju</groupId>
+            <artifactId>bus-cache</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aoju</groupId>
             <artifactId>bus-core</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -131,12 +141,12 @@
         </dependency>
         <dependency>
             <groupId>org.aoju</groupId>
-            <artifactId>bus-socket</artifactId>
+            <artifactId>bus-setting</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.aoju</groupId>
-            <artifactId>bus-setting</artifactId>
+            <artifactId>bus-socket</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -489,6 +499,7 @@
                 <version>3.1.1</version>
                 <executions>
                     <execution>
+                        <id>attach-javadocs</id>
                         <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
@@ -524,7 +535,7 @@
                             <execution>
                                 <id>attach-sources</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>jar-no-fork</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -535,7 +546,7 @@
                         <version>1.6</version>
                         <executions>
                             <execution>
-                                <id>oss</id>
+                                <id>sonatype-nexus-staging</id>
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
@@ -549,7 +560,7 @@
                         <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>oss</serverId>
+                            <serverId>sonatype-nexus-staging</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
