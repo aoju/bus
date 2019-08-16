@@ -23,32 +23,20 @@
  */
 package org.aoju.bus.spring.tracer;
 
-import org.aoju.bus.tracer.annotation.TacerCost;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Method;
 
 /**
  * 方法执行耗时统计
  *
  * @author Kimi Liu
- * @version 3.0.5
+ * @version 3.0.6
  * @since JDK 1.8
  */
 @Component
 @Aspect
 public class MethodExecuteCostHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(MethodExecuteCostHandler.class);
-
+ /*
     @Around("@annotation(org.aoju.bus.tracer.annotation.TacerCost)")
     public Object costLogger(ProceedingJoinPoint pjp) throws Throwable {
         Signature sig = pjp.getSignature();
@@ -148,5 +136,5 @@ public class MethodExecuteCostHandler {
         }
         return obj;
     }
-
+*/
 }

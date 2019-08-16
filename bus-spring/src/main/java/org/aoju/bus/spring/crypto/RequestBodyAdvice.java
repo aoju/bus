@@ -30,7 +30,6 @@ import org.aoju.bus.core.utils.IoUtils;
 import org.aoju.bus.core.utils.ObjectUtils;
 import org.aoju.bus.core.utils.StringUtils;
 import org.aoju.bus.crypto.CryptoUtils;
-import org.aoju.bus.crypto.Mode;
 import org.aoju.bus.crypto.annotation.DecryptBody;
 import org.aoju.bus.logger.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,7 @@ import java.lang.reflect.Type;
  * 对加了@Decrypt的方法的数据进行解密密操作
  *
  * @author Kimi Liu
- * @version 3.0.5
+ * @version 3.0.6
  * @since JDK 1.8
  */
 public class RequestBodyAdvice extends BaseAdvice
@@ -156,7 +155,7 @@ public class RequestBodyAdvice extends BaseAdvice
 
         public HttpInputMessage(org.springframework.http.HttpInputMessage inputMessage,
                                 String key,
-                                Mode mode,
+                                String mode,
                                 String charset) throws Exception {
             if (StringUtils.isEmpty(key)) {
                 throw new NullPointerException("请配置spring.decrypt.key参数");

@@ -25,6 +25,7 @@ script:
   - cd ../bus-mapper && mvn install -DskipTests=true
   - cd ../bus-pager && mvn install -DskipTests=true
   - cd ../bus-poi && mvn install -DskipTests=true
+  - cd ../bus-proxy && mvn install -DskipTests=true
   - cd ../bus-socket && mvn install -DskipTests=true
   - cd ../bus-storage && mvn install -DskipTests=true
   - cd ../bus-swagger && mvn install -DskipTests=true

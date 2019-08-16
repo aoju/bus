@@ -1,37 +1,26 @@
 package org.aoju.bus.tracer.consts;
 
-/**
- * @author Kimi Liu
- * @version 3.0.5
- * @since JDK 1.8
- */
-public class TraceConsts {
+import org.aoju.bus.core.consts.Normal;
 
-    public static final int DEFAULT_LOG_LENGTH = 1024;
+import javax.xml.namespace.QName;
 
-    /**
-     * 当前主链ID
-     */
-    public static final String X_TRACE_ID = "X-Trace_Id";
+public final class TraceConsts {
 
-    /**
-     * 调用者ID
-     */
-    public static final String X_SPAN_ID = "x_span_id";
+    public static final String TPIC_HEADER = "TPIC";
 
-    /**
-     * 被调用者ID
-     */
-    public static final String X_CHILD_ID = "x_child_Id";
+    public static final String SOAP_HEADER_NAMESPACE = "http://Trace.io/tpic/1.0";
 
-    /**
-     * 本地IP
-     */
-    public static final String X_LOCAL_IP = "x_local_ip";
+    public static final QName SOAP_HEADER_QNAME = new QName(SOAP_HEADER_NAMESPACE, TPIC_HEADER);
 
-    /**
-     * 远程IP
-     */
-    public static final String X_REMOTE_IP = "x_remote_ip";
+    public static final String SESSION_ID_KEY = "TPIC.sessionId";
+    public static final String INVOCATION_ID_KEY = "TPIC.invocationId";
+    public static final char[] ALPHANUMERICS = Normal.LETTER_UPPER_NO.toCharArray();
+
+    public static final String DEFAULT = "default";
+    public static final String HIDE_INBOUND = "HideInbound";
+    public static final String HIDE_OUTBOUND = "HideOutbound";
+    public static final String DISABLE_INBOUND = "DisableInbound";
+    public static final String DISABLE_OUTBOUND = "DisableOutbound";
+    public static final String DISABLED = "Disabled";
 
 }
