@@ -25,9 +25,7 @@ package org.aoju.bus.base.spring;
 
 import io.swagger.annotations.ApiOperation;
 import org.aoju.bus.base.consts.ErrorCode;
-import org.aoju.bus.base.entity.Message;
 import org.aoju.bus.base.service.BaseService;
-import org.aoju.bus.core.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 基础请求封装
  *
  * @author Kimi Liu
- * @version 5.0.2
+ * @version 5.0.3
  * @since JDK 1.8+
  */
 public class BaseController<Service extends BaseService<T>, T> extends Controller {
@@ -55,7 +53,7 @@ public class BaseController<Service extends BaseService<T>, T> extends Controlle
     @ApiOperation(value = "通用:添加数据", httpMethod = "POST")
     @ResponseBody
     public Object add(T entity) {
-        return write(ErrorCode.EM_SUCCESS,service.insertSelective(entity));
+        return write(ErrorCode.EM_SUCCESS, service.insertSelective(entity));
     }
 
     /**
@@ -82,7 +80,7 @@ public class BaseController<Service extends BaseService<T>, T> extends Controlle
     @ApiOperation(value = "通用:主键更新", httpMethod = "POST")
     @ResponseBody
     public Object update(T entity) {
-        return write(ErrorCode.EM_SUCCESS,service.updateSelectiveById(entity));
+        return write(ErrorCode.EM_SUCCESS, service.updateSelectiveById(entity));
     }
 
     /**

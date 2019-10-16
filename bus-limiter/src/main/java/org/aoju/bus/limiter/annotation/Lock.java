@@ -21,26 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.aoju.bus.limiter.source;
+package org.aoju.bus.limiter.annotation;
 
-import org.aoju.bus.limiter.resource.LimitedResource;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
+import java.lang.annotation.*;
 
 /**
- * 获取限流规则
+ * 锁
  *
  * @author Kimi Liu
- * @version 5.0.2
+ * @version 5.0.3
  * @since JDK 1.8+
  */
-public interface LimitedResourceSource {
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(Locks.class)
+public @interface Lock {
 
-    /**
-     * @param targetClass 目标
-     * @param method      方法
-     * @return the object
-     */
-    Collection<LimitedResource> getLimitedResource(Class<?> targetClass, Method method);
+    String limiter() default "";
+
+    String key() default "";
+
+    String fallback() default "defaultFallbackResolver";
+
+    String errorHandler() default "defaultErrorHandler";
+
+    String[] argumentInjectors() default {};
+
 }

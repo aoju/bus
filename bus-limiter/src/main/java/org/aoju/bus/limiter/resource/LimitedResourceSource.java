@@ -21,30 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.aoju.bus.limiter.annotation;
+package org.aoju.bus.limiter.resource;
 
-import java.lang.annotation.*;
+import java.lang.reflect.Method;
+import java.util.Collection;
 
 /**
- * 锁
+ * 获取限流规则
  *
  * @author Kimi Liu
- * @version 5.0.2
+ * @version 5.0.3
  * @since JDK 1.8+
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@Repeatable(HLocks.class)
-public @interface HLock {
+public interface LimitedResourceSource {
 
-    String limiter() default "";
-
-    String key() default "";
-
-    String fallback() default "defaultFallbackResolver";
-
-    String errorHandler() default "defaultErrorHandler";
-
-    String[] argumentInjectors() default {};
-
+    /**
+     * @param targetClass 目标
+     * @param method      方法
+     * @return the object
+     */
+    Collection<LimitedResource> getLimitedResource(Class<?> targetClass, Method method);
 }

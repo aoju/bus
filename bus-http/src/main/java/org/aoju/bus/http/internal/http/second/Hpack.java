@@ -43,7 +43,7 @@ import java.util.*;
  * fills, it is doubled.
  *
  * @author Kimi Liu
- * @version 5.0.2
+ * @version 5.0.3
  * @since JDK 1.8+
  */
 final class Hpack {
@@ -144,7 +144,7 @@ final class Hpack {
         return name;
     }
 
-   static final class Reader {
+    static final class Reader {
 
         private final List<Header> headerList = new ArrayList<>();
         private final BufferSource source;

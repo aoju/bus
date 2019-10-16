@@ -23,14 +23,17 @@
  */
 package org.aoju.bus.limiter;
 
-import java.util.Map;
+import org.aoju.bus.limiter.resource.LimitedResource;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Kimi Liu
- * @version 5.0.2
+ * @version 5.0.3
  * @since JDK 1.8+
  */
-public interface ArgumentInjector {
+public interface Resolver<T> {
 
-    Map<String, Object> inject(Object... args);
+    T resolve(Method method, Class<?> clazz, Object[] args, LimitedResource limitedResource, Object target);
+
 }
