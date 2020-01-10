@@ -26,6 +26,7 @@ package org.aoju.bus.starter.mapper;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
 import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.logger.Logger;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -36,6 +37,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 import javax.sql.DataSource;
+import java.io.FileNotFoundException;
 
 /**
  * mybatis 配置
@@ -61,8 +63,11 @@ public class MybatisConfiguration {
 
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             bean.setPlugins(MybatisPluginBuilder.build(properties));
-
-            bean.setMapperLocations(resolver.getResources(this.properties.getXmlLocation()));
+            try {
+                bean.setMapperLocations(resolver.getResources(this.properties.getXmlLocation()));
+            } catch (FileNotFoundException e) {
+                Logger.warn(e.getMessage());
+            }
             return bean.getObject();
         } catch (Exception e) {
             throw new InstrumentException(e);
