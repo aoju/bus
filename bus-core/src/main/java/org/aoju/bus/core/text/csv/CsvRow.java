@@ -31,7 +31,7 @@ import java.util.*;
  * CSV中一行的表示
  *
  * @author Kimi Liu
- * @version 5.6.1
+ * @version 5.6.3
  * @since JDK 1.8+
  */
 public final class CsvRow implements List<String> {
