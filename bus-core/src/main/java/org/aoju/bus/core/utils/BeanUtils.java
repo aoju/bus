@@ -44,7 +44,7 @@ import java.util.*;
  * 把一个拥有对属性进行set和get方法的类,我们就可以称之为JavaBean
  *
  * @author Kimi Liu
- * @version 5.6.9
+ * @version 5.8.0
  * @since JDK 1.8+
  */
 public class BeanUtils {
@@ -423,7 +423,7 @@ public class BeanUtils {
      * @param bean       Bean对象,支持Map、List、Collection、Array
      * @param expression 表达式,例如：person.friend[5].name
      * @return Bean属性值
-     * @see BeanPath#get(Object) 
+     * @see BeanPath#get(Object)
      */
     public static Object getProperty(Object bean, String expression) {
         return BeanPath.create(expression).get(bean);
@@ -450,8 +450,21 @@ public class BeanUtils {
      * @return Bean对象
      */
     public static <T> T toBean(Object source, Class<T> clazz) {
+        return toBean(source, clazz, null);
+    }
+
+    /**
+     * 对象或Map转Bean
+     *
+     * @param <T>     转换的Bean类型
+     * @param source  Bean对象或Map
+     * @param clazz   目标的Bean类型
+     * @param options 属性拷贝选项
+     * @return Bean对象
+     */
+    public static <T> T toBean(Object source, Class<T> clazz, CopyOptions options) {
         final T target = ReflectUtils.newInstance(clazz);
-        copyProperties(source, target);
+        copyProperties(source, target, options);
         return target;
     }
 
@@ -686,6 +699,20 @@ public class BeanUtils {
             }
         }
         return targetMap;
+    }
+
+    /**
+     * 创建对应的Class对象并复制Bean对象属性
+     *
+     * @param <T>    对象
+     * @param source 源Bean对象
+     * @param tClass 目标Class
+     * @return 新对象信息
+     */
+    public static <T> T copyProperties(Object source, Class<T> tClass) {
+        T target = ReflectUtils.newInstance(tClass);
+        copyProperties(source, target, CopyOptions.create());
+        return target;
     }
 
     /**

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -48,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.6.9
+ * @version 5.8.0
  * @since JDK 1.8+
  */
 public class ExcelWriter extends ExcelBase<ExcelWriter> {
@@ -77,13 +78,17 @@ public class ExcelWriter extends ExcelBase<ExcelWriter> {
      * 样式集,定义不同类型数据样式
      */
     private StyleSet styleSet;
+    /**
+     * 标题项对应列号缓存，每次写标题更新此缓存
+     */
+    private Map<String, Integer> headLocationCache;
 
     /**
      * 构造,默认生成xls格式的Excel文件
      * 此构造不传入写出的Excel文件路径,只能调用{@link #flush(OutputStream)}方法写出到流
      * 若写出到文件,还需调用{@link #setDestFile(File)}方法自定义写出的文件,然后调用{@link #flush()}方法写出到文件
      *
-     * @since 5.6.9
+     * @since 5.8.0
      */
     public ExcelWriter() {
         this(false);
@@ -95,7 +100,7 @@ public class ExcelWriter extends ExcelBase<ExcelWriter> {
      * 若写出到文件,需要调用{@link #flush(File)} 写出到文件
      *
      * @param isXlsx 是否为xlsx格式
-     * @since 5.6.9
+     * @since 5.8.0
      */
     public ExcelWriter(boolean isXlsx) {
         this(BookUtils.createBook(isXlsx), null);
@@ -203,6 +208,7 @@ public class ExcelWriter extends ExcelBase<ExcelWriter> {
     public ExcelWriter reset() {
         resetRow();
         this.aliasComparator = null;
+        this.headLocationCache = null;
         return this;
     }
 
@@ -381,7 +387,7 @@ public class ExcelWriter extends ExcelBase<ExcelWriter> {
      *
      * @param headerAlias 标题别名
      * @return this
-     * @since 5.6.9
+     * @since 5.8.0
      */
     public ExcelWriter setHeaderAlias(Map<String, String> headerAlias) {
         this.headerAlias = headerAlias;
@@ -661,7 +667,16 @@ public class ExcelWriter extends ExcelBase<ExcelWriter> {
      */
     public ExcelWriter writeHeadRow(Iterable<?> rowData) {
         Assert.isFalse(this.isClosed, "ExcelWriter has been closed!");
-        RowUtils.writeRow(this.sheet.createRow(this.currentRow.getAndIncrement()), rowData, this.styleSet, true);
+        this.headLocationCache = new ConcurrentHashMap<>();
+        final Row row = this.sheet.createRow(this.currentRow.getAndIncrement());
+        int i = 0;
+        Cell cell;
+        for (Object value : rowData) {
+            cell = row.createCell(i);
+            CellUtils.setCellValue(cell, value, this.styleSet, true);
+            this.headLocationCache.put(StringUtils.toString(value), i);
+            i++;
+        }
         return this;
     }
 
@@ -716,7 +731,7 @@ public class ExcelWriter extends ExcelBase<ExcelWriter> {
     public ExcelWriter writeRow(Map<?, ?> rowMap, boolean isWriteKeyAsHead) {
         Assert.isFalse(this.isClosed, "ExcelWriter has been closed!");
         if (MapUtils.isEmpty(rowMap)) {
-            // 如果写出数据为null或空,跳过当前行
+            // 如果写出数据为null或空，跳过当前行
             return passCurrentRow();
         }
 
@@ -725,7 +740,20 @@ public class ExcelWriter extends ExcelBase<ExcelWriter> {
         if (isWriteKeyAsHead) {
             writeHeadRow(aliasMap.keySet());
         }
-        writeRow(aliasMap.values());
+
+        // 如果已经写出标题行，根据标题行找对应的值写入
+        if (MapUtils.isNotEmpty(this.headLocationCache)) {
+            final Row row = RowUtils.getOrCreateRow(this.sheet, this.currentRow.getAndIncrement());
+            Integer location;
+            for (Entry<?, ?> entry : aliasMap.entrySet()) {
+                location = this.headLocationCache.get(StringUtils.toString(entry.getKey()));
+                if (null != location) {
+                    CellUtils.setCellValue(CellUtils.getOrCreateCell(row, location), entry.getValue(), this.styleSet, false);
+                }
+            }
+        } else {
+            writeRow(aliasMap.values());
+        }
         return this;
     }
 
@@ -904,7 +932,7 @@ public class ExcelWriter extends ExcelBase<ExcelWriter> {
             return rowMap;
         }
 
-        final Map<Object, Object> filteredMap =  MapUtils.newHashMap(rowMap.size(), true);
+        final Map<Object, Object> filteredMap = MapUtils.newHashMap(rowMap.size(), true);
         String aliasName;
         for (Entry<?, ?> entry : rowMap.entrySet()) {
             aliasName = this.headerAlias.get(entry.getKey());

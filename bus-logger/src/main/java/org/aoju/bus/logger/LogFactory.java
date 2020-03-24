@@ -36,7 +36,6 @@ import org.aoju.bus.logger.dialect.slf4j.Slf4jLogFactory;
 import org.aoju.bus.logger.dialect.tinylog.TinyLogFactory;
 
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
@@ -46,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 日志工厂类
  *
  * @author Kimi Liu
- * @version 5.6.9
+ * @version 5.8.0
  * @since JDK 1.8+
  */
 public abstract class LogFactory {
