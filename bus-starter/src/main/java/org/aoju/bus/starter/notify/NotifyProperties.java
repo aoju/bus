@@ -25,7 +25,7 @@
 package org.aoju.bus.starter.notify;
 
 import lombok.Data;
-import org.aoju.bus.notify.metric.Properties;
+import org.aoju.bus.notify.Context;
 import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.starter.BusXExtend;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -48,6 +48,6 @@ public class NotifyProperties {
     /**
      * 基础配置
      */
-    private Map<Registry, Properties> type;
+    private Map<Registry, Context> type;
 
 }

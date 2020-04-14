@@ -24,34 +24,28 @@
  ********************************************************************************/
 package org.aoju.bus.notify.provider.netease;
 
-import org.aoju.bus.notify.magic.Response;
-
-import java.util.HashMap;
-import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.aoju.bus.notify.metric.Template;
 
 /**
- * 云信通知
+ * 云信消息
  *
  * @author Justubborn
  * @version 5.8.5
  * @since JDK1.8+
  */
-public class NeteaseAttachMsgProvider extends AbstractNeteaseProvider {
 
-    private static final String API = "https://api.netease.im/nimserver/msg/sendAttachMsg.action";
+@Getter
+@Setter
+@SuperBuilder
+public class NeteaseTemplate extends Template {
 
-    public NeteaseAttachMsgProvider(NeteaseProperties properties) {
-        super(properties);
-    }
+    String title;
 
-    @Override
-    public Response send(NeteaseMsgTemplate template) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("from", template.getSender());
-        param.put("msgtype", "0");
-        param.put("to", template.getReceive());
-        param.put("attach", template.getContent());
-        return post(API, param);
-    }
+    String body;
+
+    String content;
 
 }

@@ -22,24 +22,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN     *
  * THE SOFTWARE.                                                                 *
  ********************************************************************************/
-package org.aoju.bus.notify.provider.netease;
+package org.aoju.bus.notify;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import org.aoju.bus.notify.metric.Properties;
+import lombok.Builder;
+import lombok.Data;
 
 /**
- * 云信配置
+ * 配置信息
  *
  * @author Justubborn
  * @version 5.8.5
  * @since JDK1.8+
  */
-@Getter
-@Setter
-@SuperBuilder
-public class NeteaseProperties extends Properties {
+@Data
+@Builder
+public class Context {
+
+    /**
+     * 对应各平台的appKey
+     */
+    private String appKey;
+
+    /**
+     * 对应各平台的appSecret
+     */
+    private String appSecret;
+
+    /**
+     * 短信签名
+     */
+    private String signName;
+
+    /**
+     * 主叫号码
+     */
+    private String showNumber;
+
+    /**
+     * 授权方的网页应用ID
+     */
+    private String agentId;
+    /**
+     * 企业ID
+     */
+    private String corpId;
+
+    /**
+     * 黑名单列表
+     */
+    private String whiteList;
 
     private String appNonce;
 
