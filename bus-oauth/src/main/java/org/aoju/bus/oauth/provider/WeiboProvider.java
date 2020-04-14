@@ -25,6 +25,7 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
 import org.aoju.bus.core.utils.StringUtils;
@@ -36,7 +37,6 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -47,7 +47,7 @@ import java.util.Map;
  * 微博登录
  *
  * @author Kimi Liu
- * @version 5.8.3
+ * @version 5.8.5
  * @since JDK 1.8+
  */
 public class WeiboProvider extends DefaultProvider {
@@ -56,8 +56,8 @@ public class WeiboProvider extends DefaultProvider {
         super(context, Registry.WEIBO);
     }
 
-    public WeiboProvider(Context context, StateCache stateCache) {
-        super(context, Registry.WEIBO, stateCache);
+    public WeiboProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.WEIBO, extendCache);
     }
 
     public static String getLocalIp() {
@@ -129,10 +129,10 @@ public class WeiboProvider extends DefaultProvider {
     public Message revoke(AccToken token) {
         JSONObject object = JSONObject.parseObject(doGetRevoke(token));
         if (object.containsKey("error")) {
-            return Message.builder().errcode(Builder.Status.FAILURE.getCode()).errmsg(object.getString("error")).build();
+            return Message.builder().errcode(Builder.ErrorCode.FAILURE.getCode()).errmsg(object.getString("error")).build();
         }
         // 返回 result = true 表示取消授权成功，否则失败
-        Builder.Status status = object.getBooleanValue("result") ? Builder.Status.SUCCESS : Builder.Status.FAILURE;
+        Builder.ErrorCode status = object.getBooleanValue("result") ? Builder.ErrorCode.SUCCESS : Builder.ErrorCode.FAILURE;
         return Message.builder().errcode(status.getCode()).errmsg(status.getMsg()).build();
     }
 

@@ -40,7 +40,7 @@ import java.util.Map;
  * 构造URL
  *
  * @author Kimi Liu
- * @version 5.8.3
+ * @version 5.8.5
  * @since JDK 1.8+
  */
 @Setter
@@ -114,13 +114,9 @@ public class Builder {
 
     @Getter
     @AllArgsConstructor
-    public enum Status {
-        /**
-         * 2000：正常；
-         * other：调用异常,具体异常内容见{@code msg}
-         */
-        SUCCESS("2000", "Success"),
-        FAILURE("5000", "Failure"),
+    public enum ErrorCode {
+        SUCCESS("0", "Success"),
+        FAILURE("-1", "Failure"),
         NOT_IMPLEMENTED("5001", "Not Implemented"),
         PARAMETER_INCOMPLETE("5002", "Parameter incomplete"),
         UNSUPPORTED("5003", "Unsupported operation"),
@@ -142,7 +138,7 @@ public class Builder {
     @ToString
     public enum Type {
         /**
-         * 使用JustAuth内置的缓存
+         * 使用内置的缓存
          */
         DEFAULT,
         /**
