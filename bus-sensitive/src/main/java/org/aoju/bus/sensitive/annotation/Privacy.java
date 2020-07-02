@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -32,7 +32,7 @@ import java.lang.annotation.*;
  * 隐私数据加解密
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})

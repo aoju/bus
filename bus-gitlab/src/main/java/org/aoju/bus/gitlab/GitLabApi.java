@@ -1,36 +1,63 @@
+/*********************************************************************************
+ *                                                                               *
+ * The MIT License (MIT)                                                         *
+ *                                                                               *
+ * Copyright (c) 2015-2020 aoju.org Greg Messner and other contributors.         *
+ *                                                                               *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy  *
+ * of this software and associated documentation files (the "Software"), to deal *
+ * in the Software without restriction, including without limitation the rights  *
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell     *
+ * copies of the Software, and to permit persons to whom the Software is         *
+ * furnished to do so, subject to the following conditions:                      *
+ *                                                                               *
+ * The above copyright notice and this permission notice shall be included in    *
+ * all copies or substantial portions of the Software.                           *
+ *                                                                               *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR    *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE   *
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER        *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, *
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN     *
+ * THE SOFTWARE.                                                                 *
+ ********************************************************************************/
 package org.aoju.bus.gitlab;
 
+import org.aoju.bus.gitlab.Constants.TokenType;
 import org.aoju.bus.gitlab.models.OauthTokenResponse;
-import org.aoju.bus.gitlab.models.Session;
 import org.aoju.bus.gitlab.models.User;
 import org.aoju.bus.gitlab.models.Version;
-import org.aoju.bus.gitlab.utils.MaskingLoggingFilter;
-import org.aoju.bus.gitlab.utils.Oauth2LoginStreamingOutput;
-import org.aoju.bus.gitlab.utils.SecretString;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class is provides a simplified interface to a GitLab API server, and divides the API up into
  * a separate API class for each concern.
+ *
+ * @author Kimi Liu
+ * @version 6.0.1
+ * @since JDK 1.8+
  */
-public class GitLabApi {
+public class GitLabApi implements AutoCloseable {
 
     /**
-     * GitLab4J default per page.  GitLab will ignore anything over 100.
+     * GitLab default per page.  GitLab will ignore anything over 100.
      */
     public static final int DEFAULT_PER_PAGE = 96;
+    private final static Logger LOGGER = Logger.getLogger(GitLabApi.class.getName());
     // Used to keep track of GitLabApiExceptions on calls that return Optional<?>
     private static final Map<Integer, GitLabApiException> optionalExceptionMap =
-            Collections.synchronizedMap(new WeakHashMap<Integer, GitLabApiException>());
+            Collections.synchronizedMap(new WeakHashMap<>());
     GitLabApiClient apiClient;
     private ApiVersion apiVersion;
     private String gitLabServerUrl;
     private Map<String, Object> clientConfigProperties;
     private int defaultPerPage = DEFAULT_PER_PAGE;
-    private Session session;
     private ApplicationsApi applicationsApi;
     private ApplicationSettingsApi applicationSettingsApi;
     private AwardEmojiApi awardEmojiApi;
@@ -39,6 +66,7 @@ public class GitLabApi {
     private ContainerRegistryApi containerRegistryApi;
     private DiscussionsApi discussionsApi;
     private DeployKeysApi deployKeysApi;
+    private DeployTokensApi deployTokensApi;
     private EnvironmentsApi environmentsApi;
     private EpicsApi epicsApi;
     private EventsApi eventsApi;
@@ -60,18 +88,65 @@ public class GitLabApi {
     private PipelineApi pipelineApi;
     private ProjectApi projectApi;
     private ProtectedBranchesApi protectedBranchesApi;
+    private ReleasesApi releasesApi;
     private RepositoryApi repositoryApi;
     private RepositoryFileApi repositoryFileApi;
+    private ResourceLabelEventsApi resourceLabelEventsApi;
     private RunnersApi runnersApi;
     private SearchApi searchApi;
     private ServicesApi servicesApi;
-    private SessionApi sessionApi;
     private SnippetsApi snippetsApi;
     private SystemHooksApi systemHooksApi;
     private TagsApi tagsApi;
     private TodosApi todosApi;
     private UserApi userApi;
     private WikisApi wikisApi;
+
+    /**
+     * Constructs a GitLabApi instance set up to interact with the GitLab server
+     * using GitLab API version 4.  This is the primary way to authenticate with
+     * the GitLab REST API.
+     *
+     * @param hostUrl             the URL of the GitLab server
+     * @param personalAccessToken the private token to use for access to the API
+     */
+    public GitLabApi(String hostUrl, String personalAccessToken) {
+        this(ApiVersion.V4, hostUrl, personalAccessToken, null);
+    }
+
+    /**
+     * Constructs a GitLabApi instance set up to interact with the GitLab server using GitLab API version 4.
+     *
+     * @param hostUrl             the URL of the GitLab server
+     * @param personalAccessToken the private token to use for access to the API
+     * @param secretToken         use this token to validate received payloads
+     */
+    public GitLabApi(String hostUrl, String personalAccessToken, String secretToken) {
+        this(ApiVersion.V4, hostUrl, TokenType.PRIVATE, personalAccessToken, secretToken);
+    }
+
+    /**
+     * Constructs a GitLabApi instance set up to interact with the GitLab server using the specified GitLab API version.
+     *
+     * @param apiVersion          the ApiVersion specifying which version of the API to use
+     * @param hostUrl             the URL of the GitLab server
+     * @param personalAccessToken the private token to use for access to the API
+     */
+    public GitLabApi(ApiVersion apiVersion, String hostUrl, String personalAccessToken) {
+        this(apiVersion, hostUrl, personalAccessToken, null);
+    }
+
+    /**
+     * Constructs a GitLabApi instance set up to interact with the GitLab server using the specified GitLab API version.
+     *
+     * @param apiVersion          the ApiVersion specifying which version of the API to use
+     * @param hostUrl             the URL of the GitLab server
+     * @param personalAccessToken the private token to use for access to the API
+     * @param secretToken         use this token to validate received payloads
+     */
+    public GitLabApi(ApiVersion apiVersion, String hostUrl, String personalAccessToken, String secretToken) {
+        this(apiVersion, hostUrl, personalAccessToken, secretToken, null);
+    }
 
     /**
      * Constructs a GitLabApi instance set up to interact with the GitLab server using the specified GitLab API version.
@@ -81,19 +156,8 @@ public class GitLabApi {
      * @param tokenType  the type of auth the token is for, PRIVATE or ACCESS
      * @param authToken  the token to use for access to the API
      */
-    public GitLabApi(ApiVersion apiVersion, String hostUrl, Constants.TokenType tokenType, String authToken) {
+    public GitLabApi(ApiVersion apiVersion, String hostUrl, TokenType tokenType, String authToken) {
         this(apiVersion, hostUrl, tokenType, authToken, null);
-    }
-
-    /**
-     * Constructs a GitLabApi instance set up to interact with the GitLab server using the specified GitLab API version.
-     *
-     * @param apiVersion   the ApiVersion specifying which version of the API to use
-     * @param hostUrl      the URL of the GitLab server
-     * @param privateToken to private token to use for access to the API
-     */
-    public GitLabApi(ApiVersion apiVersion, String hostUrl, String privateToken) {
-        this(apiVersion, hostUrl, privateToken, null);
     }
 
     /**
@@ -103,40 +167,8 @@ public class GitLabApi {
      * @param tokenType the type of auth the token is for, PRIVATE or ACCESS
      * @param authToken the token to use for access to the API
      */
-    public GitLabApi(String hostUrl, Constants.TokenType tokenType, String authToken) {
+    public GitLabApi(String hostUrl, TokenType tokenType, String authToken) {
         this(ApiVersion.V4, hostUrl, tokenType, authToken, null);
-    }
-
-    /**
-     * Constructs a GitLabApi instance set up to interact with the GitLab server using GitLab API version 4.
-     *
-     * @param hostUrl      the URL of the GitLab server
-     * @param privateToken to private token to use for access to the API
-     */
-    public GitLabApi(String hostUrl, String privateToken) {
-        this(ApiVersion.V4, hostUrl, privateToken, null);
-    }
-
-    /**
-     * Constructs a GitLabApi instance set up to interact with the GitLab server using the specified GitLab API version.
-     *
-     * @param apiVersion the ApiVersion specifying which version of the API to use
-     * @param hostUrl    the URL of the GitLab server
-     * @param session    the Session instance obtained by logining into the GitLab server
-     */
-    public GitLabApi(ApiVersion apiVersion, String hostUrl, Session session) {
-        this(apiVersion, hostUrl, Constants.TokenType.PRIVATE, session.getPrivateToken(), null);
-        this.session = session;
-    }
-
-    /**
-     * Constructs a GitLabApi instance set up to interact with the GitLab server using GitLab API version 4.
-     *
-     * @param hostUrl the URL of the GitLab server
-     * @param session the Session instance obtained by logining into the GitLab server
-     */
-    public GitLabApi(String hostUrl, Session session) {
-        this(ApiVersion.V4, hostUrl, session);
     }
 
     /**
@@ -148,20 +180,8 @@ public class GitLabApi {
      * @param authToken   the token to use for access to the API
      * @param secretToken use this token to validate received payloads
      */
-    public GitLabApi(ApiVersion apiVersion, String hostUrl, Constants.TokenType tokenType, String authToken, String secretToken) {
+    public GitLabApi(ApiVersion apiVersion, String hostUrl, TokenType tokenType, String authToken, String secretToken) {
         this(apiVersion, hostUrl, tokenType, authToken, secretToken, null);
-    }
-
-    /**
-     * Constructs a GitLabApi instance set up to interact with the GitLab server using the specified GitLab API version.
-     *
-     * @param apiVersion   the ApiVersion specifying which version of the API to use
-     * @param hostUrl      the URL of the GitLab server
-     * @param privateToken to private token to use for access to the API
-     * @param secretToken  use this token to validate received payloads
-     */
-    public GitLabApi(ApiVersion apiVersion, String hostUrl, String privateToken, String secretToken) {
-        this(apiVersion, hostUrl, privateToken, secretToken, null);
     }
 
     /**
@@ -172,19 +192,8 @@ public class GitLabApi {
      * @param authToken   the token to use for access to the API
      * @param secretToken use this token to validate received payloads
      */
-    public GitLabApi(String hostUrl, Constants.TokenType tokenType, String authToken, String secretToken) {
+    public GitLabApi(String hostUrl, TokenType tokenType, String authToken, String secretToken) {
         this(ApiVersion.V4, hostUrl, tokenType, authToken, secretToken);
-    }
-
-    /**
-     * Constructs a GitLabApi instance set up to interact with the GitLab server using GitLab API version 4.
-     *
-     * @param hostUrl      the URL of the GitLab server
-     * @param privateToken to private token to use for access to the API
-     * @param secretToken  use this token to validate received payloads
-     */
-    public GitLabApi(String hostUrl, String privateToken, String secretToken) {
-        this(ApiVersion.V4, hostUrl, Constants.TokenType.PRIVATE, privateToken, secretToken);
     }
 
     /**
@@ -192,12 +201,12 @@ public class GitLabApi {
      *
      * @param apiVersion             the ApiVersion specifying which version of the API to use
      * @param hostUrl                the URL of the GitLab server
-     * @param privateToken           to private token to use for access to the API
+     * @param personalAccessToken    to private token to use for access to the API
      * @param secretToken            use this token to validate received payloads
      * @param clientConfigProperties Map instance with additional properties for the Jersey client connection
      */
-    public GitLabApi(ApiVersion apiVersion, String hostUrl, String privateToken, String secretToken, Map<String, Object> clientConfigProperties) {
-        this(apiVersion, hostUrl, Constants.TokenType.PRIVATE, privateToken, secretToken, clientConfigProperties);
+    public GitLabApi(ApiVersion apiVersion, String hostUrl, String personalAccessToken, String secretToken, Map<String, Object> clientConfigProperties) {
+        this(apiVersion, hostUrl, TokenType.PRIVATE, personalAccessToken, secretToken, clientConfigProperties);
     }
 
     /**
@@ -209,7 +218,7 @@ public class GitLabApi {
      * @param secretToken            use this token to validate received payloads
      * @param clientConfigProperties Map instance with additional properties for the Jersey client connection
      */
-    public GitLabApi(String hostUrl, Constants.TokenType tokenType, String authToken, String secretToken, Map<String, Object> clientConfigProperties) {
+    public GitLabApi(String hostUrl, TokenType tokenType, String authToken, String secretToken, Map<String, Object> clientConfigProperties) {
         this(ApiVersion.V4, hostUrl, tokenType, authToken, secretToken, clientConfigProperties);
     }
 
@@ -217,12 +226,23 @@ public class GitLabApi {
      * Constructs a GitLabApi instance set up to interact with the GitLab server using GitLab API version 4.
      *
      * @param hostUrl                the URL of the GitLab server
-     * @param privateToken           to private token to use for access to the API
+     * @param personalAccessToken    the private token to use for access to the API
      * @param secretToken            use this token to validate received payloads
      * @param clientConfigProperties Map instance with additional properties for the Jersey client connection
      */
-    public GitLabApi(String hostUrl, String privateToken, String secretToken, Map<String, Object> clientConfigProperties) {
-        this(ApiVersion.V4, hostUrl, Constants.TokenType.PRIVATE, privateToken, secretToken, clientConfigProperties);
+    public GitLabApi(String hostUrl, String personalAccessToken, String secretToken, Map<String, Object> clientConfigProperties) {
+        this(ApiVersion.V4, hostUrl, TokenType.PRIVATE, personalAccessToken, secretToken, clientConfigProperties);
+    }
+
+    /**
+     * Constructs a GitLabApi instance set up to interact with the GitLab server using GitLab API version 4.
+     *
+     * @param hostUrl                the URL of the GitLab server
+     * @param personalAccessToken    the private token to use for access to the API
+     * @param clientConfigProperties Map instance with additional properties for the Jersey client connection
+     */
+    public GitLabApi(String hostUrl, String personalAccessToken, Map<String, Object> clientConfigProperties) {
+        this(ApiVersion.V4, hostUrl, TokenType.PRIVATE, personalAccessToken, null, clientConfigProperties);
     }
 
     /**
@@ -235,11 +255,20 @@ public class GitLabApi {
      * @param secretToken            use this token to validate received payloads
      * @param clientConfigProperties Map instance with additional properties for the Jersey client connection
      */
-    public GitLabApi(ApiVersion apiVersion, String hostUrl, Constants.TokenType tokenType, String authToken, String secretToken, Map<String, Object> clientConfigProperties) {
+    public GitLabApi(ApiVersion apiVersion, String hostUrl, TokenType tokenType, String authToken, String secretToken, Map<String, Object> clientConfigProperties) {
         this.apiVersion = apiVersion;
         this.gitLabServerUrl = hostUrl;
         this.clientConfigProperties = clientConfigProperties;
         apiClient = new GitLabApiClient(apiVersion, hostUrl, tokenType, authToken, secretToken, clientConfigProperties);
+    }
+
+    /**
+     * Get the GitLab shared Logger instance.
+     *
+     * @return the GitLab shared Logger instance
+     */
+    public static final Logger getLogger() {
+        return (LOGGER);
     }
 
     /**
@@ -398,7 +427,7 @@ public class GitLabApi {
             gitLabApi.setIgnoreCertificateErrors(true);
         }
 
-        class Oauth2Api extends org.aoju.bus.gitlab.AbstractApi {
+        class Oauth2Api extends AbstractApi {
             Oauth2Api(GitLabApi gitlabApi) {
                 super(gitlabApi);
             }
@@ -408,117 +437,13 @@ public class GitLabApi {
 
             Response response = new Oauth2Api(gitLabApi).post(Response.Status.OK, stream, MediaType.APPLICATION_JSON, "oauth", "token");
             OauthTokenResponse oauthToken = response.readEntity(OauthTokenResponse.class);
-            gitLabApi = new GitLabApi(apiVersion, url, Constants.TokenType.OAUTH2_ACCESS, oauthToken.getAccessToken(), secretToken, clientConfigProperties);
+            gitLabApi = new GitLabApi(apiVersion, url, TokenType.OAUTH2_ACCESS, oauthToken.getAccessToken(), secretToken, clientConfigProperties);
             if (ignoreCertificateErrors) {
                 gitLabApi.setIgnoreCertificateErrors(true);
             }
 
             return (gitLabApi);
         }
-    }
-
-    /**
-     * <p>Logs into GitLab using provided {@code username} and {@code password}, and creates a new {@code GitLabApi} instance
-     * using returned private token and the specified GitLab API version.</p>
-     *
-     * <strong>NOTE</strong>: For GitLab servers 10.2 and above this will utilize OAUTH2 for login.  For GitLab servers prior to
-     * 10.2, the Session API login is utilized.
-     *
-     * @param apiVersion the ApiVersion specifying which version of the API to use
-     * @param url        GitLab URL
-     * @param username   user name for which private token should be obtained
-     * @param password   password for a given {@code username}
-     * @return new {@code GitLabApi} instance configured for a user-specific token
-     * @throws GitLabApiException GitLabApiException if any exception occurs during execution
-     * @deprecated As of release 4.8.7, will be removed in 4.9.0
-     */
-    @Deprecated
-    public static GitLabApi login(ApiVersion apiVersion, String url, String username, String password) throws GitLabApiException {
-        return (GitLabApi.login(apiVersion, url, username, password, false));
-    }
-
-    /**
-     * <p>Logs into GitLab using provided {@code username} and {@code password}, and creates a new {@code GitLabApi} instance
-     * using returned private token using GitLab API version 4.</p>
-     *
-     * <strong>NOTE</strong>: For GitLab servers 10.2 and above this will utilize OAUTH2 for login.  For GitLab servers prior to
-     * 10.2, the Session API login is utilized.
-     *
-     * @param url      GitLab URL
-     * @param username user name for which private token should be obtained
-     * @param password password for a given {@code username}
-     * @return new {@code GitLabApi} instance configured for a user-specific token
-     * @throws GitLabApiException GitLabApiException if any exception occurs during execution
-     * @deprecated As of release 4.8.7, will be removed in 4.9.0
-     */
-    @Deprecated
-    public static GitLabApi login(String url, String username, String password) throws GitLabApiException {
-        return (GitLabApi.login(ApiVersion.V4, url, username, password, false));
-    }
-
-    /**
-     * <p>Logs into GitLab using provided {@code username} and {@code password}, and creates a new {@code GitLabApi} instance
-     * using returned private token and the specified GitLab API version.</p>
-     *
-     * <strong>NOTE</strong>: For GitLab servers 10.2 and above this will utilize OAUTH2 for login.  For GitLab servers prior to
-     * 10.2, the Session API login is utilized.
-     *
-     * @param apiVersion              the ApiVersion specifying which version of the API to use
-     * @param url                     GitLab URL
-     * @param username                user name for which private token should be obtained
-     * @param password                password for a given {@code username}
-     * @param ignoreCertificateErrors if true will set up the Jersey system ignore SSL certificate errors
-     * @return new {@code GitLabApi} instance configured for a user-specific token
-     * @throws GitLabApiException GitLabApiException if any exception occurs during execution
-     * @deprecated As of release 4.8.7, will be removed in 4.9.0
-     */
-    @Deprecated
-    public static GitLabApi login(ApiVersion apiVersion, String url, String username, String password, boolean ignoreCertificateErrors) throws GitLabApiException {
-
-        GitLabApi gitLabApi = new GitLabApi(apiVersion, url, (String) null);
-        if (ignoreCertificateErrors) {
-            gitLabApi.setIgnoreCertificateErrors(true);
-        }
-
-        try {
-
-            SessionApi sessionApi = gitLabApi.getSessionApi();
-            Session session = sessionApi.login(username, null, password);
-            gitLabApi = new GitLabApi(apiVersion, url, session);
-
-            if (ignoreCertificateErrors) {
-                gitLabApi.setIgnoreCertificateErrors(true);
-            }
-
-        } catch (GitLabApiException gle) {
-            if (gle.getHttpStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
-                throw (gle);
-            } else {
-                gitLabApi = GitLabApi.oauth2Login(apiVersion, url, username, password, null, null, ignoreCertificateErrors);
-            }
-        }
-
-        return (gitLabApi);
-    }
-
-    /**
-     * <p>Logs into GitLab using provided {@code username} and {@code password}, and creates a new {@code GitLabApi} instance
-     * using returned private token using GitLab API version 4.</p>
-     *
-     * <strong>NOTE</strong>: For GitLab servers 10.2 and above this will utilize OAUTH2 for login.  For GitLab servers prior to
-     * 10.2, the Session API login is utilized.
-     *
-     * @param url                     GitLab URL
-     * @param username                user name for which private token should be obtained
-     * @param password                password for a given {@code username}
-     * @param ignoreCertificateErrors if true will set up the Jersey system ignore SSL certificate errors
-     * @return new {@code GitLabApi} instance configured for a user-specific token
-     * @throws GitLabApiException GitLabApiException if any exception occurs during execution
-     * @deprecated As of release 4.8.7, will be removed in 4.9.0
-     */
-    @Deprecated
-    public static GitLabApi login(String url, String username, String password, boolean ignoreCertificateErrors) throws GitLabApiException {
-        return (GitLabApi.login(ApiVersion.V4, url, username, password, ignoreCertificateErrors));
     }
 
     /**
@@ -566,9 +491,9 @@ public class GitLabApi {
     }
 
     /**
-     * Create a new GitLabApi instance that is logically a duplicate of this instance, with the exception off sudo state.
+     * Create a new GitLabApi instance that is logically a duplicate of this instance, with the exception of sudo state.
      *
-     * @return a new GitLabApi instance that is logically a duplicate of this instance, with the exception off sudo state.
+     * @return a new GitLabApi instance that is logically a duplicate of this instance, with the exception of sudo state.
      */
     public final GitLabApi duplicate() {
 
@@ -588,22 +513,40 @@ public class GitLabApi {
     }
 
     /**
-     * <p>If this instance was created with {@link #login(String, String, String)} this method will
-     * return the Session instance returned by the GitLab API on login, otherwise returns null.</p>
-     *
-     * <strong>NOTE</strong>: For GitLab servers 10.2 and above this method will always return null.
-     *
-     * @return the Session instance
-     * @deprecated This method will be removed in Release 4.9.0
+     * Close the underlying {@link javax.ws.rs.client.Client} and its associated resources.
      */
-    @Deprecated
-    public Session getSession() {
-        return session;
+    @Override
+    public void close() {
+        if (apiClient != null) {
+            apiClient.close();
+        }
+    }
+
+    /**
+     * Sets the per request connect and read timeout.
+     *
+     * @param connectTimeout the per request connect timeout in milliseconds, can be null to use default
+     * @param readTimeout    the per request read timeout in milliseconds, can be null to use default
+     */
+    public void setRequestTimeout(Integer connectTimeout, Integer readTimeout) {
+        apiClient.setRequestTimeout(connectTimeout, readTimeout);
+    }
+
+    /**
+     * Fluent method that sets the per request connect and read timeout.
+     *
+     * @param connectTimeout the per request connect timeout in milliseconds, can be null to use default
+     * @param readTimeout    the per request read timeout in milliseconds, can be null to use default
+     * @return this GitLabApi instance
+     */
+    public GitLabApi withRequestTimeout(Integer connectTimeout, Integer readTimeout) {
+        apiClient.setRequestTimeout(connectTimeout, readTimeout);
+        return (this);
     }
 
     /**
      * Enable the logging of the requests to and the responses from the GitLab server API
-     * using the GitLab4J shared Logger instance as the level.
+     * using the GitLab shared Logger instance and Level.FINE as the level.
      *
      * @return this GitLabApi instance
      */
@@ -614,46 +557,136 @@ public class GitLabApi {
 
     /**
      * Enable the logging of the requests to and the responses from the GitLab server API
-     * using the GitLab4J shared Logger instance. Logging will NOT include entity logging and
-     * will mask PRIVATE-TOKEN and Authorization headers.
+     * using the GitLab shared Logger instance.
+     *
+     * @param level the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
+     * @return this GitLabApi instance
+     */
+    public GitLabApi withRequestResponseLogging(Level level) {
+        enableRequestResponseLogging(level);
+        return (this);
+    }
+
+    /**
+     * Enable the logging of the requests to and the responses from the GitLab server API.
+     *
+     * @param logger the Logger instance to log to
+     * @param level  the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
+     * @return this GitLabApi instance
+     */
+    public GitLabApi withRequestResponseLogging(Logger logger, Level level) {
+        enableRequestResponseLogging(logger, level);
+        return (this);
+    }
+
+    /**
+     * Enable the logging of the requests to and the responses from the GitLab server API
+     * using the GitLab shared Logger instance and Level.FINE as the level.
      */
     public void enableRequestResponseLogging() {
-        enableRequestResponseLogging(0);
+        enableRequestResponseLogging(LOGGER, Level.FINE);
+    }
+
+    /**
+     * Enable the logging of the requests to and the responses from the GitLab server API
+     * using the GitLab shared Logger instance. Logging will NOT include entity logging and
+     * will mask PRIVATE-TOKEN and Authorization headers.
+     *
+     * @param level the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
+     */
+    public void enableRequestResponseLogging(Level level) {
+        enableRequestResponseLogging(LOGGER, level, 0);
+    }
+
+    /**
+     * Enable the logging of the requests to and the responses from the GitLab server API using the
+     * specified logger. Logging will NOT include entity logging and will mask PRIVATE-TOKEN
+     * and Authorization headers..
+     *
+     * @param logger the Logger instance to log to
+     * @param level  the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
+     */
+    public void enableRequestResponseLogging(Logger logger, Level level) {
+        enableRequestResponseLogging(logger, level, 0);
+    }
+
+    /**
+     * Enable the logging of the requests to and the responses from the GitLab server API using the
+     * GitLab shared Logger instance. Logging will mask PRIVATE-TOKEN and Authorization headers.
+     *
+     * @param level         the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
+     * @param maxEntitySize maximum number of entity bytes to be logged.  When logging if the maxEntitySize
+     *                      is reached, the entity logging  will be truncated at maxEntitySize and "...more..." will be added at
+     *                      the end of the log entry. If maxEntitySize is &lt;= 0, entity logging will be disabled
+     */
+    public void enableRequestResponseLogging(Level level, int maxEntitySize) {
+        enableRequestResponseLogging(LOGGER, level, maxEntitySize);
     }
 
     /**
      * Enable the logging of the requests to and the responses from the GitLab server API using the
      * specified logger. Logging will mask PRIVATE-TOKEN and Authorization headers.
      *
+     * @param logger        the Logger instance to log to
+     * @param level         the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
      * @param maxEntitySize maximum number of entity bytes to be logged.  When logging if the maxEntitySize
      *                      is reached, the entity logging  will be truncated at maxEntitySize and "...more..." will be added at
      *                      the end of the log entry. If maxEntitySize is &lt;= 0, entity logging will be disabled
      */
-    public void enableRequestResponseLogging(int maxEntitySize) {
-        enableRequestResponseLogging(maxEntitySize, MaskingLoggingFilter.DEFAULT_MASKED_HEADER_NAMES);
+    public void enableRequestResponseLogging(Logger logger, Level level, int maxEntitySize) {
+        enableRequestResponseLogging(logger, level, maxEntitySize, MaskingLoggingFilter.DEFAULT_MASKED_HEADER_NAMES);
     }
 
     /**
      * Enable the logging of the requests to and the responses from the GitLab server API using the
-     * GitLab4J shared Logger instance.
+     * GitLab shared Logger instance.
      *
+     * @param level             the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
      * @param maskedHeaderNames a list of header names that should have the values masked
      */
-    public void enableRequestResponseLogging(List<String> maskedHeaderNames) {
-        apiClient.enableRequestResponseLogging(0, maskedHeaderNames);
+    public void enableRequestResponseLogging(Level level, List<String> maskedHeaderNames) {
+        apiClient.enableRequestResponseLogging(LOGGER, level, 0, maskedHeaderNames);
     }
 
     /**
      * Enable the logging of the requests to and the responses from the GitLab server API using the
-     * GitLab4J shared Logger instance.
+     * specified logger.
      *
+     * @param logger            the Logger instance to log to
+     * @param level             the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
+     * @param maskedHeaderNames a list of header names that should have the values masked
+     */
+    public void enableRequestResponseLogging(Logger logger, Level level, List<String> maskedHeaderNames) {
+        apiClient.enableRequestResponseLogging(logger, level, 0, maskedHeaderNames);
+    }
+
+    /**
+     * Enable the logging of the requests to and the responses from the GitLab server API using the
+     * GitLab shared Logger instance.
+     *
+     * @param level             the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
      * @param maxEntitySize     maximum number of entity bytes to be logged.  When logging if the maxEntitySize
      *                          is reached, the entity logging  will be truncated at maxEntitySize and "...more..." will be added at
      *                          the end of the log entry. If maxEntitySize is &lt;= 0, entity logging will be disabled
      * @param maskedHeaderNames a list of header names that should have the values masked
      */
-    public void enableRequestResponseLogging(int maxEntitySize, List<String> maskedHeaderNames) {
-        apiClient.enableRequestResponseLogging(maxEntitySize, maskedHeaderNames);
+    public void enableRequestResponseLogging(Level level, int maxEntitySize, List<String> maskedHeaderNames) {
+        apiClient.enableRequestResponseLogging(LOGGER, level, maxEntitySize, maskedHeaderNames);
+    }
+
+    /**
+     * Enable the logging of the requests to and the responses from the GitLab server API using the
+     * specified logger.
+     *
+     * @param logger            the Logger instance to log to
+     * @param level             the logging level (SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST)
+     * @param maxEntitySize     maximum number of entity bytes to be logged.  When logging if the maxEntitySize
+     *                          is reached, the entity logging  will be truncated at maxEntitySize and "...more..." will be added at
+     *                          the end of the log entry. If maxEntitySize is &lt;= 0, entity logging will be disabled
+     * @param maskedHeaderNames a list of header names that should have the values masked
+     */
+    public void enableRequestResponseLogging(Logger logger, Level level, int maxEntitySize, List<String> maskedHeaderNames) {
+        apiClient.enableRequestResponseLogging(logger, level, maxEntitySize, maskedHeaderNames);
     }
 
     /**
@@ -742,7 +775,7 @@ public class GitLabApi {
      *
      * @return the TokenType this client is using
      */
-    public Constants.TokenType getTokenType() {
+    public TokenType getTokenType() {
         return (apiClient.getTokenType());
     }
 
@@ -959,6 +992,25 @@ public class GitLabApi {
         }
 
         return (deployKeysApi);
+    }
+
+    /**
+     * Gets the DeployTokensApi instance owned by this GitLabApi instance. The DeployTokensApi is used
+     * to perform all deploy token related API calls.
+     *
+     * @return the DeployTokensApi instance owned by this GitLabApi instance
+     */
+    public DeployTokensApi getDeployTokensApi() {
+
+        if (deployTokensApi == null) {
+            synchronized (this) {
+                if (deployTokensApi == null) {
+                    deployTokensApi = new DeployTokensApi(this);
+                }
+            }
+        }
+
+        return (deployTokensApi);
     }
 
     /**
@@ -1373,6 +1425,25 @@ public class GitLabApi {
     }
 
     /**
+     * Gets the ReleasesApi instance owned by this GitLabApi instance. The ReleasesApi is used
+     * to perform all release related API calls.
+     *
+     * @return the ReleasesApi instance owned by this GitLabApi instance
+     */
+    public ReleasesApi getReleasesApi() {
+
+        if (releasesApi == null) {
+            synchronized (this) {
+                if (releasesApi == null) {
+                    releasesApi = new ReleasesApi(this);
+                }
+            }
+        }
+
+        return (releasesApi);
+    }
+
+    /**
      * Gets the RepositoryApi instance owned by this GitLabApi instance. The RepositoryApi is used
      * to perform all repository related API calls.
      *
@@ -1408,6 +1479,25 @@ public class GitLabApi {
         }
 
         return (repositoryFileApi);
+    }
+
+    /**
+     * Gets the ResourceLabelEventsApi instance owned by this GitLabApi instance. The ResourceLabelEventsApi
+     * is used to perform all Resource Label Events related API calls.
+     *
+     * @return the ResourceLabelEventsApi instance owned by this GitLabApi instance
+     */
+    public ResourceLabelEventsApi getResourceLabelEventsApi() {
+
+        if (resourceLabelEventsApi == null) {
+            synchronized (this) {
+                if (resourceLabelEventsApi == null) {
+                    resourceLabelEventsApi = new ResourceLabelEventsApi(this);
+                }
+            }
+        }
+
+        return (resourceLabelEventsApi);
     }
 
     /**
@@ -1465,25 +1555,6 @@ public class GitLabApi {
         }
 
         return (servicesApi);
-    }
-
-    /**
-     * Gets the SessionApi instance owned by this GitLabApi instance. The SessionApi is used
-     * to perform a login to the GitLab API.
-     *
-     * @return the SessionApi instance owned by this GitLabApi instance
-     */
-    public SessionApi getSessionApi() {
-
-        if (sessionApi == null) {
-            synchronized (this) {
-                if (sessionApi == null) {
-                    sessionApi = new SessionApi(this);
-                }
-            }
-        }
-
-        return (sessionApi);
     }
 
     /**
@@ -1605,4 +1676,5 @@ public class GitLabApi {
             return ("/api/" + name().toLowerCase());
         }
     }
+
 }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,9 +26,9 @@ package org.aoju.bus.starter.cache;
 
 import org.aoju.bus.cache.Context;
 import org.aoju.bus.cache.provider.*;
-import org.aoju.bus.core.utils.BeanUtils;
-import org.aoju.bus.core.utils.ClassUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.BeanKit;
+import org.aoju.bus.core.toolkit.ClassKit;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +37,7 @@ import org.springframework.context.annotation.Bean;
  * 缓存配置
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @EnableConfigurationProperties(value = {CacheProperties.class})
@@ -48,33 +48,33 @@ public class CacheConfiguration {
 
     @Bean
     public AspectjCacheProxy cacheConfigurer() {
-        String type = StringUtils.toString(this.properties.getType());
+        String type = StringKit.toString(this.properties.getType());
         try {
-            if (!StringUtils.isEmpty(type)) {
-                Object provider = ClassUtils.loadClass(type);
+            if (!StringKit.isEmpty(type)) {
+                Object provider = ClassKit.loadClass(type);
                 Context config = Context.newConfig(this.properties.getMap());
-                if (provider instanceof H2Shooting) {
-                    config.setShooting(new H2Shooting(
+                if (provider instanceof H2Hitting) {
+                    config.setHitting(new H2Hitting(
                             this.properties.getProvider().getUrl(),
                             this.properties.getProvider().getUsername(),
                             this.properties.getProvider().getPassword()
                     ));
-                } else if (provider instanceof MySQLShooting) {
-                    config.setShooting(new MySQLShooting(
-                            BeanUtils.beanToMap(this.properties)
+                } else if (provider instanceof MySQLHitting) {
+                    config.setHitting(new MySQLHitting(
+                            BeanKit.beanToMap(this.properties)
                     ));
-                } else if (provider instanceof SqliteShooting) {
-                    config.setShooting(new SqliteShooting(
+                } else if (provider instanceof SqliteHitting) {
+                    config.setHitting(new SqliteHitting(
                             this.properties.getProvider().getUrl(),
                             this.properties.getProvider().getUsername(),
                             this.properties.getProvider().getPassword()
                     ));
-                } else if (provider instanceof ZKShooting) {
-                    config.setShooting(new ZKShooting(
+                } else if (provider instanceof ZookeeperHitting) {
+                    config.setHitting(new ZookeeperHitting(
                             this.properties.getProvider().getUrl()
                     ));
-                } else if (provider instanceof MemoryShooting) {
-                    config.setShooting(new MemoryShooting());
+                } else if (provider instanceof MemoryHitting) {
+                    config.setHitting(new MemoryHitting());
                 }
                 return new AspectjCacheProxy(config);
             }

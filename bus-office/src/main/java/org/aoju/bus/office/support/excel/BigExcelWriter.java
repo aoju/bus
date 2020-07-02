@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,22 +24,27 @@
  ********************************************************************************/
 package org.aoju.bus.office.support.excel;
 
-import org.aoju.bus.core.utils.FileUtils;
+import org.aoju.bus.core.toolkit.FileKit;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 import java.io.File;
+import java.io.OutputStream;
 
 /**
  * 大数据量Excel写出
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class BigExcelWriter extends ExcelWriter {
 
     public static final int DEFAULT_WINDOW_SIZE = SXSSFWorkbook.DEFAULT_WINDOW_SIZE;
+    /**
+     * 只能flush一次，调用后不再重复写出
+     */
+    private boolean isFlushed;
 
     /**
      * 构造,默认生成xls格式的Excel文件
@@ -58,7 +63,7 @@ public class BigExcelWriter extends ExcelWriter {
      * @param rowAccessWindowSize 在内存中的行数
      */
     public BigExcelWriter(int rowAccessWindowSize) {
-        this(BookUtils.createSXSSFBook(rowAccessWindowSize), null);
+        this(WorksKit.createSXSSFBook(rowAccessWindowSize), null);
     }
 
     /**
@@ -79,7 +84,7 @@ public class BigExcelWriter extends ExcelWriter {
      * @param sheetName           sheet名,第一个sheet名并写出到此sheet,例如sheet1
      */
     public BigExcelWriter(int rowAccessWindowSize, String sheetName) {
-        this(BookUtils.createSXSSFBook(rowAccessWindowSize), sheetName);
+        this(WorksKit.createSXSSFBook(rowAccessWindowSize), sheetName);
     }
 
     /**
@@ -89,7 +94,7 @@ public class BigExcelWriter extends ExcelWriter {
      * @param sheetName    sheet名,第一个sheet名并写出到此sheet,例如sheet1
      */
     public BigExcelWriter(String destFilePath, String sheetName) {
-        this(FileUtils.file(destFilePath), sheetName);
+        this(FileKit.file(destFilePath), sheetName);
     }
 
     /**
@@ -108,7 +113,7 @@ public class BigExcelWriter extends ExcelWriter {
      * @param sheetName sheet名,做为第一个sheet名并写出到此sheet,例如sheet1
      */
     public BigExcelWriter(File destFile, String sheetName) {
-        this(destFile.exists() ? BookUtils.createSXSSFBook(destFile) : BookUtils.createSXSSFBook(), sheetName);
+        this(destFile.exists() ? WorksKit.createSXSSFBook(destFile) : WorksKit.createSXSSFBook(), sheetName);
         this.destFile = destFile;
     }
 
@@ -121,7 +126,7 @@ public class BigExcelWriter extends ExcelWriter {
      * @param sheetName sheet名,做为第一个sheet名并写出到此sheet,例如sheet1
      */
     public BigExcelWriter(SXSSFWorkbook workbook, String sheetName) {
-        this(BookUtils.getOrCreateSheet(workbook, sheetName));
+        this(WorksKit.getOrCreateSheet(workbook, sheetName));
     }
 
     /**
@@ -136,10 +141,20 @@ public class BigExcelWriter extends ExcelWriter {
     }
 
     @Override
+    public ExcelWriter flush(OutputStream out, boolean isCloseOut) {
+        if (false == isFlushed) {
+            isFlushed = true;
+            return super.flush(out, isCloseOut);
+        }
+        return this;
+    }
+
+    @Override
     public void close() {
-        if (null != this.destFile) {
+        if (null != this.destFile && false == isFlushed) {
             flush();
         }
+
         ((SXSSFWorkbook) this.workbook).dispose();
         super.closeWithoutFlush();
     }

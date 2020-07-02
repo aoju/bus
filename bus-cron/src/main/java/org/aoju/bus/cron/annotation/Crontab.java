@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,13 +24,15 @@
  ********************************************************************************/
 package org.aoju.bus.cron.annotation;
 
+import org.aoju.bus.core.lang.Normal;
+
 import java.lang.annotation.*;
 
 /**
  * annotation for cron handler
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Target({ElementType.TYPE})
@@ -38,6 +40,6 @@ import java.lang.annotation.*;
 @Inherited
 public @interface Crontab {
 
-    String value() default "";
+    String value() default Normal.EMPTY;
 
 }

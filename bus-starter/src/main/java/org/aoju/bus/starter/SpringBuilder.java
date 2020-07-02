@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -34,7 +34,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import org.aoju.bus.core.lang.Assert;
 import org.aoju.bus.core.lang.Fields;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.logger.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -56,7 +56,7 @@ import java.util.TimeZone;
  * 设置相关系统参数信息.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Component
@@ -95,7 +95,7 @@ public class SpringBuilder {
         ConfigurableApplicationContext context = getContext();
         if (context != null) {
             DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getBeanFactory();
-            String beanName = StringUtils.lowerFirst(clazz.getSimpleName());
+            String beanName = StringKit.lowerFirst(clazz.getSimpleName());
             beanFactory.registerBeanDefinition(beanName, BeanDefinitionBuilder.rootBeanDefinition(clazz).getBeanDefinition());
         }
     }
@@ -114,7 +114,7 @@ public class SpringBuilder {
         ConfigurableApplicationContext context = getContext();
         if (context != null) {
             DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getBeanFactory();
-            String beanName = StringUtils.lowerFirst(clazz.getSimpleName());
+            String beanName = StringKit.lowerFirst(clazz.getSimpleName());
             beanFactory.registerSingleton(beanName, bean);
         }
     }

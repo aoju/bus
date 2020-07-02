@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.extra.ssh;
 
 import com.jcraft.jsch.Session;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Jsch会话池
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public enum JschSessionPool {
@@ -73,13 +73,13 @@ public enum JschSessionPool {
      * @return SSH会话
      */
     public Session getSession(String sshHost, int sshPort, String sshUser, String sshPass) {
-        final String key = StringUtils.format("{}@{}:{}", sshUser, sshHost, sshPort);
+        final String key = StringKit.format("{}@{}:{}", sshUser, sshHost, sshPort);
         Session session = get(key);
         if (null == session || false == session.isConnected()) {
             synchronized (lock) {
                 session = get(key);
                 if (null == session || false == session.isConnected()) {
-                    session = SSHUtils.openSession(sshHost, sshPort, sshUser, sshPass);
+                    session = SshKit.openSession(sshHost, sshPort, sshUser, sshPass);
                     put(key, session);
                 }
             }

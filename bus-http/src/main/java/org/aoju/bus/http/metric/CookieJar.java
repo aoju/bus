@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -36,13 +36,13 @@ import java.util.List;
  * 尽管这可能会干扰需要cookie的基于会话的身份验证方案
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public interface CookieJar {
 
     /**
-     * A cookie jar that never accepts any cookies.
+     * 从不接受任何cookie的设置。
      */
     CookieJar NO_COOKIES = new CookieJar() {
         @Override

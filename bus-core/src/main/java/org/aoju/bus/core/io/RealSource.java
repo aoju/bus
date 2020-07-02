@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.core.io;
 
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.nio.charset.Charset;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class RealSource implements BufferSource {
@@ -168,7 +168,7 @@ public final class RealSource implements BufferSource {
 
     @Override
     public int read(byte[] sink, int offset, int byteCount) throws IOException {
-        IoUtils.checkOffsetAndCount(sink.length, offset, byteCount);
+        IoKit.checkOffsetAndCount(sink.length, offset, byteCount);
 
         if (buffer.size == 0) {
             long read = source.read(buffer, Segment.SIZE);
@@ -483,7 +483,7 @@ public final class RealSource implements BufferSource {
 
     @Override
     public BufferSource peek() {
-        return IoUtils.buffer(new PeekSource(this));
+        return IoKit.buffer(new PeekSource(this));
     }
 
     @Override
@@ -502,7 +502,7 @@ public final class RealSource implements BufferSource {
             @Override
             public int read(byte[] data, int offset, int byteCount) throws IOException {
                 if (closed) throw new IOException("closed");
-                IoUtils.checkOffsetAndCount(data.length, offset, byteCount);
+                IoKit.checkOffsetAndCount(data.length, offset, byteCount);
 
                 if (buffer.size == 0) {
                     long count = source.read(buffer, Segment.SIZE);

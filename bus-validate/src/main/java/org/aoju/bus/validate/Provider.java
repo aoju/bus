@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.validate;
 
 import org.aoju.bus.core.lang.exception.NoSuchException;
 import org.aoju.bus.core.lang.exception.ValidateException;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
 import org.aoju.bus.validate.annotation.Complex;
 import org.aoju.bus.validate.validators.Property;
 
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * 服务提供者
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Provider {
@@ -199,7 +199,7 @@ public class Provider {
         String propertyEcode = property.getErrcode();
         String globalEcode = context.getErrcode();
         String ecode = Builder.DEFAULT_ERRCODE.equals(propertyEcode) ? globalEcode : propertyEcode;
-        if (ObjectUtils.isEmpty(clazz)) {
+        if (ObjectKit.isEmpty(clazz)) {
             return new ValidateException(ecode, property.getFormatted());
         } else {
             try {

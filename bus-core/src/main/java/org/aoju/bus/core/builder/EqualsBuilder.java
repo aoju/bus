@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,8 +26,8 @@ package org.aoju.bus.core.builder;
 
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.tuple.Pair;
-import org.aoju.bus.core.utils.ArrayUtils;
-import org.aoju.bus.core.utils.ClassUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.ClassKit;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -62,15 +62,13 @@ import java.util.*;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class EqualsBuilder implements Builder<Boolean> {
 
     /**
      * 反射方法用于检测循环对象引用和避免无限循环的对象注册表
-     *
-     * @since 3.0.0
      */
     private static final ThreadLocal<Set<Pair<HashKey, HashKey>>> REGISTRY = new ThreadLocal<>();
 
@@ -94,7 +92,6 @@ public class EqualsBuilder implements Builder<Boolean> {
      * 返回当前线程中的反射方法遍历的对象对的注册表
      *
      * @return 设置要遍历的对象的注册表
-     * @since 3.0.0
      */
     static Set<Pair<HashKey, HashKey>> getRegistry() {
         return REGISTRY.get();
@@ -122,7 +119,6 @@ public class EqualsBuilder implements Builder<Boolean> {
      * @param lhs this对象在注册表中查找
      * @param rhs 要在registry上查找的另一个对象
      * @return 如果注册表包含给定的对象，布尔true.
-     * @since 3.0.0
      */
     static boolean isRegistered(final Object lhs, final Object rhs) {
         final Set<Pair<HashKey, HashKey>> registry = getRegistry();
@@ -156,7 +152,6 @@ public class EqualsBuilder implements Builder<Boolean> {
      *
      * @param lhs 要注销此对象
      * @param rhs 另一个要注册的对象
-     * @since 3.0.0
      */
     private static void unregister(final Object lhs, final Object rhs) {
         final Set<Pair<HashKey, HashKey>> registry = getRegistry();
@@ -170,7 +165,7 @@ public class EqualsBuilder implements Builder<Boolean> {
     }
 
     /**
-     * 反射检查两个对象是否equals,此方法检查对象及其父对象的属性（包括私有属性）是否相等
+     * 反射检查两个对象是否equals,此方法检查对象及其父对象的属性(包括私有属性)是否相等
      *
      * @param lhs           此对象
      * @param rhs           另一个对象
@@ -182,7 +177,7 @@ public class EqualsBuilder implements Builder<Boolean> {
     }
 
     /**
-     * 反射检查两个对象是否equals,此方法检查对象及其父对象的属性（包括私有属性）是否相等
+     * 反射检查两个对象是否equals,此方法检查对象及其父对象的属性(包括私有属性)是否相等
      *
      * @param lhs           此对象
      * @param rhs           另一个对象
@@ -367,7 +362,7 @@ public class EqualsBuilder implements Builder<Boolean> {
             AccessibleObject.setAccessible(fields, true);
             for (int i = 0; i < fields.length && isEquals; i++) {
                 final Field f = fields[i];
-                if (!ArrayUtils.contains(excludeFields, f.getName())
+                if (!ArrayKit.contains(excludeFields, f.getName())
                         && !f.getName().contains(Symbol.DOLLAR)
                         && (testTransients || !Modifier.isTransient(f.getModifiers()))
                         && !Modifier.isStatic(f.getModifiers())
@@ -407,7 +402,7 @@ public class EqualsBuilder implements Builder<Boolean> {
         if (lhsClass.isArray()) {
             appendArray(lhs, rhs);
         } else {
-            if (testRecursive && !ClassUtils.isPrimitiveOrWrapper(lhsClass)) {
+            if (testRecursive && !ClassKit.isPrimitiveOrWrapper(lhsClass)) {
                 reflectionAppend(lhs, rhs);
             } else {
                 isEquals = lhs.equals(rhs);

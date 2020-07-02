@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.core.builder;
 
 
-import org.aoju.bus.core.utils.ClassUtils;
+import org.aoju.bus.core.toolkit.ClassKit;
 
 import java.util.Collection;
 
@@ -53,7 +53,7 @@ import java.util.Collection;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class RecursiveToStringStyle extends ToStringStyle {
@@ -66,7 +66,7 @@ public class RecursiveToStringStyle extends ToStringStyle {
 
     @Override
     public void appendDetail(final StringBuffer buffer, final String fieldName, final Object value) {
-        if (!ClassUtils.isPrimitiveWrapper(value.getClass()) &&
+        if (!ClassKit.isPrimitiveWrapper(value.getClass()) &&
                 !String.class.equals(value.getClass()) &&
                 accept(value.getClass())) {
             buffer.append(ReflectionToStringBuilder.toString(value, this));

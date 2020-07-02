@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -32,8 +32,8 @@ import org.aoju.bus.oauth.magic.Callback;
  * 1) {@link Complex#authorize()}: 获取授权api. 必须实现
  * 2) {@link Complex#accessToken()}: 获取授权api. 必须实现
  * 3) {@link Complex#userInfo()}: 获取授权api. 必须实现
- * 4) {@link Complex#revoke()}: 获取授权api. 非必须实现接口（部分平台不支持）
- * 5) {@link Complex#refresh()} ()}: 获取授权api. 非必须实现接口（部分平台不支持）
+ * 4) {@link Complex#revoke()}: 获取授权api. 非必须实现接口(部分平台不支持)
+ * 5) {@link Complex#refresh()} ()}: 获取授权api. 非必须实现接口(部分平台不支持)
  * <p>
  * 注：
  * ①、如需通过扩展实现第三方授权,请参考{@link Registry}自行创建对应的枚举类并实现{@link Complex}接口
@@ -41,7 +41,7 @@ import org.aoju.bus.oauth.magic.Callback;
  * ③、如果扩展了对应枚举类时,在{@link Provider#login(Callback)}中可以通过{@code xx.toString()}获取对应的source
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public interface Complex {
@@ -73,7 +73,7 @@ public interface Complex {
      * @return url
      */
     default String revoke() {
-        throw new AuthorizedException(Builder.Status.UNSUPPORTED.getCode());
+        throw new AuthorizedException(Builder.ErrorCode.UNSUPPORTED.getCode());
     }
 
     /**
@@ -82,7 +82,19 @@ public interface Complex {
      * @return url
      */
     default String refresh() {
-        throw new AuthorizedException(Builder.Status.UNSUPPORTED.getCode());
+        throw new AuthorizedException(Builder.ErrorCode.UNSUPPORTED.getCode());
+    }
+
+    /**
+     * 获取Source的字符串名字
+     *
+     * @return name
+     */
+    default String getName() {
+        if (this instanceof Enum) {
+            return String.valueOf(this);
+        }
+        return this.getClass().getSimpleName();
     }
 
 }

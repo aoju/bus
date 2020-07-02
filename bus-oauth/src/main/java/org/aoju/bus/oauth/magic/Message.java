@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,18 +24,22 @@
  ********************************************************************************/
 package org.aoju.bus.oauth.magic;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * JustAuth统一授权响应类
+ * 统一授权响应类
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-@Getter
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
 
     /**
@@ -52,14 +56,5 @@ public class Message {
      * 请求返回数据 JSON
      */
     Object data;
-
-    /**
-     * 是否请求成功
-     *
-     * @return true or false
-     */
-    public boolean ok() {
-        return this.errcode == org.aoju.bus.oauth.Builder.Status.SUCCESS.getCode();
-    }
 
 }

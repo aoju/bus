@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,9 @@
 package org.aoju.bus.sensitive.strategy;
 
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.CollKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.extra.emoji.EmojiKit;
 import org.aoju.bus.sensitive.Context;
 import org.aoju.bus.sensitive.provider.AbstractProvider;
 
@@ -33,22 +35,26 @@ import org.aoju.bus.sensitive.provider.AbstractProvider;
  * 默认脱敏处理类
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class DafaultStrategy extends AbstractProvider {
 
     @Override
     public Object build(Object object, Context context) {
-        if (ObjectUtils.isEmpty(object)) {
+        if (ObjectKit.isEmpty(object)) {
             return null;
+        }
+
+        String value = object.toString();
+
+        if (CollKit.isNotEmpty(EmojiKit.extractEmojis(value))) {
+            return value;
         }
 
         final int SIZE = 6;
         final int TWO = 2;
         final String SYMBOL = Symbol.STAR;
-
-        String value = object.toString();
 
         int len = value.length();
         int pamaone = len / TWO;

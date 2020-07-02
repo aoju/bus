@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.crypto.symmetric;
 
 import org.aoju.bus.core.lang.Algorithm;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.crypto.Builder;
 import org.aoju.bus.crypto.Mode;
 import org.aoju.bus.crypto.Padding;
@@ -35,12 +35,12 @@ import javax.crypto.spec.IvParameterSpec;
 
 /**
  * DESede是由DES对称加密算法改进后的一种对称加密算法，又名3DES、TripleDES。
- * 使用 168 位的密钥对资料进行三次加密的一种机制；它通常（但非始终）提供极其强大的安全性。
+ * 使用 168 位的密钥对资料进行三次加密的一种机制；它通常(但非始终)提供极其强大的安全性。
  * 如果三个 56 位的子元素都相同，则三重 DES 向后兼容 DES。
  * Java中默认实现为：DESede/ECB/PKCS5Padding
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class DESede extends Symmetric {
@@ -172,7 +172,7 @@ public class DESede extends Symmetric {
      * @param iv      加盐
      */
     public DESede(String mode, String padding, SecretKey key, IvParameterSpec iv) {
-        super(StringUtils.format("{}/{}/{}", Algorithm.DESede, mode, padding), key, iv);
+        super(StringKit.format("{}/{}/{}", Algorithm.DESede, mode, padding), key, iv);
     }
 
 }

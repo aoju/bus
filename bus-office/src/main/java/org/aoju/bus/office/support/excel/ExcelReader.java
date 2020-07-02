@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,10 +25,12 @@
 package org.aoju.bus.office.support.excel;
 
 import org.aoju.bus.core.lang.Assert;
-import org.aoju.bus.core.utils.*;
+import org.aoju.bus.core.toolkit.*;
 import org.aoju.bus.office.support.excel.cell.CellEditor;
+import org.aoju.bus.office.support.excel.cell.CellHandler;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.extractor.ExcelExtractor;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -47,7 +49,7 @@ import java.util.Map;
  * 读取Excel工作簿
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class ExcelReader extends ExcelBase<ExcelReader> {
@@ -72,7 +74,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      * @param sheetIndex    sheet序号,0表示第一个sheet
      */
     public ExcelReader(String excelFilePath, int sheetIndex) {
-        this(FileUtils.file(excelFilePath), sheetIndex);
+        this(FileKit.file(excelFilePath), sheetIndex);
     }
 
     /**
@@ -82,7 +84,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      * @param sheetIndex sheet序号,0表示第一个sheet
      */
     public ExcelReader(File bookFile, int sheetIndex) {
-        this(BookUtils.createBook(bookFile), sheetIndex);
+        this(WorksKit.createBook(bookFile), sheetIndex);
     }
 
     /**
@@ -92,7 +94,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      * @param sheetName sheet名,第一个默认是sheet1
      */
     public ExcelReader(File bookFile, String sheetName) {
-        this(BookUtils.createBook(bookFile), sheetName);
+        this(WorksKit.createBook(bookFile), sheetName);
     }
 
     /**
@@ -103,7 +105,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      * @param closeAfterRead 读取结束是否关闭流
      */
     public ExcelReader(InputStream bookStream, int sheetIndex, boolean closeAfterRead) {
-        this(BookUtils.createBook(bookStream, closeAfterRead), sheetIndex);
+        this(WorksKit.createBook(bookStream, closeAfterRead), sheetIndex);
     }
 
     /**
@@ -114,7 +116,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      * @param closeAfterRead 读取结束是否关闭流
      */
     public ExcelReader(InputStream bookStream, String sheetName, boolean closeAfterRead) {
-        this(BookUtils.createBook(bookStream, closeAfterRead), sheetName);
+        this(WorksKit.createBook(bookStream, closeAfterRead), sheetName);
     }
 
     /**
@@ -233,7 +235,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
     /**
      * 读取工作簿中指定的Sheet
      *
-     * @param startRowIndex 起始行（包含,从0开始计数）
+     * @param startRowIndex 起始行(包含,从0开始计数)
      * @return 行的集合, 一行使用List表示
      */
     public List<List<Object>> read(int startRowIndex) {
@@ -243,27 +245,27 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
     /**
      * 读取工作簿中指定的Sheet
      *
-     * @param startRowIndex 起始行（包含,从0开始计数）
-     * @param endRowIndex   结束行（包含,从0开始计数）
+     * @param startRowIndex 起始行(包含,从0开始计数)
+     * @param endRowIndex   结束行(包含,从0开始计数)
      * @return 行的集合, 一行使用List表示
      */
     public List<List<Object>> read(int startRowIndex, int endRowIndex) {
         checkNotClosed();
         List<List<Object>> resultList = new ArrayList<>();
 
-        startRowIndex = Math.max(startRowIndex, this.sheet.getFirstRowNum());// 读取起始行（包含）
-        endRowIndex = Math.min(endRowIndex, this.sheet.getLastRowNum());// 读取结束行（包含）
+        startRowIndex = Math.max(startRowIndex, this.sheet.getFirstRowNum());// 读取起始行(包含)
+        endRowIndex = Math.min(endRowIndex, this.sheet.getLastRowNum());// 读取结束行(包含)
         boolean isFirstLine = true;
         List rowList;
         for (int i = startRowIndex; i <= endRowIndex; i++) {
             rowList = readRow(i);
-            if (CollUtils.isNotEmpty(rowList) || false == ignoreEmptyRow) {
+            if (CollKit.isNotEmpty(rowList) || false == ignoreEmptyRow) {
                 if (null == rowList) {
                     rowList = new ArrayList<>(0);
                 }
                 if (isFirstLine) {
                     isFirstLine = false;
-                    if (MapUtils.isNotEmpty(this.headerAlias)) {
+                    if (MapKit.isNotEmpty(this.headerAlias)) {
                         rowList = aliasHeader(rowList);
                     }
                 }
@@ -271,6 +273,43 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
             }
         }
         return resultList;
+    }
+
+    /**
+     * 读取工作簿中指定的Sheet，此方法为类流处理方式，当读到指定单元格时，会调用CellEditor接口
+     * 用户通过实现此接口，可以更加灵活的处理每个单元格的数据
+     *
+     * @param cellHandler 单元格处理器，用于处理读到的单元格及其数据
+     */
+    public void read(CellHandler cellHandler) {
+        read(0, Integer.MAX_VALUE, cellHandler);
+    }
+
+    /**
+     * 读取工作簿中指定的Sheet，此方法为类流处理方式，当读到指定单元格时，会调用CellEditor接口
+     * 用户通过实现此接口，可以更加灵活的处理每个单元格的数据
+     *
+     * @param startRowIndex 起始行（包含，从0开始计数）
+     * @param endRowIndex   结束行（包含，从0开始计数）
+     * @param cellHandler   单元格处理器，用于处理读到的单元格及其数据
+     */
+    public void read(int startRowIndex, int endRowIndex, CellHandler cellHandler) {
+        checkNotClosed();
+
+        startRowIndex = Math.max(startRowIndex, this.sheet.getFirstRowNum());// 读取起始行（包含）
+        endRowIndex = Math.min(endRowIndex, this.sheet.getLastRowNum());// 读取结束行（包含）
+
+        Row row;
+        short columnSize;
+        for (int y = startRowIndex; y <= endRowIndex; y++) {
+            row = this.sheet.getRow(y);
+            columnSize = row.getLastCellNum();
+            Cell cell;
+            for (short x = 0; x < columnSize; x++) {
+                cell = row.getCell(x);
+                cellHandler.handle(cell, CellKit.getCellValue(cell));
+            }
+        }
     }
 
     /**
@@ -288,8 +327,8 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      * Map表示一行,标题为key,单元格内容为value
      *
      * @param headerRowIndex 标题所在行,如果标题行在读取的内容行中间,这行做为数据将忽略
-     * @param startRowIndex  起始行（包含,从0开始计数）
-     * @param endRowIndex    读取结束行（包含,从0开始计数）
+     * @param startRowIndex  起始行(包含,从0开始计数)
+     * @param endRowIndex    读取结束行(包含,从0开始计数)
      * @return Map的列表
      */
     public List<Map<String, Object>> read(int headerRowIndex, int startRowIndex, int endRowIndex) {
@@ -298,12 +337,12 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
         final int firstRowNum = sheet.getFirstRowNum();
         final int lastRowNum = sheet.getLastRowNum();
         if (headerRowIndex < firstRowNum) {
-            throw new IndexOutOfBoundsException(StringUtils.format("Header row index {} is lower than first row index {}.", headerRowIndex, firstRowNum));
+            throw new IndexOutOfBoundsException(StringKit.format("Header row index {} is lower than first row index {}.", headerRowIndex, firstRowNum));
         } else if (headerRowIndex > lastRowNum) {
-            throw new IndexOutOfBoundsException(StringUtils.format("Header row index {} is greater than last row index {}.", headerRowIndex, firstRowNum));
+            throw new IndexOutOfBoundsException(StringKit.format("Header row index {} is greater than last row index {}.", headerRowIndex, firstRowNum));
         }
-        startRowIndex = Math.max(startRowIndex, firstRowNum);// 读取起始行（包含）
-        endRowIndex = Math.min(endRowIndex, lastRowNum);// 读取结束行（包含）
+        startRowIndex = Math.max(startRowIndex, firstRowNum);// 读取起始行(包含)
+        endRowIndex = Math.min(endRowIndex, lastRowNum);// 读取结束行(包含)
 
         // 读取header
         List<Object> headerList = readRow(sheet.getRow(headerRowIndex));
@@ -314,11 +353,8 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
             if (i != headerRowIndex) {
                 // 跳过标题行
                 rowList = readRow(sheet.getRow(i));
-                if (CollUtils.isNotEmpty(rowList) || false == ignoreEmptyRow) {
-                    if (null == rowList) {
-                        rowList = new ArrayList<>(0);
-                    }
-                    result.add(IterUtils.toMap(aliasHeader(headerList), rowList, true));
+                if (CollKit.isNotEmpty(rowList) || false == ignoreEmptyRow) {
+                    result.add(IterKit.toMap(aliasHeader(headerList), rowList, true));
                 }
             }
         }
@@ -341,7 +377,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      *
      * @param <T>            Bean类型
      * @param headerRowIndex 标题所在行,如果标题行在读取的内容行中间,这行做为数据将忽略,,从0开始计数
-     * @param startRowIndex  起始行（包含,从0开始计数）
+     * @param startRowIndex  起始行(包含,从0开始计数)
      * @param beanType       每行对应Bean的类型
      * @return Map的列表
      */
@@ -354,8 +390,8 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      *
      * @param <T>            Bean类型
      * @param headerRowIndex 标题所在行,如果标题行在读取的内容行中间,这行做为数据将忽略,,从0开始计数
-     * @param startRowIndex  起始行（包含,从0开始计数）
-     * @param endRowIndex    读取结束行（包含,从0开始计数）
+     * @param startRowIndex  起始行(包含,从0开始计数)
+     * @param endRowIndex    读取结束行(包含,从0开始计数)
      * @param beanType       每行对应Bean的类型
      * @return Map的列表
      */
@@ -368,7 +404,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
 
         final List<T> beanList = new ArrayList<>(mapList.size());
         for (Map<String, Object> map : mapList) {
-            beanList.add(BeanUtils.mapToBean(map, beanType, false));
+            beanList.add(BeanKit.mapToBean(map, beanType, false));
         }
         return beanList;
     }
@@ -420,7 +456,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      * @return 值, 如果单元格无值返回null
      */
     public Object readCellValue(int x, int y) {
-        return CellUtils.getCellValue(getCell(x, y), this.cellEditor);
+        return CellKit.getCellValue(getCell(x, y), this.cellEditor);
     }
 
     /**
@@ -440,7 +476,7 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      * @return 单元格值列表
      */
     private List<Object> readRow(Row row) {
-        return RowUtils.readRow(row, this.cellEditor);
+        return RowKit.readRow(row, this.cellEditor);
     }
 
     /**
@@ -451,8 +487,8 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      */
     private List<String> aliasHeader(List<Object> headerList) {
         final int size = headerList.size();
-        final ArrayList<String> result = new ArrayList<>(size);
-        if (CollUtils.isEmpty(headerList)) {
+        final List<String> result = new ArrayList<>(size);
+        if (CollKit.isEmpty(headerList)) {
             return result;
         }
 
@@ -471,11 +507,11 @@ public class ExcelReader extends ExcelBase<ExcelReader> {
      */
     private String aliasHeader(Object headerObj, int index) {
         if (null == headerObj) {
-            return ExcelUtils.indexToColName(index);
+            return ExcelKit.indexToColName(index);
         }
 
         final String header = headerObj.toString();
-        return ObjectUtils.defaultIfNull(this.headerAlias.get(header), header);
+        return ObjectKit.defaultIfNull(this.headerAlias.get(header), header);
     }
 
     /**

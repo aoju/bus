@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,6 +26,8 @@ package org.aoju.bus.http.accord.platform;
 
 import org.aoju.bus.core.lang.Algorithm;
 import org.aoju.bus.core.lang.Charset;
+import org.aoju.bus.core.lang.Http;
+import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.http.Builder;
 import org.aoju.bus.http.Protocol;
 import org.aoju.bus.http.secure.BasicTrustRootIndex;
@@ -51,12 +53,10 @@ import java.util.List;
  * 安卓2.3或更高.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class AndroidPlatform extends Platform {
-
-    private static final int MAX_LOG_LENGTH = 4000;
 
     private final Class<?> sslParametersClass;
     private final OptionalMethod<Socket> setUseSessionTickets;
@@ -276,13 +276,13 @@ public class AndroidPlatform extends Platform {
     @Override
     public SSLContext getSSLContext() {
         try {
-            return SSLContext.getInstance("TLSv1.2");
+            return SSLContext.getInstance(Http.TLS_12);
         } catch (NoSuchAlgorithmException e) {
             // fallback to TLS
         }
 
         try {
-            return SSLContext.getInstance("TLS");
+            return SSLContext.getInstance(Http.TLS);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("No TLS provider", e);
         }
@@ -351,7 +351,7 @@ public class AndroidPlatform extends Platform {
 
             try {
                 Class<?> closeGuardClass = Class.forName("dalvik.system.CloseGuard");
-                getMethod = closeGuardClass.getMethod("get");
+                getMethod = closeGuardClass.getMethod(Normal.GET);
                 openMethod = closeGuardClass.getMethod("open", String.class);
                 warnIfOpenMethod = closeGuardClass.getMethod("warnIfOpen");
             } catch (Exception ignored) {

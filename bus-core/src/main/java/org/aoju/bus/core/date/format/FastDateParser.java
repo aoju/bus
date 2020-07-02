@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  * 用于解析日期字符串并转换为 {@link Date} 对象
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class FastDateParser extends AbstractFormater implements DateParser {
@@ -192,7 +192,7 @@ public class FastDateParser extends AbstractFormater implements DateParser {
             }
         }
         for (final String symbol : sorted) {
-            simpleQuote(regex, symbol).append('|');
+            simpleQuote(regex, symbol).append(Symbol.C_OR);
         }
         return values;
     }
@@ -770,7 +770,8 @@ public class FastDateParser extends AbstractFormater implements DateParser {
                 final char c = pattern.charAt(currentIdx);
                 if (!activeQuote && isFormatLetter(c)) {
                     break;
-                } else if (c == '\'' && (++currentIdx == pattern.length() || pattern.charAt(currentIdx) != '\'')) {
+                } else if (c == Symbol.C_SINGLE_QUOTE && (++currentIdx == pattern.length()
+                        || pattern.charAt(currentIdx) != Symbol.C_SINGLE_QUOTE)) {
                     activeQuote = !activeQuote;
                     continue;
                 }

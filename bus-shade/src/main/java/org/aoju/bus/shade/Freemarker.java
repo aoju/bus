@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -38,7 +38,7 @@ import java.io.IOException;
  * 创建文件
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Freemarker {
@@ -69,7 +69,7 @@ public class Freemarker {
             out = new FileWriter(file);
             //模板输出静态文件
             template.process(dataModel, out);
-            return "create a file:" + filePath;
+            return "create a file :" + filePath;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -81,7 +81,7 @@ public class Freemarker {
                 }
             }
         }
-        return "failed to create file:" + filePath;
+        return "failed to create file :" + filePath;
     }
 
 }

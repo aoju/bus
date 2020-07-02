@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,10 +27,11 @@ package org.aoju.bus.office;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XServiceInfo;
+import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ArrayUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.health.Platform;
 import org.aoju.bus.office.magic.Lo;
 import org.aoju.bus.office.magic.UnoUrl;
@@ -45,7 +46,7 @@ import java.util.stream.Stream;
  * 为office提供辅助功能.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class Builder {
@@ -152,7 +153,7 @@ public final class Builder {
     private static final File INSTANCE;
 
     static {
-        if (StringUtils.isNotBlank(System.getProperty("office.home"))) {
+        if (StringKit.isNotBlank(System.getProperty("office.home"))) {
             INSTANCE = new File(System.getProperty("office.home"));
         } else if (Platform.isWindows()) {
             final String programFiles64 = System.getenv("ProgramFiles");
@@ -237,7 +238,7 @@ public final class Builder {
         }
 
         final List<UnoUrl> unoUrls =
-                new ArrayList<>(ArrayUtils.getLength(portNumbers) + ArrayUtils.getLength(pipeNames));
+                new ArrayList<>(ArrayKit.getLength(portNumbers) + ArrayKit.getLength(pipeNames));
         Optional.ofNullable(pipeNames)
                 .map(Stream::of)
                 .ifPresent(stream -> stream.map(UnoUrl::new).forEach(unoUrls::add));
@@ -342,7 +343,7 @@ public final class Builder {
      */
     public static String toUrl(final File file) {
         final String path = file.toURI().getRawPath();
-        final String url = path.startsWith(Symbol.FORWARDSLASH) ? "file:" + path : "file://" + path;
+        final String url = path.startsWith(Symbol.FORWARDSLASH) ? Normal.FILE_URL_PREFIX + path : "file://" + path;
         return url.endsWith(Symbol.SLASH) ? url.substring(0, url.length() - 1) : url;
     }
 
@@ -380,7 +381,7 @@ public final class Builder {
         }
 
         throw new IllegalStateException(
-                "templateProfileDir doesn't appear to contain a user profile: " + templateProfileDir);
+                "templateProfileDir doesn't appear to contain a user profile : " + templateProfileDir);
     }
 
     /**

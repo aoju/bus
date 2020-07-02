@@ -3,7 +3,7 @@
 1. 支持office，pdf等办公文档
 1. 支持txt,java,php,py,md,js,css等所有纯文本
 1. 支持zip,rar,jar,tar,gzip等压缩包
-1. 支持jpg，jpeg，png，gif等图片预览（翻转，缩放，镜像）
+1. 支持jpg，jpeg，png，gif等图片预览(翻转，缩放，镜像)
 1. 使用spring boot开发，预览服务搭建部署非常简便
 1. rest接口提供服务，跨平台特性(java,php,python,go,php，....)都支持，应用接入简单方便
 1. 抽象预览服务接口，方便二次开发，非常方便添加其他类型文件预览支持
@@ -55,7 +55,7 @@ yum install LibreOffice_6.3.4.2_Linux_x86-64_rpm_langpack_zh-CN/RPMS/*.rpm
             return write(ErrorCode.EM_100506);
         }
 
-        if (StringUtils.isBlank(convertToFormat)) {
+        if (StringKit.isBlank(convertToFormat)) {
             return write(ErrorCode.EM_100506);
         }
 
@@ -69,7 +69,7 @@ yum install LibreOffice_6.3.4.2_Linux_x86-64_rpm_langpack_zh-CN/RPMS/*.rpm
 
             Provider effectProvider = previewProviderService.get(Registry.LOCAL);
             effectProvider.convert(inputStream)
-                    .as(DefaultFormatRegistry.getFormatByExtension(FileUtils.getExtension(filename)))
+                    .as(DefaultFormatRegistry.getFormatByExtension(FileKit.getExtension(filename)))
                     .to(outputStream)
                     .as(targetFormat)
                     .execute();

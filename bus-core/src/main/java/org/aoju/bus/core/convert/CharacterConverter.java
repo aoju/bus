@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,30 +24,26 @@
  ********************************************************************************/
 package org.aoju.bus.core.convert;
 
-import org.aoju.bus.core.utils.BooleanUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.BooleanKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 /**
  * 字符转换器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class CharacterConverter extends AbstractConverter<Character> {
 
     @Override
     protected Character convertInternal(Object value) {
-        if (char.class == value.getClass()) {
-            return Character.valueOf((char) value);
-        } else if (value instanceof Boolean) {
-            return BooleanUtils.toCharacter((Boolean) value);
-        } else if (boolean.class == value.getClass()) {
-            return BooleanUtils.toCharacter((boolean) value);
+        if (value instanceof Boolean) {
+            return BooleanKit.toCharacter((Boolean) value);
         } else {
             final String valueStr = convertToStr(value);
-            if (StringUtils.isNotBlank(valueStr)) {
-                return Character.valueOf(valueStr.charAt(0));
+            if (StringKit.isNotBlank(valueStr)) {
+                return valueStr.charAt(0);
             }
         }
         return null;

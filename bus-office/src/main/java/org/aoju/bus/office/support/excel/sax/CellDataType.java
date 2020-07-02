@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -30,7 +30,7 @@ import org.aoju.bus.core.lang.Normal;
  * 单元格数据类型枚举
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public enum CellDataType {
@@ -51,7 +51,7 @@ public enum CellDataType {
      */
     INLINESTR("inlineStr"),
     /**
-     * 字符串类型
+     * 共享字符串索引类型
      */
     SSTINDEX("s"),
     /**

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.core.date;
 
 import org.aoju.bus.core.lang.Assert;
 import org.aoju.bus.core.lang.Fields;
-import org.aoju.bus.core.utils.DateUtils;
+import org.aoju.bus.core.toolkit.DateKit;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -35,7 +35,7 @@ import java.util.Date;
  * 日期间隔
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Between {
@@ -43,11 +43,11 @@ public class Between {
     /**
      * 开始日期
      */
-    private Date begin;
+    private final Date begin;
     /**
      * 结束日期
      */
-    private Date end;
+    private final Date end;
 
     /**
      * 构造
@@ -67,7 +67,6 @@ public class Between {
      * @param begin 起始时间
      * @param end   结束时间
      * @param isAbs 日期间隔是否只保留绝对值正数
-     * @since 3.1.1
      */
     public Between(Date begin, Date end, boolean isAbs) {
         Assert.notNull(begin, "Begin date is null !");
@@ -103,7 +102,6 @@ public class Between {
      * @param end   结束时间
      * @param isAbs 日期间隔是否只保留绝对值正数
      * @return {@link Between}
-     * @since 3.2.3
      */
     public static Between create(Date begin, Date end, boolean isAbs) {
         return new Between(begin, end, isAbs);
@@ -124,14 +122,14 @@ public class Between {
 
     /**
      * 计算两个日期相差月数
-     * 在非重置情况下,如果起始日期的天小于结束日期的天,月数要少算1（不足1个月）
+     * 在非重置情况下,如果起始日期的天小于结束日期的天,月数要少算1(不足1个月)
      *
-     * @param isReset 是否重置时间为起始时间（重置天时分秒）
+     * @param isReset 是否重置时间为起始时间(重置天时分秒)
      * @return 相差月数
      */
     public long betweenMonth(boolean isReset) {
-        final Calendar beginCal = DateUtils.calendar(begin);
-        final Calendar endCal = DateUtils.calendar(end);
+        final Calendar beginCal = DateKit.calendar(begin);
+        final Calendar endCal = DateKit.calendar(end);
 
         final int betweenYear = endCal.get(Calendar.YEAR) - beginCal.get(Calendar.YEAR);
         final int betweenMonthOfYear = endCal.get(Calendar.MONTH) - beginCal.get(Calendar.MONTH);
@@ -150,14 +148,14 @@ public class Between {
 
     /**
      * 计算两个日期相差年数
-     * 在非重置情况下,如果起始日期的月小于结束日期的月,年数要少算1（不足1年）
+     * 在非重置情况下,如果起始日期的月小于结束日期的月,年数要少算1(不足1年)
      *
-     * @param isReset 是否重置时间为起始时间（重置月天时分秒）
+     * @param isReset 是否重置时间为起始时间(重置月天时分秒)
      * @return 相差年数
      */
     public long betweenYear(boolean isReset) {
-        final Calendar beginCal = DateUtils.calendar(begin);
-        final Calendar endCal = DateUtils.calendar(end);
+        final Calendar beginCal = DateKit.calendar(begin);
+        final Calendar endCal = DateKit.calendar(end);
 
         int result = endCal.get(Calendar.YEAR) - beginCal.get(Calendar.YEAR);
         if (false == isReset) {
@@ -187,7 +185,7 @@ public class Between {
      * @return 字符串
      */
     public String toString(Fields.Level level) {
-        return DateUtils.formatBetween(between(Fields.Unit.MS), level);
+        return DateKit.formatBetween(between(Fields.Unit.MS), level);
     }
 
     @Override

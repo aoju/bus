@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,10 +25,12 @@
 package org.aoju.bus.core.io.resource;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
+import org.aoju.bus.core.toolkit.IoKit;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -37,7 +39,7 @@ import java.nio.charset.Charset;
  * 资源可以是文件、URL、ClassPath中的文件亦或者jar包中的文件
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public interface Resource {
@@ -79,16 +81,7 @@ public interface Resource {
      * @return 读取资源内容
      * @throws InstrumentException 包装{@link IOException}
      */
-    String readStr(Charset charset) throws InstrumentException;
-
-    /**
-     * 读取资源内容,读取完毕后会关闭流
-     * 关闭流并不影响下一次读取
-     *
-     * @return 读取资源内容
-     * @throws InstrumentException 包装IOException
-     */
-    String readUtf8Str() throws InstrumentException;
+    String readString(Charset charset) throws InstrumentException;
 
     /**
      * 读取资源内容,读取完毕后会关闭流
@@ -98,5 +91,20 @@ public interface Resource {
      * @throws InstrumentException 包装IOException
      */
     byte[] readBytes() throws InstrumentException;
+
+
+    /**
+     * 将资源内容写出到流，不关闭输出流，但是关闭资源流
+     *
+     * @param out 输出流
+     * @throws InstrumentException IO异常
+     */
+    default void writeTo(OutputStream out) throws InstrumentException {
+        try (InputStream in = getStream()) {
+            IoKit.copy(in, out);
+        } catch (IOException e) {
+            throw new InstrumentException(e);
+        }
+    }
 
 }

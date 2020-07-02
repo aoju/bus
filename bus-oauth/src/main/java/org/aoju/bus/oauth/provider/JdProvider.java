@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,11 +25,12 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Algorithm;
 import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
-import org.aoju.bus.core.utils.DateUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.DateKit;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.http.Httpz;
 import org.aoju.bus.http.magic.HttpResponse;
 import org.aoju.bus.oauth.Builder;
@@ -39,7 +40,6 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -51,17 +51,17 @@ import java.util.TreeMap;
  * 京东账号登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class JdProvider extends DefaultProvider {
+public class JdProvider extends AbstractProvider {
 
     public JdProvider(Context context) {
         super(context, Registry.JD);
     }
 
-    public JdProvider(Context context, StateCache stateCache) {
-        super(context, Registry.JD, stateCache);
+    public JdProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.JD, extendCache);
     }
 
     /**
@@ -90,7 +90,7 @@ public class JdProvider extends DefaultProvider {
     }
 
     @Override
-    protected AccToken getAccessToken(Callback callback) {
+    public AccToken getAccessToken(Callback callback) {
         JSONObject object = null;
         try {
             HttpResponse response = Httpz.post().url(source.accessToken())
@@ -116,32 +116,33 @@ public class JdProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken accToken) {
-        JSONObject object = null;
+    public Property getUserInfo(AccToken accToken) {
+        JSONObject jsonObject = null;
         try {
             Builder urlBuilder = Builder.fromUrl(source.userInfo())
                     .queryParam("access_token", accToken.getAccessToken())
                     .queryParam("app_key", context.getAppKey())
                     .queryParam("method", "jingdong.user.getUserInfoByOpenId")
                     .queryParam("360buy_param_json", "{\"openId\":\"" + accToken.getOpenId() + "\"}")
-                    .queryParam("timestamp", DateUtils.format(new Date()))
+                    .queryParam("timestamp", DateKit.format(new Date()))
                     .queryParam("v", "2.0");
             urlBuilder.queryParam("sign", sign(urlBuilder.getReadParams()));
             HttpResponse response = Httpz.post().url(urlBuilder.build(true)).build().execute();
-            object = JSONObject.parseObject(response.body().string());
+            jsonObject = JSONObject.parseObject(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        this.checkResponse(object);
+        this.checkResponse(jsonObject);
 
-        JSONObject data = this.getUserDataJsonObject(object);
+        JSONObject object = this.getUserDataJsonObject(jsonObject);
 
         return Property.builder()
+                .rawJson(object)
                 .uuid(accToken.getOpenId())
-                .username(data.getString("nickname"))
-                .nickname(data.getString("nickname"))
-                .avatar(data.getString("imageUrl"))
+                .username(object.getString("nickname"))
+                .nickname(object.getString("nickname"))
+                .avatar(object.getString("imageUrl"))
                 .gender(getRealGender(object))
                 .token(accToken)
                 .source(source.toString())
@@ -149,7 +150,7 @@ public class JdProvider extends DefaultProvider {
     }
 
     @Override
-    public Message refresh(AccToken oldToken) {
+    public Message refresh(AccToken accToken) {
         JSONObject object = null;
         try {
             HttpResponse response = Httpz.post()
@@ -157,7 +158,7 @@ public class JdProvider extends DefaultProvider {
                     .addParams("app_key", context.getAppKey())
                     .addParams("app_secret", context.getAppSecret())
                     .addParams("grant_type", "refresh_token")
-                    .addParams("refresh_token", oldToken.getRefreshToken()).build().execute();
+                    .addParams("refresh_token", accToken.getRefreshToken()).build().execute();
 
             object = JSONObject.parseObject(response.body().string());
         } catch (Exception e) {
@@ -167,7 +168,7 @@ public class JdProvider extends DefaultProvider {
         this.checkResponse(object);
 
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
                 .data(AccToken.builder()
                         .accessToken(object.getString("access_token"))
                         .expireIn(object.getIntValue("expires_in"))
@@ -232,7 +233,7 @@ public class JdProvider extends DefaultProvider {
         for (Map.Entry<String, Object> entry : treeMap.entrySet()) {
             String name = entry.getKey();
             String value = (String) entry.getValue();
-            if (StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(value)) {
+            if (StringKit.isNotEmpty(name) && StringKit.isNotEmpty(value)) {
                 signBuilder.append(name).append(value);
             }
         }

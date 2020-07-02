@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,8 +24,8 @@
  ********************************************************************************/
 package org.aoju.bus.validate.strategy;
 
-import org.aoju.bus.core.utils.ArrayUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.validate.Context;
 import org.aoju.bus.validate.annotation.NotIn;
 import org.aoju.bus.validate.validators.Matcher;
@@ -34,17 +34,17 @@ import org.aoju.bus.validate.validators.Matcher;
  * NOT IN 校验
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class NotInStrategy implements Matcher<String, NotIn> {
 
     @Override
     public boolean on(String object, NotIn annotation, Context context) {
-        if (StringUtils.isEmpty(object)) {
+        if (StringKit.isEmpty(object)) {
             return false;
         }
-        return !ArrayUtils.contains(annotation.value(), object);
+        return !ArrayKit.contains(annotation.value(), object);
     }
 
 }

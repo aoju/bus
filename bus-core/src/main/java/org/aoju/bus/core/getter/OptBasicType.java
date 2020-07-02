@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -30,11 +30,11 @@ import java.util.Date;
 
 /**
  * 可选默认值的基本类型的getter接口
- * 提供一个统一的接口定义返回不同类型的值（基本类型）
+ * 提供一个统一的接口定义返回不同类型的值(基本类型)
  * 如果值不存在或获取错误,返回默认值
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public interface OptBasicType<K> {

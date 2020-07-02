@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -30,9 +30,9 @@ import org.aoju.bus.core.date.format.FormatBuilder;
 import org.aoju.bus.core.lang.Assert;
 import org.aoju.bus.core.lang.Fields;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.DateUtils;
-import org.aoju.bus.core.utils.ObjectUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.DateKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -51,7 +51,7 @@ import java.util.TimeZone;
  * 包装java.utils.Date
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class DateTime extends Date {
@@ -135,7 +135,7 @@ public class DateTime extends Date {
      * @param zoneId  时区ID
      */
     public DateTime(Instant instant, ZoneId zoneId) {
-        this(instant.toEpochMilli(), TimeZone.getTimeZone(ObjectUtils.defaultIfNull(zoneId, ZoneId.systemDefault())));
+        this(instant.toEpochMilli(), TimeZone.getTimeZone(ObjectKit.defaultIfNull(zoneId, ZoneId.systemDefault())));
     }
 
     /**
@@ -144,7 +144,7 @@ public class DateTime extends Date {
      * @param temporalAccessor {@link TemporalAccessor} 对象
      */
     public DateTime(TemporalAccessor temporalAccessor) {
-        this(DateUtils.toInstant(temporalAccessor));
+        this(DateKit.toInstant(temporalAccessor));
     }
 
     /**
@@ -173,7 +173,7 @@ public class DateTime extends Date {
      */
     public DateTime(long timeMillis, TimeZone timeZone) {
         super(timeMillis);
-        this.timeZone = ObjectUtils.defaultIfNull(timeZone, TimeZone.getDefault());
+        this.timeZone = ObjectKit.defaultIfNull(timeZone, TimeZone.getDefault());
     }
 
     /**
@@ -287,7 +287,7 @@ public class DateTime extends Date {
             } else {
                 pattern = dateFormat.toString();
             }
-            throw new InstrumentException(StringUtils.format("Parse [{}] with format [{}] error!", dateStr, pattern), e);
+            throw new InstrumentException(StringKit.format("Parse [{}] with format [{}] error!", dateStr, pattern), e);
         }
     }
 
@@ -324,7 +324,7 @@ public class DateTime extends Date {
         final Calendar cal = toCalendar();
         cal.add(datePart.getValue(), offset);
 
-        DateTime dt = mutable ? this : ObjectUtils.clone(this);
+        DateTime dt = mutable ? this : ObjectKit.clone(this);
         return dt.setTimeInternal(cal.getTimeInMillis());
     }
 
@@ -340,7 +340,7 @@ public class DateTime extends Date {
         final Calendar cal = toCalendar();
         cal.add(datePart.getValue(), offset);
 
-        DateTime dt = ObjectUtils.clone(this);
+        DateTime dt = ObjectKit.clone(this);
         return dt.setTimeInternal(cal.getTimeInMillis());
     }
 
@@ -392,7 +392,7 @@ public class DateTime extends Date {
 
         DateTime dt = this;
         if (false == mutable) {
-            dt = ObjectUtils.clone(this);
+            dt = ObjectKit.clone(this);
         }
         return dt.setTimeInternal(calendar.getTimeInMillis());
     }
@@ -464,8 +464,8 @@ public class DateTime extends Date {
     /**
      * 获得指定日期是所在年份的第几周
      * 此方法返回值与一周的第一天有关,比如：
-     * 2016年1月3日为周日,如果一周的第一天为周日,那这天是第二周（返回2）
-     * 如果一周的第一天为周一,那这天是第一周（返回1）
+     * 2016年1月3日为周日,如果一周的第一天为周日,那这天是第二周(返回2)
+     * 如果一周的第一天为周一,那这天是第一周(返回1)
      *
      * @return 周
      */
@@ -476,8 +476,8 @@ public class DateTime extends Date {
     /**
      * 获得指定日期是所在月份的第几周
      * 此方法返回值与一周的第一天有关,比如：
-     * 2016年1月3日为周日,如果一周的第一天为周日,那这天是第二周（返回2）
-     * 如果一周的第一天为周一,那这天是第一周（返回1）
+     * 2016年1月3日为周日,如果一周的第一天为周日,那这天是第二周(返回2)
+     * 如果一周的第一天为周一,那这天是第一周(返回1)
      *
      * @return 周
      */
@@ -492,6 +492,15 @@ public class DateTime extends Date {
      */
     public int dayOfMonth() {
         return getField(Fields.DateField.DAY_OF_MONTH);
+    }
+
+    /**
+     * 获得指定日期是这个日期所在年份的第几天
+     *
+     * @return 天
+     */
+    public int dayOfYear() {
+        return getField(Fields.DateField.DAY_OF_YEAR);
     }
 
     /**
@@ -591,10 +600,10 @@ public class DateTime extends Date {
      * 是否闰年
      *
      * @return 是否闰年
-     * @see DateUtils#isLeapYear(int)
+     * @see DateKit#isLeapYear(int)
      */
     public boolean isLeapYear() {
-        return DateUtils.isLeapYear(year());
+        return DateKit.isLeapYear(year());
     }
 
     /**
@@ -645,7 +654,7 @@ public class DateTime extends Date {
 
     /**
      * 转换为 {@link Date}
-     * 考虑到很多框架（例如Hibernate）的兼容性,提供此方法返回JDK原生的Date对象
+     * 考虑到很多框架(例如Hibernate)的兼容性,提供此方法返回JDK原生的Date对象
      *
      * @return {@link Date}
      */
@@ -845,7 +854,7 @@ public class DateTime extends Date {
      * @return this
      */
     public DateTime setTimeZone(TimeZone timeZone) {
-        this.timeZone = ObjectUtils.defaultIfNull(timeZone, TimeZone.getDefault());
+        this.timeZone = ObjectKit.defaultIfNull(timeZone, TimeZone.getDefault());
         return this;
     }
 

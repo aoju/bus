@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  * 数据库id,将它们用作忘记密码散列、邀请码、存储碎片号
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class HashID {
@@ -49,7 +49,7 @@ public class HashID {
 
     private static final String DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     private static final String DEFAULT_SEPS = "cfhistuCFHISTU";
-    private static final String DEFAULT_SALT = "";
+    private static final String DEFAULT_SALT = Normal.EMPTY;
 
     private static final Pattern PATTERN = Pattern.compile("[\\w\\W]{1,12}");
 
@@ -110,8 +110,8 @@ public class HashID {
             }
         }
 
-        alphabet = alphabet.replaceAll("\\s+", "");
-        seps = seps.replaceAll("\\s+", "");
+        alphabet = alphabet.replaceAll("\\s+", Normal.EMPTY);
+        seps = seps.replaceAll("\\s+", Normal.EMPTY);
         seps = consistentShuffle(seps, this.salt);
 
         if ((seps.isEmpty()) || (((float) alphabet.length() / seps.length()) > SEP_DIV)) {
@@ -177,7 +177,7 @@ public class HashID {
     }
 
     private static String hash(long input, String alphabet) {
-        String hash = "";
+        String hash = Normal.EMPTY;
         final int alphabetLen = alphabet.length();
 
         do {
@@ -210,12 +210,12 @@ public class HashID {
      */
     public String encode(long... numbers) {
         if (numbers.length == 0) {
-            return "";
+            return Normal.EMPTY;
         }
 
         for (final long number : numbers) {
             if (number < 0) {
-                return "";
+                return Normal.EMPTY;
             }
             if (number > MAX_NUMBER) {
                 throw new IllegalArgumentException("number can not be greater than " + MAX_NUMBER + "L");
@@ -253,7 +253,7 @@ public class HashID {
      */
     public String encodeHex(String hexa) {
         if (!hexa.matches("^[0-9a-fA-F]+$")) {
-            return "";
+            return Normal.EMPTY;
         }
 
         final List<Long> matched = new ArrayList<>();
@@ -354,7 +354,7 @@ public class HashID {
     }
 
     private long[] _decode(String hash, String alphabet) {
-        final ArrayList<Long> ret = new ArrayList<>();
+        final List<Long> ret = new ArrayList<>();
         String shuffle = alphabet;
         int i = 0;
         final String regexp = Symbol.BRACKET_LEFT + this.guards + Symbol.BRACKET_RIGHT;

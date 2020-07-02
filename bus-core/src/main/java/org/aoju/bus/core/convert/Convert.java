@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,18 +25,17 @@
 package org.aoju.bus.core.convert;
 
 import org.aoju.bus.core.lang.Assert;
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.Types;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.CharsetUtils;
-import org.aoju.bus.core.utils.ClassUtils;
-import org.aoju.bus.core.utils.HexUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.ClassKit;
+import org.aoju.bus.core.toolkit.HexKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -46,7 +45,7 @@ import java.util.concurrent.TimeUnit;
  * 类型转换器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Convert {
@@ -81,7 +80,6 @@ public class Convert {
      *
      * @param value 被转换的值
      * @return String数组
-     * @since 5.8.2
      */
     public static String[] toStrArray(Object value) {
         return convert(String[].class, value);
@@ -117,7 +115,6 @@ public class Convert {
      *
      * @param value 被转换的值
      * @return Character数组
-     * @since 5.8.2
      */
     public static Character[] toCharArray(Object value) {
         return convert(Character[].class, value);
@@ -153,7 +150,6 @@ public class Convert {
      *
      * @param value 被转换的值
      * @return Byte数组
-     * @since 5.8.2
      */
     public static Byte[] toByteArray(Object value) {
         return convert(Byte[].class, value);
@@ -189,7 +185,6 @@ public class Convert {
      *
      * @param value 被转换的值
      * @return Short数组
-     * @since 5.8.2
      */
     public static Short[] toShortArray(Object value) {
         return convert(Short[].class, value);
@@ -225,7 +220,6 @@ public class Convert {
      *
      * @param value 被转换的值
      * @return Number数组
-     * @since 5.8.2
      */
     public static Number[] toNumberArray(Object value) {
         return convert(Number[].class, value);
@@ -604,7 +598,7 @@ public class Convert {
      * @throws InstrumentException 转换器不存在
      */
     public static <T> T convertByClassName(String className, Object value) throws InstrumentException {
-        return (T) convert(ClassUtils.loadClass(className), value);
+        return (T) convert(ClassKit.loadClass(className), value);
     }
 
     /**
@@ -671,7 +665,7 @@ public class Convert {
      * @throws InstrumentException 转换器不存在
      */
     public static <T> T convert(Type type, Object value, T defaultValue) throws InstrumentException {
-        return ConverterRegistry.getInstance().convert(type, value, defaultValue);
+        return convertWithCheck(type, value, defaultValue, false);
     }
 
     /**
@@ -698,10 +692,29 @@ public class Convert {
      * @return 转换后的值
      */
     public static <T> T convertQuietly(Type type, Object value, T defaultValue) {
+        return convertWithCheck(type, value, defaultValue, true);
+    }
+
+    /**
+     * 转换值为指定类型，可选是否不抛异常转换
+     * 当转换失败时返回默认值
+     *
+     * @param <T>          目标类型
+     * @param type         目标类型
+     * @param value        值
+     * @param defaultValue 默认值
+     * @param quietly      是否静默转换，true不抛异常
+     * @return 转换后的值
+     */
+    public static <T> T convertWithCheck(Type type, Object value, T defaultValue, boolean quietly) {
+        final ConverterRegistry registry = ConverterRegistry.getInstance();
         try {
-            return convert(type, value, defaultValue);
+            return registry.convert(type, value, defaultValue);
         } catch (Exception e) {
-            return defaultValue;
+            if (quietly) {
+                return defaultValue;
+            }
+            throw e;
         }
     }
 
@@ -783,8 +796,8 @@ public class Convert {
      * @param charset 编码
      * @return 16进制字符串
      */
-    public static String toHex(String str, Charset charset) {
-        return HexUtils.encodeHexStr(str, charset);
+    public static String toHex(String str, java.nio.charset.Charset charset) {
+        return HexKit.encodeHexStr(str, charset);
     }
 
     /**
@@ -794,7 +807,7 @@ public class Convert {
      * @return 转换后的值
      */
     public static String toHex(byte[] bytes) {
-        return HexUtils.encodeHexStr(bytes);
+        return HexKit.encodeHexStr(bytes);
     }
 
     /**
@@ -804,7 +817,7 @@ public class Convert {
      * @return byte[]
      */
     public static byte[] hexToBytes(String src) {
-        return HexUtils.decodeHex(src.toCharArray());
+        return HexKit.decodeHex(src.toCharArray());
     }
 
     /**
@@ -813,10 +826,10 @@ public class Convert {
      * @param hexStr  Byte字符串(Byte之间无分隔符 如:[616C6B])
      * @param charset 编码 {@link Charset}
      * @return 对应的字符串
-     * @see HexUtils#decodeHexStr(String, Charset)
+     * @see HexKit#decodeHexStr(String, java.nio.charset.Charset)
      */
-    public static String hexToString(String hexStr, Charset charset) {
-        return HexUtils.decodeHexStr(hexStr, charset);
+    public static String hexToString(String hexStr, java.nio.charset.Charset charset) {
+        return HexKit.decodeHexStr(hexStr, charset);
     }
 
     /**
@@ -826,7 +839,7 @@ public class Convert {
      * @return String 每个unicode之间无分隔符
      */
     public static String toUnicode(String strText) {
-        return StringUtils.toUnicode(strText);
+        return StringKit.toUnicode(strText);
     }
 
     /**
@@ -834,10 +847,10 @@ public class Convert {
      *
      * @param unicode Unicode符
      * @return String 字符串
-     * @see StringUtils#toUnicodeString(String)
+     * @see StringKit#toUnicodeString(String)
      */
     public static String toUnicodeString(String unicode) {
-        return StringUtils.toUnicodeString(unicode);
+        return StringKit.toUnicodeString(unicode);
     }
 
     /**
@@ -848,14 +861,14 @@ public class Convert {
      * @param sourceCharset 原字符集
      * @param destCharset   目标字符集
      * @return 转换后的字符串
-     * @see CharsetUtils#convert(String, String, String)
+     * @see Charset#convert(String, String, String)
      */
     public static String convertCharset(String str, String sourceCharset, String destCharset) {
-        if (StringUtils.hasBlank(str, sourceCharset, destCharset)) {
+        if (StringKit.hasBlank(str, sourceCharset, destCharset)) {
             return str;
         }
 
-        return CharsetUtils.convert(str, sourceCharset, destCharset);
+        return Charset.convert(str, sourceCharset, destCharset);
     }
 
     /**
@@ -901,7 +914,6 @@ public class Convert {
      *
      * @param number {@link Number}对象
      * @return 英文表达式
-     * @since 3.1.9
      */
     public static String numberToWord(Number number) {
         return NumberWord.format(number);
@@ -911,9 +923,8 @@ public class Convert {
      * 将阿拉伯数字转为中文表达方式
      *
      * @param number          数字
-     * @param isUseTraditonal 是否使用繁体字（金额形式）
+     * @param isUseTraditonal 是否使用繁体字(金额形式)
      * @return 中文
-     * @since 3.2.3
      */
     public static String numberToChinese(double number, boolean isUseTraditonal) {
         return NumberChinese.format(number, isUseTraditonal);
@@ -924,7 +935,6 @@ public class Convert {
      *
      * @param n 数字
      * @return 中文大写数字
-     * @since 3.2.3
      */
     public static String digitToChinese(Number n) {
         if (null == n) {
@@ -938,7 +948,6 @@ public class Convert {
      *
      * @param intValue int值
      * @return byte值
-     * @since 5.8.2
      */
     public static byte intToByte(int intValue) {
         return (byte) intValue;
@@ -949,7 +958,6 @@ public class Convert {
      *
      * @param byteValue byte值
      * @return 无符号int值
-     * @since 5.8.2
      */
     public static int byteToUnsignedInt(byte byteValue) {
         // Java 总是把 byte 当做有符处理；我们可以通过将其和 0xFF 进行二进制与得到它的无符值
@@ -961,7 +969,6 @@ public class Convert {
      *
      * @param bytes byte数组
      * @return short值
-     * @since 5.8.2
      */
     public static short bytesToShort(byte[] bytes) {
         return (short) (bytes[1] & 0xff | (bytes[0] & 0xff) << 8);
@@ -972,7 +979,6 @@ public class Convert {
      *
      * @param shortValue short值
      * @return byte数组
-     * @since 5.8.2
      */
     public static byte[] shortToBytes(short shortValue) {
         byte[] b = new byte[2];
@@ -986,7 +992,6 @@ public class Convert {
      *
      * @param bytes byte数组
      * @return int值
-     * @since 5.8.2
      */
     public static int bytesToInt(byte[] bytes) {
         return bytes[3] & 0xFF | //
@@ -1000,7 +1005,6 @@ public class Convert {
      *
      * @param intValue int值
      * @return byte数组
-     * @since 5.8.2
      */
     public static byte[] intToBytes(int intValue) {
         return new byte[]{
@@ -1016,7 +1020,6 @@ public class Convert {
      *
      * @param longValue long值
      * @return byte数组
-     * @since 5.8.2
      */
     public static byte[] longToBytes(long longValue) {
         final byte[] result = new byte[8];
@@ -1032,7 +1035,6 @@ public class Convert {
      *
      * @param bytes byte数组
      * @return long值
-     * @since 5.8.2
      */
     public static long bytesToLong(byte[] bytes) {
         long values = 0;
@@ -1048,7 +1050,6 @@ public class Convert {
      *
      * @param value 被转换的值
      * @return Byte数组
-     * @since 5.1.1
      */
     public static byte[] toPrimitiveByteArray(Object value) {
         return convert(byte[].class, value);

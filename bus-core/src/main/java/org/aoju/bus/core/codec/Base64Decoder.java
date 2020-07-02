@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,19 +24,20 @@
  ********************************************************************************/
 package org.aoju.bus.core.codec;
 
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
-import org.aoju.bus.core.utils.ArrayUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.lang.Symbol;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 
 /**
  * Base64解码实现
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Base64Decoder {
@@ -50,7 +51,7 @@ public class Base64Decoder {
      * @return 被加密后的字符串
      */
     public static String decodeStr(CharSequence source) {
-        return decodeStr(source, org.aoju.bus.core.lang.Charset.UTF_8);
+        return decodeStr(source, Charset.UTF_8);
     }
 
     /**
@@ -60,8 +61,8 @@ public class Base64Decoder {
      * @param charset 字符集
      * @return 被加密后的字符串
      */
-    public static String decodeStr(CharSequence source, Charset charset) {
-        return StringUtils.toString(decode(source), charset);
+    public static String decodeStr(CharSequence source, java.nio.charset.Charset charset) {
+        return StringKit.toString(decode(source), charset);
     }
 
     /**
@@ -71,7 +72,7 @@ public class Base64Decoder {
      * @return 被加密后的字符串
      */
     public static byte[] decode(CharSequence source) {
-        return decode(StringUtils.bytes(source, org.aoju.bus.core.lang.Charset.UTF_8));
+        return decode(StringKit.bytes(source, Charset.UTF_8));
     }
 
     /**
@@ -81,7 +82,7 @@ public class Base64Decoder {
      * @return 解码后的bytes
      */
     public static byte[] decode(byte[] in) {
-        if (ArrayUtils.isEmpty(in)) {
+        if (ArrayKit.isEmpty(in)) {
             return in;
         }
         return decode(in, 0, in.length);
@@ -96,7 +97,7 @@ public class Base64Decoder {
      * @return 解码后的bytes
      */
     public static byte[] decode(byte[] in, int pos, int length) {
-        if (ArrayUtils.isEmpty(in)) {
+        if (ArrayKit.isEmpty(in)) {
             return in;
         }
 
@@ -130,7 +131,7 @@ public class Base64Decoder {
             return octet;
         } else {
             // 如果有非Base64字符混入，则实际结果比解析的要短，截取之
-            return (byte[]) ArrayUtils.copy(octet, new byte[octetId], octetId);
+            return (byte[]) ArrayKit.copy(octet, new byte[octetId], octetId);
         }
     }
 
@@ -149,11 +150,11 @@ public class Base64Decoder {
         while ((len -= 2) >= 0) {
             out.write((byte) ((Normal.DECODE_64_TABLE[ch[off++]] << 2)
                     | ((b2 = Normal.DECODE_64_TABLE[ch[off++]]) >>> 4)));
-            if ((len-- == 0) || ch[off] == '=')
+            if ((len-- == 0) || ch[off] == Symbol.C_EQUAL)
                 break;
             out.write((byte) ((b2 << 4)
                     | ((b3 = Normal.DECODE_64_TABLE[ch[off++]]) >>> 2)));
-            if ((len-- == 0) || ch[off] == '=')
+            if ((len-- == 0) || ch[off] == Symbol.C_EQUAL)
                 break;
             out.write((byte) ((b3 << 6) | Normal.DECODE_64_TABLE[ch[off++]]));
         }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,7 +27,7 @@ package org.aoju.bus.http;
 import org.aoju.bus.core.io.AsyncTimeout;
 import org.aoju.bus.core.io.Timeout;
 import org.aoju.bus.core.lang.Normal;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 import org.aoju.bus.http.accord.ConnectInterceptor;
 import org.aoju.bus.http.accord.StreamAllocation;
 import org.aoju.bus.http.accord.platform.Platform;
@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
  * 实际调用准备执行的请求
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class RealCall implements NewCall {
@@ -204,7 +204,7 @@ public final class RealCall implements NewCall {
 
         Response response = chain.proceed(originalRequest);
         if (retryAndFollowUp.isCanceled()) {
-            IoUtils.close(response);
+            IoKit.close(response);
             throw new IOException("Canceled");
         }
         return response;

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,9 +24,9 @@
  ********************************************************************************/
 package org.aoju.bus.core.swing;
 
-import org.aoju.bus.core.utils.ObjectUtils;
-import org.aoju.bus.core.utils.SwingUtils;
-import org.aoju.bus.core.utils.ThreadUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.core.toolkit.SwingKit;
+import org.aoju.bus.core.toolkit.ThreadKit;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -39,7 +39,7 @@ import java.util.Set;
  * 剪贴板监听
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public enum ClipboardMonitor implements ClipboardOwner, Runnable, Closeable {
@@ -89,7 +89,7 @@ public enum ClipboardMonitor implements ClipboardOwner, Runnable, Closeable {
      * @param delay    响应延迟,当从第二次开始,延迟一定毫秒数等待剪贴板可以获取,当tryCount小于2时无效
      */
     ClipboardMonitor(int tryCount, long delay) {
-        this(tryCount, delay, SwingUtils.getClipboard());
+        this(tryCount, delay, SwingKit.getClipboard());
     }
 
     /**
@@ -172,14 +172,14 @@ public enum ClipboardMonitor implements ClipboardOwner, Runnable, Closeable {
         Transferable transferable = null;
         for (ClipboardListener listener : listenerSet) {
             try {
-                transferable = listener.onChange(clipboard, ObjectUtils.defaultIfNull(transferable, newContents));
+                transferable = listener.onChange(clipboard, ObjectKit.defaultIfNull(transferable, newContents));
             } catch (Throwable e) {
                 // 忽略事件处理异常,保证所有监听正常执行
             }
         }
 
         if (isRunning) {
-            clipboard.setContents(ObjectUtils.defaultIfNull(transferable, ObjectUtils.defaultIfNull(newContents, contents)), this);
+            clipboard.setContents(ObjectKit.defaultIfNull(transferable, ObjectKit.defaultIfNull(newContents, contents)), this);
         }
     }
 
@@ -201,12 +201,12 @@ public enum ClipboardMonitor implements ClipboardOwner, Runnable, Closeable {
         run();
 
         if (sync) {
-            ThreadUtils.sync(this);
+            ThreadKit.sync(this);
         }
     }
 
     /**
-     * 关闭（停止）监听
+     * 关闭(停止)监听
      */
     @Override
     public void close() {

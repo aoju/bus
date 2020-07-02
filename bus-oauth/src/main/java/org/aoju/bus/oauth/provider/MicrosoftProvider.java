@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,9 +25,12 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
+import org.aoju.bus.core.toolkit.UriKit;
 import org.aoju.bus.http.Httpx;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
@@ -36,7 +39,6 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,22 +47,22 @@ import java.util.Map;
  * 微软登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class MicrosoftProvider extends DefaultProvider {
+public class MicrosoftProvider extends AbstractProvider {
 
     public MicrosoftProvider(Context context) {
         super(context, Registry.MICROSOFT);
     }
 
-    public MicrosoftProvider(Context context, StateCache stateCache) {
-        super(context, Registry.MICROSOFT, stateCache);
+    public MicrosoftProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.MICROSOFT, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        return getToken(accessTokenUrl(Callback.getCode()));
+    public AccToken getAccessToken(Callback callback) {
+        return getToken(accessTokenUrl(callback.getCode()));
     }
 
     /**
@@ -73,7 +75,10 @@ public class MicrosoftProvider extends DefaultProvider {
         Map<String, String> header = new HashMap<>();
         header.put("Host", "https://login.microsoftonline.com");
 
-        String response = Httpx.post(accessTokenUrl, parseQueryToMap(accessTokenUrl), header);
+        Map<String, Object> paramMap = new HashMap<>();
+        UriKit.decodeVal(accessTokenUrl, Charset.DEFAULT_UTF_8).forEach(paramMap::put);
+
+        String response = Httpx.post(accessTokenUrl, paramMap, header);
         JSONObject object = JSONObject.parseObject(response);
 
         this.checkResponse(object);
@@ -99,41 +104,42 @@ public class MicrosoftProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken oauthToken) {
-        String token = oauthToken.getAccessToken();
-        String tokenType = oauthToken.getTokenType();
+    public Property getUserInfo(AccToken accToken) {
+        String token = accToken.getAccessToken();
+        String tokenType = accToken.getTokenType();
         String jwt = tokenType + Symbol.SPACE + token;
 
         Map<String, String> header = new HashMap<>();
         header.put("Authorization", jwt);
 
-        String response = Httpx.get(userInfoUrl(oauthToken), null, header);
+        String response = Httpx.get(userInfoUrl(accToken), null, header);
 
         JSONObject object = JSONObject.parseObject(response);
         this.checkResponse(object);
         return Property.builder()
+                .rawJson(object)
                 .uuid(object.getString("id"))
                 .username(object.getString("userPrincipalName"))
                 .nickname(object.getString("displayName"))
                 .location(object.getString("officeLocation"))
                 .email(object.getString("mail"))
                 .gender(Normal.Gender.UNKNOWN)
-                .token(oauthToken)
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
 
     /**
-     * 刷新access token （续期）
+     * 刷新access token (续期)
      *
-     * @param token 登录成功后返回的Token信息
+     * @param accToken 登录成功后返回的Token信息
      * @return AuthResponse
      */
     @Override
-    public Message refresh(AccToken token) {
+    public Message refresh(AccToken accToken) {
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
-                .data(getToken(refreshTokenUrl(token.getRefreshToken())))
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
+                .data(getToken(refreshTokenUrl(accToken.getRefreshToken())))
                 .build();
     }
 
@@ -142,7 +148,6 @@ public class MicrosoftProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {
@@ -163,7 +168,7 @@ public class MicrosoftProvider extends DefaultProvider {
      * @return 返回获取accessToken的url
      */
     @Override
-    protected String accessTokenUrl(String code) {
+    public String accessTokenUrl(String code) {
         return Builder.fromUrl(source.accessToken())
                 .queryParam("code", code)
                 .queryParam("client_id", context.getAppKey())
@@ -177,11 +182,11 @@ public class MicrosoftProvider extends DefaultProvider {
     /**
      * 返回获取userInfo的url
      *
-     * @param token 用户授权后的token
+     * @param accToken 用户授权后的token
      * @return 返回获取userInfo的url
      */
     @Override
-    protected String userInfoUrl(AccToken token) {
+    public String userInfoUrl(AccToken accToken) {
         return Builder.fromUrl(source.userInfo()).build();
     }
 
@@ -192,7 +197,7 @@ public class MicrosoftProvider extends DefaultProvider {
      * @return 返回获取accessToken的url
      */
     @Override
-    protected String refreshTokenUrl(String refreshToken) {
+    public String refreshTokenUrl(String refreshToken) {
         return Builder.fromUrl(source.refresh())
                 .queryParam("client_id", context.getAppKey())
                 .queryParam("client_secret", context.getAppSecret())

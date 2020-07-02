@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.crypto;
 
 import org.aoju.bus.core.lang.Algorithm;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
 import org.aoju.bus.crypto.provider.*;
 
 import java.util.Map;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 注解和实现之间映射
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class Registry {
@@ -81,7 +81,7 @@ public final class Registry {
      */
     public static Provider require(String name) {
         Provider object = ALGORITHM_CACHE.get(name);
-        if (ObjectUtils.isEmpty(object)) {
+        if (ObjectKit.isEmpty(object)) {
             throw new IllegalArgumentException("none provider be found!, type:" + name);
         }
         return object;

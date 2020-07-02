@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.extra.mail;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ArrayUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -39,7 +39,7 @@ import java.util.List;
  * 邮件内部工具类
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class InternalMail {
@@ -49,7 +49,7 @@ public class InternalMail {
      * 单个字符串地址可以是多个地址合并的字符串
      *
      * @param addrStrs 地址数组
-     * @param charset  编码（主要用于中文用户名的编码）
+     * @param charset  编码(主要用于中文用户名的编码)
      * @return 地址数组
      */
     public static InternetAddress[] parseAddressFromStrs(String[] addrStrs, Charset charset) {
@@ -57,7 +57,7 @@ public class InternalMail {
         InternetAddress[] addrs;
         for (int i = 0; i < addrStrs.length; i++) {
             addrs = parseAddress(addrStrs[i], charset);
-            if (ArrayUtils.isNotEmpty(addrs)) {
+            if (ArrayKit.isNotEmpty(addrs)) {
                 for (int j = 0; j < addrs.length; j++) {
                     resultList.add(addrs[j]);
                 }
@@ -75,7 +75,7 @@ public class InternalMail {
      */
     public static InternetAddress parseFirstAddress(String address, Charset charset) {
         final InternetAddress[] internetAddresses = parseAddress(address, charset);
-        if (ArrayUtils.isEmpty(internetAddresses)) {
+        if (ArrayKit.isEmpty(internetAddresses)) {
             try {
                 return new InternetAddress(address);
             } catch (AddressException e) {
@@ -101,7 +101,7 @@ public class InternalMail {
             throw new InstrumentException(e);
         }
         //编码用户名
-        if (ArrayUtils.isNotEmpty(addresses)) {
+        if (ArrayKit.isNotEmpty(addresses)) {
             for (InternetAddress internetAddress : addresses) {
                 try {
                     internetAddress.setPersonal(internetAddress.getPersonal(), charset.name());

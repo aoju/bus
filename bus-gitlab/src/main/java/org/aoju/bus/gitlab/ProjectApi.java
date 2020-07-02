@@ -1,9 +1,31 @@
+/*********************************************************************************
+ *                                                                               *
+ * The MIT License (MIT)                                                         *
+ *                                                                               *
+ * Copyright (c) 2015-2020 aoju.org Greg Messner and other contributors.         *
+ *                                                                               *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy  *
+ * of this software and associated documentation files (the "Software"), to deal *
+ * in the Software without restriction, including without limitation the rights  *
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell     *
+ * copies of the Software, and to permit persons to whom the Software is         *
+ * furnished to do so, subject to the following conditions:                      *
+ *                                                                               *
+ * The above copyright notice and this permission notice shall be included in    *
+ * all copies or substantial portions of the Software.                           *
+ *                                                                               *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR    *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE   *
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER        *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, *
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN     *
+ * THE SOFTWARE.                                                                 *
+ ********************************************************************************/
 package org.aoju.bus.gitlab;
 
-import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.gitlab.GitLabApi.ApiVersion;
 import org.aoju.bus.gitlab.models.*;
-import org.aoju.bus.logger.Logger;
 
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.GenericType;
@@ -21,11 +43,16 @@ import java.util.stream.Stream;
 /**
  * This class provides an entry point to all the GitLab API project calls.
  *
+ * @author Kimi Liu
+ * @version 6.0.1
  * @see <a href="https://docs.gitlab.com/ce/api/projects.html">Projects API at GitLab</a>
  * @see <a href="https://docs.gitlab.com/ce/api/project_statistics.html">Project statistics API</a>
  * @see <a href="https://docs.gitlab.com/ce/api/members.html">Group and project members API at GitLab</a>
  * @see <a href="https://docs.gitlab.com/ce/api/access_requests.html#group-and-project-access-requests-api">Group and project access requests API</a>
  * @see <a href="https://docs.gitlab.com/ee/api/project_badges.html">Project badges API</a>
+ * @see <a href="https://docs.gitlab.com/ce/api/merge_request_approvals.html">
+ * Merge request approvals API (Project-level) at GitLab</a>
+ * @since JDK 1.8+
  */
 public class ProjectApi extends AbstractApi implements Constants {
 
@@ -83,7 +110,7 @@ public class ProjectApi extends AbstractApi implements Constants {
 
         String url = this.gitLabApi.getGitLabServerUrl();
         if (url.startsWith("https://gitlab.com")) {
-            Logger.warn("Fetching all projects from " + url +
+            GitLabApi.getLogger().warning("Fetching all projects from " + url +
                     " may take many hours to complete, use Pager<Project> getProjects(int) instead.");
         }
 
@@ -129,6 +156,38 @@ public class ProjectApi extends AbstractApi implements Constants {
      */
     public Stream<Project> getProjectsStream() throws GitLabApiException {
         return (getProjects(getDefaultPerPage()).stream());
+    }
+
+    /**
+     * Get a list of projects accessible by the authenticated user and matching the supplied filter parameters.
+     * All filter parameters are optional.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects</code></pre>
+     *
+     * @param archived   limit by archived status
+     * @param visibility limit by visibility public, internal, or private
+     * @param orderBy    return projects ordered by id, name, path, created_at, updated_at, or last_activity_at fields, default is created_at
+     * @param sort       return projects sorted in asc or desc order. Default is desc
+     * @param search     return list of projects matching the search criteria
+     * @param simple     return only the ID, URL, name, and path of each project
+     * @param owned      limit by projects owned by the current user
+     * @param membership limit by projects that the current user is a member of
+     * @param starred    limit by projects starred by the current user
+     * @param statistics include project statistics
+     * @return a list of projects accessible by the authenticated user and matching the supplied parameters
+     * @throws GitLabApiException if any exception occurs
+     * @deprecated Will be removed in version 5.0, replaced by {@link #getProjects(Boolean, Visibility,
+     * Constants.ProjectOrderBy, Constants.SortOrder, String, Boolean, Boolean, Boolean, Boolean, Boolean)}
+     */
+    @Deprecated
+    public List<Project> getProjects(Boolean archived, Visibility visibility, String orderBy,
+                                     String sort, String search, Boolean simple, Boolean owned, Boolean membership,
+                                     Boolean starred, Boolean statistics) throws GitLabApiException {
+
+        ProjectOrderBy projectOrderBy = ProjectOrderBy.valueOf(orderBy);
+        SortOrder sortOrder = SortOrder.valueOf(sort);
+        return (getProjects(archived, visibility, projectOrderBy, sortOrder, search, simple,
+                owned, membership, starred, statistics, getDefaultPerPage()).all());
     }
 
     /**
@@ -603,8 +662,7 @@ public class ProjectApi extends AbstractApi implements Constants {
      * @throws GitLabApiException if any exception occurs
      */
     public Project getProject(Object projectIdOrPath) throws GitLabApiException {
-        Response response = get(Response.Status.OK, null, "projects", this.getProjectIdOrPath(projectIdOrPath));
-        return (response.readEntity(Project.class));
+        return (getProject(projectIdOrPath, null, null, null));
     }
 
     /**
@@ -617,7 +675,7 @@ public class ProjectApi extends AbstractApi implements Constants {
      */
     public Optional<Project> getOptionalProject(Object projectIdOrPath) {
         try {
-            return (Optional.ofNullable(getProject(projectIdOrPath)));
+            return (Optional.ofNullable(getProject(projectIdOrPath, null, null, null)));
         } catch (GitLabApiException glae) {
             return (GitLabApi.createOptionalFromException(glae));
         }
@@ -634,9 +692,7 @@ public class ProjectApi extends AbstractApi implements Constants {
      * @throws GitLabApiException if any exception occurs
      */
     public Project getProject(Object projectIdOrPath, Boolean includeStatistics) throws GitLabApiException {
-        Form formData = new GitLabApiForm().withParam("statistics", includeStatistics);
-        Response response = get(Response.Status.OK, formData.asMap(), "projects", this.getProjectIdOrPath(projectIdOrPath));
-        return (response.readEntity(Project.class));
+        return (getProject(projectIdOrPath, includeStatistics, null, null));
     }
 
     /**
@@ -650,7 +706,51 @@ public class ProjectApi extends AbstractApi implements Constants {
      */
     public Optional<Project> getOptionalProject(Object projectIdOrPath, Boolean includeStatistics) {
         try {
-            return (Optional.ofNullable(getProject(projectIdOrPath, includeStatistics)));
+            return (Optional.ofNullable(getProject(projectIdOrPath, includeStatistics, null, null)));
+        } catch (GitLabApiException glae) {
+            return (GitLabApi.createOptionalFromException(glae));
+        }
+    }
+
+    /**
+     * Get a specific project, which is owned by the authentication user.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id</code></pre>
+     *
+     * @param projectIdOrPath      the project in the form of an Integer(ID), String(path), or Project instance
+     * @param includeStatistics    include project statistics
+     * @param includeLicense       include project license data
+     * @param withCustomAttributes include custom attributes in response (admins only)
+     * @return the specified project
+     * @throws GitLabApiException if any exception occurs
+     */
+    public Project getProject(Object projectIdOrPath, Boolean includeStatistics,
+                              Boolean includeLicense, Boolean withCustomAttributes) throws GitLabApiException {
+        Form formData = new GitLabApiForm()
+                .withParam("statistics", includeStatistics)
+                .withParam("license", includeLicense)
+                .withParam("with_custom_attributes", withCustomAttributes);
+        Response response = get(Response.Status.OK, formData.asMap(),
+                "projects", getProjectIdOrPath(projectIdOrPath));
+        return (response.readEntity(Project.class));
+    }
+
+    /**
+     * Get an Optional instance with the value for the specific project, which is owned by the authentication user.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id</code></pre>
+     *
+     * @param projectIdOrPath      the project in the form of an Integer(ID), String(path), or Project instance
+     * @param includeStatistics    include project statistics
+     * @param includeLicense       include project license data
+     * @param withCustomAttributes include custom attributes in response (admins only)
+     * @return an Optional instance with the specified project as a value
+     */
+    public Optional<Project> getOptionalProject(Object projectIdOrPath, Boolean includeStatistics,
+                                                Boolean includeLicense, Boolean withCustomAttributes) {
+        try {
+            return (Optional.ofNullable(getProject(projectIdOrPath,
+                    includeStatistics, includeLicense, withCustomAttributes)));
         } catch (GitLabApiException glae) {
             return (GitLabApi.createOptionalFromException(glae));
         }
@@ -678,7 +778,7 @@ public class ProjectApi extends AbstractApi implements Constants {
 
         String projectPath = null;
         try {
-            projectPath = URLEncoder.encode(namespace + Symbol.SLASH + project, "UTF-8");
+            projectPath = URLEncoder.encode(namespace + "/" + project, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
             throw (new GitLabApiException(uee));
         }
@@ -727,7 +827,7 @@ public class ProjectApi extends AbstractApi implements Constants {
 
         String projectPath = null;
         try {
-            projectPath = URLEncoder.encode(namespace + Symbol.SLASH + project, "UTF-8");
+            projectPath = URLEncoder.encode(namespace + "/" + project, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
             throw (new GitLabApiException(uee));
         }
@@ -905,7 +1005,7 @@ public class ProjectApi extends AbstractApi implements Constants {
             formData.withParam("visibility", visibility);
 
             if (project.getTagList() != null && !project.getTagList().isEmpty()) {
-                formData.withParam("tag_list", String.join(Symbol.COMMA, project.getTagList()));
+                formData.withParam("tag_list", String.join(",", project.getTagList()));
             }
         }
 
@@ -1144,7 +1244,7 @@ public class ProjectApi extends AbstractApi implements Constants {
             formData.withParam("visibility", visibility);
 
             if (project.getTagList() != null && !project.getTagList().isEmpty()) {
-                formData.withParam("tag_list", String.join(Symbol.COMMA, project.getTagList()));
+                formData.withParam("tag_list", String.join(",", project.getTagList()));
             }
         }
 
@@ -1302,7 +1402,7 @@ public class ProjectApi extends AbstractApi implements Constants {
      * @throws GitLabApiException if any exception occurs
      */
     public List<Member> getAllMembers(Object projectIdOrPath) throws GitLabApiException {
-        return (getAllMembers(projectIdOrPath, getDefaultPerPage()).all());
+        return (getAllMembers(projectIdOrPath, null, null));
     }
 
     /**
@@ -1318,7 +1418,9 @@ public class ProjectApi extends AbstractApi implements Constants {
      * @param perPage         the number of Member instances per page
      * @return the project members viewable by the authenticated user, including inherited members through ancestor groups
      * @throws GitLabApiException if any exception occurs
+     * @deprecated Will be removed in version 5.0
      */
+    @Deprecated
     public List<Member> getAllMembers(Object projectIdOrPath, int page, int perPage) throws GitLabApiException {
         Response response = get(Response.Status.OK, getPageQueryParams(page, perPage),
                 "projects", getProjectIdOrPath(projectIdOrPath), "members", "all");
@@ -1341,8 +1443,7 @@ public class ProjectApi extends AbstractApi implements Constants {
      * @throws GitLabApiException if any exception occurs
      */
     public Pager<Member> getAllMembers(Object projectIdOrPath, int itemsPerPage) throws GitLabApiException {
-        return (new Pager<Member>(this, Member.class, itemsPerPage, null,
-                "projects", getProjectIdOrPath(projectIdOrPath), "members", "all"));
+        return (getAllMembers(projectIdOrPath, null, null, itemsPerPage));
     }
 
     /**
@@ -1359,7 +1460,66 @@ public class ProjectApi extends AbstractApi implements Constants {
      * @throws GitLabApiException if any exception occurs
      */
     public Stream<Member> getAllMembersStream(Object projectIdOrPath) throws GitLabApiException {
-        return (getAllMembers(projectIdOrPath, getDefaultPerPage()).stream());
+        return (getAllMembersStream(projectIdOrPath, null, null));
+    }
+
+    /**
+     * Gets a list of project members viewable by the authenticated user,
+     * including inherited members through ancestor groups. Returns multiple
+     * times the same user (with different member attributes) when the user is
+     * a member of the project/group and of one or more ancestor group.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/members/all</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param query           a query string to search for members
+     * @param userIds         filter the results on the given user IDs
+     * @return the project members viewable by the authenticated user, including inherited members through ancestor groups
+     * @throws GitLabApiException if any exception occurs
+     */
+    public List<Member> getAllMembers(Object projectIdOrPath, String query, List<Integer> userIds) throws GitLabApiException {
+        return (getAllMembers(projectIdOrPath, query, userIds, getDefaultPerPage()).all());
+    }
+
+    /**
+     * Gets a Pager of project members viewable by the authenticated user,
+     * including inherited members through ancestor groups. Returns multiple
+     * times the same user (with different member attributes) when the user is
+     * a member of the project/group and of one or more ancestor group.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/members/all</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param query           a query string to search for members
+     * @param userIds         filter the results on the given user IDs
+     * @param itemsPerPage    the number of Project instances that will be fetched per page
+     * @return a Pager of the project members viewable by the authenticated user,
+     * including inherited members through ancestor groups
+     * @throws GitLabApiException if any exception occurs
+     */
+    public Pager<Member> getAllMembers(Object projectIdOrPath, String query, List<Integer> userIds, int itemsPerPage) throws GitLabApiException {
+        GitLabApiForm form = new GitLabApiForm().withParam("query", query).withParam("user_ids", userIds);
+        return (new Pager<Member>(this, Member.class, itemsPerPage, form.asMap(),
+                "projects", getProjectIdOrPath(projectIdOrPath), "members", "all"));
+    }
+
+    /**
+     * Gets a Stream of project members viewable by the authenticated user,
+     * including inherited members through ancestor groups. Returns multiple
+     * times the same user (with different member attributes) when the user is
+     * a member of the project/group and of one or more ancestor group.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/members/all</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param query           a query string to search for members
+     * @param userIds         filter the results on the given user IDs
+     * @return a Stream of the project members viewable by the authenticated user,
+     * including inherited members through ancestor groups
+     * @throws GitLabApiException if any exception occurs
+     */
+    public Stream<Member> getAllMembersStream(Object projectIdOrPath, String query, List<Integer> userIds) throws GitLabApiException {
+        return (getAllMembers(projectIdOrPath, query, userIds, getDefaultPerPage()).stream());
     }
 
     /**
@@ -1373,8 +1533,7 @@ public class ProjectApi extends AbstractApi implements Constants {
      * @throws GitLabApiException if any exception occurs
      */
     public Member getMember(Object projectIdOrPath, Integer userId) throws GitLabApiException {
-        Response response = get(Response.Status.OK, null, "projects", getProjectIdOrPath(projectIdOrPath), "members", userId);
-        return (response.readEntity(Member.class));
+        return (getMember(projectIdOrPath, userId, false));
     }
 
     /**
@@ -1388,7 +1547,46 @@ public class ProjectApi extends AbstractApi implements Constants {
      */
     public Optional<Member> getOptionalMember(Object projectIdOrPath, Integer userId) {
         try {
-            return (Optional.ofNullable(getMember(projectIdOrPath, userId)));
+            return (Optional.ofNullable(getMember(projectIdOrPath, userId, false)));
+        } catch (GitLabApiException glae) {
+            return (GitLabApi.createOptionalFromException(glae));
+        }
+    }
+
+    /**
+     * Gets a project team member, optionally including inherited member.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/members/all/:user_id</code></pre>
+     *
+     * @param projectIdOrPath  the project in the form of an Integer(ID), String(path), or Project instance
+     * @param userId           the user ID of the member
+     * @param includeInherited if true will the member even if inherited thru an ancestor group
+     * @return the member specified by the project ID/user ID pair
+     * @throws GitLabApiException if any exception occurs
+     */
+    public Member getMember(Object projectIdOrPath, Integer userId, Boolean includeInherited) throws GitLabApiException {
+        Response response;
+        if (includeInherited) {
+            response = get(Response.Status.OK, null, "projects", getProjectIdOrPath(projectIdOrPath), "members", "all", userId);
+        } else {
+            response = get(Response.Status.OK, null, "projects", getProjectIdOrPath(projectIdOrPath), "members", userId);
+        }
+        return (response.readEntity(Member.class));
+    }
+
+    /**
+     * Gets a project team member, optionally including inherited member.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/members/all/:user_id</code></pre>
+     *
+     * @param projectIdOrPath  the project in the form of an Integer(ID), String(path), or Project instance
+     * @param userId           the user ID of the member
+     * @param includeInherited if true will the member even if inherited thru an ancestor group
+     * @return the member specified by the project ID/user ID pair as the value of an Optional
+     */
+    public Optional<Member> getOptionalMember(Object projectIdOrPath, Integer userId, Boolean includeInherited) {
+        try {
+            return (Optional.ofNullable(getMember(projectIdOrPath, userId, includeInherited)));
         } catch (GitLabApiException glae) {
             return (GitLabApi.createOptionalFromException(glae));
         }
@@ -2309,10 +2507,13 @@ public class ProjectApi extends AbstractApi implements Constants {
      * memberCheck (optional) - Restrict commits by author (email) to existing GitLab users
      * preventSecrets (optional) - GitLab will reject any files that are likely to contain secrets
      * commitMessageRegex (optional) - All commit messages must match this, e.g. Fixed \d+\..*
+     * commitMessageNegativeRegex (optional) - No commit message is allowed to match this, e.g. ssh\:\/\/
      * branchNameRegex (optional) - All branch names must match this, e.g. `(feature
      * authorEmailRegex (optional) - All commit author emails must match this, e.g. @my-company.com$
      * fileNameRegex (optional) - All committed filenames must not match this, e.g. `(jar
-     * maxFileSize (optional) - Maximum file size (MB
+     * maxFileSize (optional) - Maximum file size (MB)
+     * commitCommitterCheck (optional) - Users can only push commits to this repository that were committed with one of their own verified emails.
+     * rejectUnsignedCommits (optional) - Reject commit when it is not signed through GPG
      * </code>
      *
      * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance, required
@@ -2326,10 +2527,13 @@ public class ProjectApi extends AbstractApi implements Constants {
                 .withParam("member_check", pushRule.getMemberCheck())
                 .withParam("prevent_secrets", pushRule.getPreventSecrets())
                 .withParam("commit_message_regex", pushRule.getCommitMessageRegex())
+                .withParam("commit_message_negative_regex", pushRule.getCommitMessageNegativeRegex())
                 .withParam("branch_name_regex", pushRule.getBranchNameRegex())
                 .withParam("author_email_regex", pushRule.getAuthorEmailRegex())
                 .withParam("file_name_regex", pushRule.getFileNameRegex())
-                .withParam("max_file_size", pushRule.getMaxFileSize());
+                .withParam("max_file_size", pushRule.getMaxFileSize())
+                .withParam("commit_committer_check", pushRule.getCommitCommitterCheck())
+                .withParam("reject_unsigned_commits", pushRule.getRejectUnsignedCommits());
 
         Response response = post(Response.Status.CREATED, formData, "projects", getProjectIdOrPath(projectIdOrPath), "push_rule");
         return (response.readEntity(PushRules.class));
@@ -2347,10 +2551,13 @@ public class ProjectApi extends AbstractApi implements Constants {
      * memberCheck (optional) - Restrict commits by author (email) to existing GitLab users
      * preventSecrets (optional) - GitLab will reject any files that are likely to contain secrets
      * commitMessageRegex (optional) - All commit messages must match this, e.g. Fixed \d+\..*
+     * commitMessageNegativeRegex (optional) - No commit message is allowed to match this, e.g. ssh\:\/\/
      * branchNameRegex (optional) - All branch names must match this, e.g. `(feature
      * authorEmailRegex (optional) - All commit author emails must match this, e.g. @my-company.com$
      * fileNameRegex (optional) - All committed filenames must not match this, e.g. `(jar
-     * maxFileSize (optional) - Maximum file size (MB
+     * maxFileSize (optional) - Maximum file size (MB)
+     * commitCommitterCheck (optional) - Users can only push commits to this repository that were committed with one of their own verified emails.
+     * rejectUnsignedCommits (optional) - Reject commit when it is not signed through GPG
      * </code>
      *
      * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance, required
@@ -2364,10 +2571,13 @@ public class ProjectApi extends AbstractApi implements Constants {
                 .withParam("member_check", pushRule.getMemberCheck())
                 .withParam("prevent_secrets", pushRule.getPreventSecrets())
                 .withParam("commit_message_regex", pushRule.getCommitMessageRegex())
+                .withParam("commit_message_negative_regex", pushRule.getCommitMessageNegativeRegex())
                 .withParam("branch_name_regex", pushRule.getBranchNameRegex())
                 .withParam("author_email_regex", pushRule.getAuthorEmailRegex())
                 .withParam("file_name_regex", pushRule.getFileNameRegex())
-                .withParam("max_file_size", pushRule.getMaxFileSize());
+                .withParam("max_file_size", pushRule.getMaxFileSize())
+                .withParam("commit_committer_check", pushRule.getCommitCommitterCheck())
+                .withParam("reject_unsigned_commits", pushRule.getRejectUnsignedCommits());
 
         final Response response = putWithFormData(Response.Status.OK, formData, "projects", getProjectIdOrPath(projectIdOrPath), "push_rule");
         return (response.readEntity(PushRules.class));
@@ -2508,7 +2718,7 @@ public class ProjectApi extends AbstractApi implements Constants {
     /**
      * Uploads and sets the project avatar for the specified project.
      *
-     * <pre><code>GitLab Endpoint: PUT /projects/:id/uploads</code></pre>
+     * <pre><code>GitLab Endpoint: PUT /projects/:id</code></pre>
      *
      * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance, required
      * @param avatarFile      the File instance of the avatar file to upload
@@ -2516,7 +2726,8 @@ public class ProjectApi extends AbstractApi implements Constants {
      * @throws GitLabApiException if any exception occurs
      */
     public Project setProjectAvatar(Object projectIdOrPath, File avatarFile) throws GitLabApiException {
-        Response response = putUpload(Response.Status.OK, "avatar", avatarFile, "projects", getProjectIdOrPath(projectIdOrPath));
+        Response response = putUpload(Response.Status.OK,
+                "avatar", avatarFile, "projects", getProjectIdOrPath(projectIdOrPath));
         return (response.readEntity(Project.class));
     }
 
@@ -3010,4 +3221,143 @@ public class ProjectApi extends AbstractApi implements Constants {
         Response response = get(Response.Status.OK, formData.asMap(), "projects", getProjectIdOrPath(projectIdOrPath), "badges", "render");
         return (response.readEntity(Badge.class));
     }
+
+    /**
+     * Get the project's approval information.
+     * Note: This API endpoint is only available on 10.6 Starter and above.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/approvals</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @return a ProjectApprovalsConfig instance with the project's approvals configuration
+     * @throws GitLabApiException if any exception occurs
+     */
+    public ProjectApprovalsConfig getApprovalsConfiguration(Object projectIdOrPath) throws GitLabApiException {
+        Response response = get(Response.Status.OK, null, "projects", getProjectIdOrPath(projectIdOrPath), "approvals");
+        return (response.readEntity(ProjectApprovalsConfig.class));
+    }
+
+    /**
+     * Set the project's approvals configuration.
+     * Note: This API endpoint is only available on 10.6 Starter and above.
+     *
+     * <pre><code>GitLab Endpoint: POST /projects/:id/approvals</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param config          a ProjectApprovalsConfig instance with the approval configuration
+     * @return a ProjectApprovalsConfig instance with the project's approvals configuration
+     * @throws GitLabApiException if any exception occurs
+     */
+    public ProjectApprovalsConfig setApprovalsConfiguration(Object projectIdOrPath, ProjectApprovalsConfig config) throws GitLabApiException {
+        GitLabApiForm formData = config.getForm();
+        Response response = post(Response.Status.OK, formData, "projects", getProjectIdOrPath(projectIdOrPath), "approvals");
+        return (response.readEntity(ProjectApprovalsConfig.class));
+    }
+
+    /**
+     * Get a list of the project-level approval rules.
+     * Note: This API endpoint is only available on 12.3 Starter and above.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/approval_rules</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @return a List of ApprovalRuke instances for the specified project.
+     * @throws GitLabApiException if any exception occurs
+     */
+    public List<ApprovalRule> getApprovalRules(Object projectIdOrPath) throws GitLabApiException {
+        return (getApprovalRules(projectIdOrPath, -1).all());
+    }
+
+    /**
+     * Get a Pager of the project-level approval rules.
+     * Note: This API endpoint is only available on 12.3 Starter and above.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/approval_rules</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param itemsPerPage    the number of ApprovalRule instances that will be fetched per page
+     * @return a Pager of ApprovalRuke instances for the specified project.
+     * @throws GitLabApiException if any exception occurs
+     */
+    public Pager<ApprovalRule> getApprovalRules(Object projectIdOrPath, int itemsPerPage) throws GitLabApiException {
+
+        return (new Pager<ApprovalRule>(this, ApprovalRule.class, itemsPerPage, null,
+                "projects", getProjectIdOrPath(projectIdOrPath), "approval_rules"));
+    }
+
+    /**
+     * Get a Stream of the project-level approval rules.
+     * Note: This API endpoint is only available on 12.3 Starter and above.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/approval_rules</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @return a Stream of ApprovalRule instances for the specified project.
+     * @throws GitLabApiException if any exception occurs
+     */
+    public Stream<ApprovalRule> getApprovalRulesStream(Object projectIdOrPath) throws GitLabApiException {
+        return (getApprovalRules(projectIdOrPath, -1).stream());
+    }
+
+    /**
+     * Create a project-level approval rule.
+     * Note: This API endpoint is only available on 12.3 Starter and above.
+     *
+     * <pre><code>GitLab Endpoint: POST /projects/:id/approval_rules</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param params          the ApprovalRuleParams instance holding the parameters for the approval rule
+     * @return a ApprovalRule instance with approval configuration
+     * @throws GitLabApiException if any exception occurs
+     */
+    public ApprovalRule createApprovalRule(Object projectIdOrPath, ApprovalRuleParams params) throws GitLabApiException {
+        GitLabApiForm formData = params.getForm();
+        Response response = post(Response.Status.OK, formData,
+                "projects", getProjectIdOrPath(projectIdOrPath), "approval_rules");
+        return (response.readEntity(ApprovalRule.class));
+    }
+
+    /**
+     * Update the specified the project-level approval rule.
+     * Note: This API endpoint is only available on 12.3 Starter and above.
+     *
+     * <pre><code>GitLab Endpoint: PUT /projects/:id/approval_rules/:approval_rule_id</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param approvalRuleId  the ID of the approval rule
+     * @param params          the ApprovalRuleParams instance holding the parameters for the approval rule update
+     * @return a ApprovalRule instance with approval configuration
+     * @throws GitLabApiException if any exception occurs
+     */
+    public ApprovalRule updateApprovalRule(Object projectIdOrPath, Integer approvalRuleId, ApprovalRuleParams params) throws GitLabApiException {
+
+        if (approvalRuleId == null) {
+            throw new RuntimeException("approvalRuleId cannot be null");
+        }
+
+        GitLabApiForm formData = params.getForm();
+        Response response = putWithFormData(Response.Status.OK, formData,
+                "projects", getProjectIdOrPath(projectIdOrPath), "approval_rules", approvalRuleId);
+        return (response.readEntity(ApprovalRule.class));
+    }
+
+    /**
+     * Delete the specified the project-level approval rule.
+     * Note: This API endpoint is only available on 12.3 Starter and above.
+     *
+     * <pre><code>GitLab Endpoint: DELETE /projects/:id/approval_rules/:approval_rule_id</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param approvalRuleId  the ID of the approval rule
+     * @throws GitLabApiException if any exception occurs
+     */
+    public void deleteApprovalRule(Object projectIdOrPath, Integer approvalRuleId) throws GitLabApiException {
+
+        if (approvalRuleId == null) {
+            throw new RuntimeException("approvalRuleId cannot be null");
+        }
+
+        delete(Response.Status.OK, null, "projects", getProjectIdOrPath(projectIdOrPath), "approval_rules", approvalRuleId);
+    }
+
 }

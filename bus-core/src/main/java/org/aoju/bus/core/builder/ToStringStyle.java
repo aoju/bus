@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,9 +26,9 @@ package org.aoju.bus.core.builder;
 
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.ClassUtils;
-import org.aoju.bus.core.utils.EscapeUtils;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ClassKit;
+import org.aoju.bus.core.toolkit.EscapeKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -62,7 +62,7 @@ import java.util.WeakHashMap;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public abstract class ToStringStyle implements Serializable {
@@ -257,7 +257,6 @@ public abstract class ToStringStyle implements Serializable {
      *
      * @param buffer        the <code>StringBuffer</code> to populate
      * @param superToString the <code>super.toString()</code>
-     * @since 2.0.0
      */
     public void appendSuper(final StringBuffer buffer, final String superToString) {
         appendToString(buffer, superToString);
@@ -271,7 +270,6 @@ public abstract class ToStringStyle implements Serializable {
      *
      * @param buffer   the <code>StringBuffer</code> to populate
      * @param toString the additional <code>toString</code>
-     * @since 2.0.0
      */
     public void appendToString(final StringBuffer buffer, final String toString) {
         if (toString != null) {
@@ -323,7 +321,6 @@ public abstract class ToStringStyle implements Serializable {
      * <p>Remove the last field separator from the buffer.</p>
      *
      * @param buffer the <code>StringBuffer</code> to populate
-     * @since 2.0.0
      */
     protected void removeLastFieldSeparator(final StringBuffer buffer) {
         final int len = buffer.length();
@@ -494,10 +491,9 @@ public abstract class ToStringStyle implements Serializable {
      * @param fieldName the field name, typically not used as already appended
      * @param value     the value to add to the <code>toString</code>,
      *                  not <code>null</code>
-     * @since 2.2.0
      */
     protected void appendCyclicObject(final StringBuffer buffer, final String fieldName, final Object value) {
-        ObjectUtils.identityToString(buffer, value);
+        ObjectKit.identityToString(buffer, value);
     }
 
     /**
@@ -828,7 +824,6 @@ public abstract class ToStringStyle implements Serializable {
      * @param fieldName the field name, typically not used as already appended
      * @param array     the array to add to the <code>toString</code>,
      *                  not <code>null</code>
-     * @since 2.0.0
      */
     protected void reflectionAppendArrayDetail(final StringBuffer buffer, final String fieldName, final Object array) {
         buffer.append(arrayStart);
@@ -1485,7 +1480,7 @@ public abstract class ToStringStyle implements Serializable {
      * @return the short name
      */
     protected String getShortClassName(final Class<?> cls) {
-        return ClassUtils.getShortClassName(cls);
+        return ClassKit.getShortClassName(cls);
     }
 
     /**
@@ -1511,7 +1506,6 @@ public abstract class ToStringStyle implements Serializable {
      * <p>Gets whether to output short or long class names.</p>
      *
      * @return the current useShortClassName flag
-     * @since 2.0.0
      */
     protected boolean isUseShortClassName() {
         return useShortClassName;
@@ -1521,7 +1515,6 @@ public abstract class ToStringStyle implements Serializable {
      * <p>Sets whether to output short or long class names.</p>
      *
      * @param useShortClassName the new useShortClassName flag
-     * @since 2.0.0
      */
     protected void setUseShortClassName(final boolean useShortClassName) {
         this.useShortClassName = useShortClassName;
@@ -1780,7 +1773,6 @@ public abstract class ToStringStyle implements Serializable {
      * of each buffer.</p>
      *
      * @return the fieldSeparatorAtStart flag
-     * @since 2.0.0
      */
     protected boolean isFieldSeparatorAtStart() {
         return fieldSeparatorAtStart;
@@ -1791,7 +1783,6 @@ public abstract class ToStringStyle implements Serializable {
      * of each buffer.</p>
      *
      * @param fieldSeparatorAtStart the fieldSeparatorAtStart flag
-     * @since 2.0.0
      */
     protected void setFieldSeparatorAtStart(final boolean fieldSeparatorAtStart) {
         this.fieldSeparatorAtStart = fieldSeparatorAtStart;
@@ -1802,7 +1793,6 @@ public abstract class ToStringStyle implements Serializable {
      * of each buffer.</p>
      *
      * @return fieldSeparatorAtEnd flag
-     * @since 2.0.0
      */
     protected boolean isFieldSeparatorAtEnd() {
         return fieldSeparatorAtEnd;
@@ -1813,7 +1803,6 @@ public abstract class ToStringStyle implements Serializable {
      * of each buffer.</p>
      *
      * @param fieldSeparatorAtEnd the fieldSeparatorAtEnd flag
-     * @since 2.0.0
      */
     protected void setFieldSeparatorAtEnd(final boolean fieldSeparatorAtEnd) {
         this.fieldSeparatorAtEnd = fieldSeparatorAtEnd;
@@ -2294,7 +2283,7 @@ public abstract class ToStringStyle implements Serializable {
         }
 
         private void appendValueAsString(final StringBuffer buffer, final String value) {
-            buffer.append(Symbol.C_DOUBLE_QUOTES).append(EscapeUtils.escapeJson(value)).append(Symbol.C_DOUBLE_QUOTES);
+            buffer.append(Symbol.C_DOUBLE_QUOTES).append(EscapeKit.escapeJson(value)).append(Symbol.C_DOUBLE_QUOTES);
         }
 
         @Override
@@ -2305,7 +2294,7 @@ public abstract class ToStringStyle implements Serializable {
                         "Field names are mandatory when using JsonToStringStyle");
             }
 
-            super.appendFieldStart(buffer, FIELD_NAME_QUOTE + EscapeUtils.escapeJson(fieldName)
+            super.appendFieldStart(buffer, FIELD_NAME_QUOTE + EscapeKit.escapeJson(fieldName)
                     + FIELD_NAME_QUOTE);
         }
 

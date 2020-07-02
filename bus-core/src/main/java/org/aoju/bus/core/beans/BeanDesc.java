@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,8 +26,9 @@ package org.aoju.bus.core.beans;
 
 import org.aoju.bus.core.annotation.Alias;
 import org.aoju.bus.core.lang.Assert;
+import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.map.CaseInsensitiveMap;
-import org.aoju.bus.core.utils.*;
+import org.aoju.bus.core.toolkit.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -49,7 +50,7 @@ import java.util.Map;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class BeanDesc implements Serializable {
@@ -163,10 +164,10 @@ public class BeanDesc implements Serializable {
      * @return this
      */
     private BeanDesc init() {
-        for (Field field : ReflectUtils.getFields(this.beanClass)) {
-            if (false == ModifierUtils.isStatic(field)) {
+        for (Field field : ReflectKit.getFields(this.beanClass)) {
+            if (false == BeanKit.isStatic(field)) {
                 //只针对非static属性
-                this.propMap.put(field.getName(), createProp(field));
+                this.propMap.put(ReflectKit.getFieldName(field), createProp(field));
             }
         }
         return this;
@@ -189,14 +190,14 @@ public class BeanDesc implements Serializable {
     private PropDesc createProp(Field field) {
         final String fieldName = field.getName();
         final Class<?> fieldType = field.getType();
-        final boolean isBooeanField = BooleanUtils.isBoolean(fieldType);
+        final boolean isBooeanField = BooleanKit.isBoolean(fieldType);
 
         Method getter = null;
         Method setter = null;
 
         String methodName;
         Class<?>[] parameterTypes;
-        for (Method method : ReflectUtils.getMethods(this.beanClass)) {
+        for (Method method : ReflectKit.getMethods(this.beanClass)) {
             parameterTypes = method.getParameterTypes();
             if (parameterTypes.length > 1) {
                 // 多于1个参数说明非Getter或Setter
@@ -224,7 +225,7 @@ public class BeanDesc implements Serializable {
 
     /**
      * 方法是否为Getter方法
-     * 匹配规则如下（忽略大小写）：
+     * 匹配规则如下(忽略大小写)：
      *
      * <pre>
      * 字段名    -》 方法名
@@ -245,7 +246,7 @@ public class BeanDesc implements Serializable {
         methodName = methodName.toLowerCase();
         fieldName = fieldName.toLowerCase();
 
-        if (false == methodName.startsWith("get") && false == methodName.startsWith("is")) {
+        if (false == methodName.startsWith(Normal.GET) && false == methodName.startsWith(Normal.IS)) {
             // 非标准Getter方法
             return false;
         }
@@ -256,27 +257,27 @@ public class BeanDesc implements Serializable {
 
         // 针对Boolean类型特殊检查
         if (isBooeanField) {
-            if (fieldName.startsWith("is")) {
+            if (fieldName.startsWith(Normal.IS)) {
                 // 字段已经是is开头
                 if (methodName.equals(fieldName) // isName -》 isName
-                        || methodName.equals("get" + fieldName)// isName -》 getIsName
-                        || methodName.equals("is" + fieldName)// isName -》 isIsName
+                        || methodName.equals(Normal.GET + fieldName)// isName -》 getIsName
+                        || methodName.equals(Normal.IS + fieldName)// isName -》 isIsName
                 ) {
                     return true;
                 }
-            } else if (methodName.equals("is" + fieldName)) {
+            } else if (methodName.equals(Normal.IS + fieldName)) {
                 // 字段非is开头, name -》 isName
                 return true;
             }
         }
 
         // 包括boolean的任何类型只有一种匹配情况：name -》 getName
-        return methodName.equals("get" + fieldName);
+        return methodName.equals(Normal.GET + fieldName);
     }
 
     /**
      * 方法是否为Setter方法
-     * 匹配规则如下（忽略大小写）：
+     * 匹配规则如下(忽略大小写)：
      *
      * <pre>
      * 字段名    -》 方法名
@@ -296,22 +297,22 @@ public class BeanDesc implements Serializable {
         fieldName = fieldName.toLowerCase();
 
         // 非标准Setter方法跳过
-        if (false == methodName.startsWith("set")) {
+        if (false == methodName.startsWith(Normal.SET)) {
             return false;
         }
 
         // 针对Boolean类型特殊检查
-        if (isBooeanField && fieldName.startsWith("is")) {
+        if (isBooeanField && fieldName.startsWith(Normal.IS)) {
             // 字段是is开头
-            if (methodName.equals("set" + StringUtils.removePrefix(fieldName, "is"))// isName -》 setName
-                    || methodName.equals("set" + fieldName)// isName -》 setIsName
+            if (methodName.equals(Normal.SET + StringKit.removePrefix(fieldName, Normal.IS))// isName -》 setName
+                    || methodName.equals(Normal.SET + fieldName)// isName -》 setIsName
             ) {
                 return true;
             }
         }
 
         // 包括boolean的任何类型只有一种匹配情况：name -》 setName
-        return methodName.equals("set" + fieldName);
+        return methodName.equals(Normal.SET + fieldName);
     }
 
     /**
@@ -342,8 +343,8 @@ public class BeanDesc implements Serializable {
          */
         public PropDesc(Field field, Method getter, Method setter) {
             this.field = field;
-            this.getter = ClassUtils.setAccessible(getter);
-            this.setter = ClassUtils.setAccessible(setter);
+            this.getter = ClassKit.setAccessible(getter);
+            this.setter = ClassKit.setAccessible(setter);
         }
 
         /**
@@ -352,7 +353,7 @@ public class BeanDesc implements Serializable {
          * @return 字段名
          */
         public String getFieldName() {
-            return ReflectUtils.getFieldsName(this.field);
+            return ReflectKit.getFieldName(this.field);
         }
 
         /**
@@ -372,7 +373,7 @@ public class BeanDesc implements Serializable {
          */
         public Type getFieldType() {
             if (null != this.field) {
-                return TypeUtils.getType(this.field);
+                return TypeKit.getType(this.field);
             }
             return findPropType(getter, setter);
         }
@@ -385,7 +386,7 @@ public class BeanDesc implements Serializable {
          */
         public Class<?> getFieldClass() {
             if (null != this.field) {
-                return TypeUtils.getClass(this.field);
+                return TypeKit.getClass(this.field);
             }
             return findPropClass(getter, setter);
         }
@@ -417,9 +418,9 @@ public class BeanDesc implements Serializable {
          */
         public Object getValue(Object bean) {
             if (null != this.getter) {
-                return ReflectUtils.invoke(bean, this.getter);
-            } else if (ModifierUtils.isPublic(this.field)) {
-                return ReflectUtils.getFieldValue(bean, this.field);
+                return ReflectKit.invoke(bean, this.getter);
+            } else if (BeanKit.isPublic(this.field)) {
+                return ReflectKit.getFieldValue(bean, this.field);
             }
             return null;
         }
@@ -434,9 +435,9 @@ public class BeanDesc implements Serializable {
          */
         public PropDesc setValue(Object bean, Object value) {
             if (null != this.setter) {
-                ReflectUtils.invoke(bean, this.setter, value);
-            } else if (ModifierUtils.isPublic(this.field)) {
-                ReflectUtils.setFieldValue(bean, this.field, value);
+                ReflectKit.invoke(bean, this.setter, value);
+            } else if (BeanKit.isPublic(this.field)) {
+                ReflectKit.setFieldValue(bean, this.field, value);
             }
             return this;
         }
@@ -451,10 +452,10 @@ public class BeanDesc implements Serializable {
         private Type findPropType(Method getter, Method setter) {
             Type type = null;
             if (null != getter) {
-                type = TypeUtils.getReturnType(getter);
+                type = TypeKit.getReturnType(getter);
             }
             if (null == type && null != setter) {
-                type = TypeUtils.getParamType(setter, 0);
+                type = TypeKit.getParamType(setter, 0);
             }
             return type;
         }
@@ -469,10 +470,10 @@ public class BeanDesc implements Serializable {
         private Class<?> findPropClass(Method getter, Method setter) {
             Class<?> type = null;
             if (null != getter) {
-                type = TypeUtils.getReturnClass(getter);
+                type = TypeKit.getReturnClass(getter);
             }
             if (null == type && null != setter) {
-                type = TypeUtils.getFirstParamClass(setter);
+                type = TypeKit.getFirstParamClass(setter);
             }
             return type;
         }

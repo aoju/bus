@@ -6,37 +6,43 @@
 
     <groupId>org.aoju</groupId>
     <artifactId>bus-tracer</artifactId>
-    <version>5.8.2</version>
+    <version>6.0.1</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
     <description>Bus Tracer</description>
     <url>https://github.com/aoju/bus</url>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.5.RELEASE</version>
-    </parent>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.compiler.version>1.8</project.compiler.version>
-        <dubbo.version>2.7.5</dubbo.version>
+        <spring.boot.version>2.3.0.RELEASE</spring.boot.version>
+        <lombok.version>1.18.12</lombok.version>
+        <dubbo.version>2.7.7</dubbo.version>
         <servlet.version>4.0.1</servlet.version>
         <cxf.version>2.7.18</cxf.version>
         <httpclient.version>4.5.2</httpclient.version>
         <httpclient5.version>5.0</httpclient5.version>
-        <jersey.version>2.23.1</jersey.version>
-        <quartz.version>2.2.3</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>bus-extra</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bus-health</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -60,7 +66,7 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-bindings-soap</artifactId>
             <version>${cxf.version}</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>javax.ejb</groupId>
@@ -101,24 +107,27 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web-services</artifactId>
+            <version>${spring.boot.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
+            <version>${spring.boot.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
             <optional>true</optional>
         </dependency>
     </dependencies>
 
     <licenses>
         <license>
-            <name>The MIT License</name>
-            <url>https://www.mit-license.org</url>
+            <name>The MIT License (MIT)</name>
+            <url>https://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
 
@@ -154,7 +163,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -188,7 +197,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.2.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>

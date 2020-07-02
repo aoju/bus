@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
 import org.aoju.bus.oauth.Builder;
@@ -33,28 +34,27 @@ import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 /**
  * oschina登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class OschinaProvider extends DefaultProvider {
+public class OschinaProvider extends AbstractProvider {
 
     public OschinaProvider(Context context) {
         super(context, Registry.OSCHINA);
     }
 
-    public OschinaProvider(Context context, StateCache stateCache) {
-        super(context, Registry.OSCHINA, stateCache);
+    public OschinaProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.OSCHINA, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        JSONObject object = JSONObject.parseObject(doPostAuthorizationCode(Callback.getCode()));
+    public AccToken getAccessToken(Callback callback) {
+        JSONObject object = JSONObject.parseObject(doPostAuthorizationCode(callback.getCode()));
         this.checkResponse(object);
         return AccToken.builder()
                 .accessToken(object.getString("access_token"))
@@ -65,10 +65,11 @@ public class OschinaProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
-        JSONObject object = JSONObject.parseObject(doGetUserInfo(token));
+    public Property getUserInfo(AccToken accToken) {
+        JSONObject object = JSONObject.parseObject(doGetUserInfo(accToken));
         this.checkResponse(object);
         return Property.builder()
+                .rawJson(object)
                 .uuid(object.getString("id"))
                 .username(object.getString("name"))
                 .nickname(object.getString("name"))
@@ -77,7 +78,7 @@ public class OschinaProvider extends DefaultProvider {
                 .location(object.getString("location"))
                 .gender(Normal.Gender.getGender(object.getString("gender")))
                 .email(object.getString("email"))
-                .token(token)
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
@@ -89,7 +90,7 @@ public class OschinaProvider extends DefaultProvider {
      * @return 返回获取accessToken的url
      */
     @Override
-    protected String accessTokenUrl(String code) {
+    public String accessTokenUrl(String code) {
         return Builder.fromUrl(source.accessToken())
                 .queryParam("code", code)
                 .queryParam("client_id", context.getAppKey())
@@ -103,13 +104,13 @@ public class OschinaProvider extends DefaultProvider {
     /**
      * 返回获取userInfo的url
      *
-     * @param token 用户授权后的token
+     * @param accToken 用户授权后的token
      * @return 返回获取userInfo的url
      */
     @Override
-    protected String userInfoUrl(AccToken token) {
+    public String userInfoUrl(AccToken accToken) {
         return Builder.fromUrl(source.userInfo())
-                .queryParam("access_token", token.getAccessToken())
+                .queryParam("access_token", accToken.getAccessToken())
                 .queryParam("dataType", "json")
                 .build();
     }

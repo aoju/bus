@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.validate.strategy;
 
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.validate.Context;
 import org.aoju.bus.validate.annotation.NotBlank;
 import org.aoju.bus.validate.validators.Matcher;
@@ -34,7 +34,7 @@ import org.aoju.bus.validate.validators.Validator;
  * NOT blank 校验
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class NotBlankStrategy implements Validator<String>, Matcher<String, NotBlank> {
@@ -46,7 +46,7 @@ public class NotBlankStrategy implements Validator<String>, Matcher<String, NotB
 
     @Override
     public boolean on(String object, Context context) {
-        return StringUtils.isNotBlank(object);
+        return StringKit.isNotBlank(object);
     }
 
 }

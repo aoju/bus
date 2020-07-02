@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,19 +26,20 @@ package org.aoju.bus.extra.qrcode;
 
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import org.aoju.bus.core.utils.FileUtils;
-import org.aoju.bus.core.utils.ImageUtils;
+import org.aoju.bus.core.lang.Charset;
+import org.aoju.bus.core.toolkit.FileKit;
+import org.aoju.bus.core.toolkit.ImageKit;
 
 import java.awt.*;
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 二维码设置
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class QrConfig {
@@ -55,7 +56,7 @@ public class QrConfig {
      */
     public int height;
     /**
-     * 前景色（二维码颜色）
+     * 前景色(二维码颜色)
      */
     public int foreColor = BLACK;
     /**
@@ -73,7 +74,7 @@ public class QrConfig {
     /**
      * 编码
      */
-    public Charset charset = org.aoju.bus.core.lang.Charset.UTF_8;
+    public java.nio.charset.Charset charset = Charset.UTF_8;
     /**
      * 二维码中的Logo
      */
@@ -164,7 +165,6 @@ public class QrConfig {
      *
      * @param foreColor 前景色
      * @return this
-     * @since 5.1.1
      */
     public QrConfig setForeColor(Color foreColor) {
         if (null != foreColor) {
@@ -187,7 +187,6 @@ public class QrConfig {
      *
      * @param backColor 背景色,null表示透明背景
      * @return this
-     * @since 5.1.1
      */
     public QrConfig setBackColor(Color backColor) {
         if (null == backColor) {
@@ -243,7 +242,7 @@ public class QrConfig {
      *
      * @return 编码
      */
-    public Charset getCharset() {
+    public java.nio.charset.Charset getCharset() {
         return charset;
     }
 
@@ -253,7 +252,7 @@ public class QrConfig {
      * @param charset 编码
      * @return this
      */
-    public QrConfig setCharset(Charset charset) {
+    public QrConfig setCharset(java.nio.charset.Charset charset) {
         this.charset = charset;
         return this;
     }
@@ -274,7 +273,7 @@ public class QrConfig {
      * @return this;
      */
     public QrConfig setImg(String imgPath) {
-        return setImg(FileUtils.file(imgPath));
+        return setImg(FileKit.file(imgPath));
     }
 
     /**
@@ -284,7 +283,7 @@ public class QrConfig {
      * @return this;
      */
     public QrConfig setImg(File imgFile) {
-        return setImg(ImageUtils.read(imgFile));
+        return setImg(ImageKit.read(imgFile));
     }
 
     /**
@@ -323,9 +322,9 @@ public class QrConfig {
      *
      * @return 配置
      */
-    public HashMap<EncodeHintType, Object> toHints() {
+    public Map<EncodeHintType, Object> toHints() {
         // 配置
-        final HashMap<EncodeHintType, Object> hints = new HashMap<>();
+        final Map<EncodeHintType, Object> hints = new HashMap<>();
         if (null != this.charset) {
             hints.put(EncodeHintType.CHARACTER_SET, charset.toString());
         }

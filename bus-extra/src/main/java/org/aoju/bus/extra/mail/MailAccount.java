@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,19 +24,19 @@
  ********************************************************************************/
 package org.aoju.bus.extra.mail;
 
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.setting.Setting;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
  * 邮件账户对象
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class MailAccount implements Serializable {
@@ -87,14 +87,14 @@ public class MailAccount implements Serializable {
     /**
      * 编码用于编码邮件正文和发送人、收件人等中文
      */
-    private Charset charset = org.aoju.bus.core.lang.Charset.UTF_8;
+    private java.nio.charset.Charset charset = Charset.UTF_8;
     /**
-     * 对于超长参数是否切分为多份,默认为false（国内邮箱附件不支持切分的附件名）
+     * 对于超长参数是否切分为多份,默认为false(国内邮箱附件不支持切分的附件名)
      */
     private boolean splitlongparameters;
 
     /**
-     * 使用 STARTTLS安全连接,STARTTLS是对纯文本通信协议的扩展 它将纯文本连接升级为加密连接（TLS或SSL）, 而不是使用一个单独的加密通信端口
+     * 使用 STARTTLS安全连接,STARTTLS是对纯文本通信协议的扩展 它将纯文本连接升级为加密连接(TLS或SSL), 而不是使用一个单独的加密通信端口
      */
     private boolean startttlsEnable = false;
     /**
@@ -292,7 +292,7 @@ public class MailAccount implements Serializable {
      *
      * @return 编码
      */
-    public Charset getCharset() {
+    public java.nio.charset.Charset getCharset() {
         return charset;
     }
 
@@ -302,13 +302,13 @@ public class MailAccount implements Serializable {
      * @param charset 字符集编码
      * @return this
      */
-    public MailAccount setCharset(Charset charset) {
+    public MailAccount setCharset(java.nio.charset.Charset charset) {
         this.charset = charset;
         return this;
     }
 
     /**
-     * 对于超长参数是否切分为多份,默认为false（国内邮箱附件不支持切分的附件名）
+     * 对于超长参数是否切分为多份,默认为false(国内邮箱附件不支持切分的附件名)
      *
      * @return 对于超长参数是否切分为多份
      */
@@ -317,7 +317,7 @@ public class MailAccount implements Serializable {
     }
 
     /**
-     * 设置对于超长参数是否切分为多份,默认为false（国内邮箱附件不支持切分的附件名）
+     * 设置对于超长参数是否切分为多份,默认为false(国内邮箱附件不支持切分的附件名)
      *
      * @param splitlongparameters 对于超长参数是否切分为多份
      */
@@ -326,7 +326,7 @@ public class MailAccount implements Serializable {
     }
 
     /**
-     * 是否使用 STARTTLS安全连接,STARTTLS是对纯文本通信协议的扩展 它将纯文本连接升级为加密连接（TLS或SSL）, 而不是使用一个单独的加密通信端口
+     * 是否使用 STARTTLS安全连接,STARTTLS是对纯文本通信协议的扩展 它将纯文本连接升级为加密连接(TLS或SSL), 而不是使用一个单独的加密通信端口
      *
      * @return 是否使用 STARTTLS安全连接
      */
@@ -335,7 +335,7 @@ public class MailAccount implements Serializable {
     }
 
     /**
-     * 设置是否使用STARTTLS安全连接,STARTTLS是对纯文本通信协议的扩展 它将纯文本连接升级为加密连接（TLS或SSL）, 而不是使用一个单独的加密通信端口
+     * 设置是否使用STARTTLS安全连接,STARTTLS是对纯文本通信协议的扩展 它将纯文本连接升级为加密连接(TLS或SSL), 而不是使用一个单独的加密通信端口
      *
      * @param startttlsEnable 是否使用STARTTLS安全连接
      * @return this
@@ -471,7 +471,7 @@ public class MailAccount implements Serializable {
         p.put(MAIL_DEBUG, String.valueOf(this.debug));
 
         if (this.startttlsEnable) {
-            //STARTTLS是对纯文本通信协议的扩展 它将纯文本连接升级为加密连接（TLS或SSL）, 而不是使用一个单独的加密通信端口
+            //STARTTLS是对纯文本通信协议的扩展 它将纯文本连接升级为加密连接(TLS或SSL), 而不是使用一个单独的加密通信端口
             p.put(STARTTTLS_ENABLE, String.valueOf(this.startttlsEnable));
 
             if (null == this.sslEnable) {
@@ -499,17 +499,17 @@ public class MailAccount implements Serializable {
         // 去掉发件人的姓名部分
         final String fromAddress = InternalMail.parseFirstAddress(this.from, this.charset).getAddress();
 
-        if (StringUtils.isBlank(this.host)) {
+        if (StringKit.isBlank(this.host)) {
             // 如果SMTP地址为空,默认使用smtp.<发件人邮箱后缀>
-            this.host = StringUtils.format("smtp.{}", StringUtils.subSuf(fromAddress, fromAddress.indexOf(Symbol.C_AT) + 1));
+            this.host = StringKit.format("smtp.{}", StringKit.subSuf(fromAddress, fromAddress.indexOf(Symbol.C_AT) + 1));
         }
-        if (StringUtils.isBlank(user)) {
+        if (StringKit.isBlank(user)) {
             // 如果用户名为空,默认为发件人邮箱前缀
-            this.user = StringUtils.subPre(fromAddress, fromAddress.indexOf(Symbol.C_AT));
+            this.user = StringKit.subPre(fromAddress, fromAddress.indexOf(Symbol.C_AT));
         }
         if (null == this.auth) {
             // 如果密码非空白,则使用认证模式
-            this.auth = (false == StringUtils.isBlank(this.pass));
+            this.auth = (false == StringKit.isBlank(this.pass));
         }
         if (null == this.port) {
             // 端口在SSL状态下默认与socketFactoryPort一致,非SSL状态下默认为25
@@ -517,7 +517,7 @@ public class MailAccount implements Serializable {
         }
         if (null == this.charset) {
             // 默认UTF-8编码
-            this.charset = org.aoju.bus.core.lang.Charset.UTF_8;
+            this.charset = Charset.UTF_8;
         }
         return this;
     }

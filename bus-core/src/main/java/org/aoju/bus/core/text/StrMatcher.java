@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.core.text;
 
 
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.util.Arrays;
 
@@ -35,7 +35,7 @@ import java.util.Arrays;
  * 如果这些还不够,您可以子类化并实现自己的匹配器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public abstract class StrMatcher {
@@ -195,7 +195,7 @@ public abstract class StrMatcher {
      * @return 给定字符的新匹配器
      */
     public static StrMatcher charSetMatcher(final String chars) {
-        if (StringUtils.isEmpty(chars)) {
+        if (StringKit.isEmpty(chars)) {
             return NONE_MATCHER;
         }
         if (chars.length() == 1) {
@@ -211,7 +211,7 @@ public abstract class StrMatcher {
      * @return 给定字符串返回一个新的匹配器
      */
     public static StrMatcher stringMatcher(final String str) {
-        if (StringUtils.isEmpty(str)) {
+        if (StringKit.isEmpty(str)) {
             return NONE_MATCHER;
         }
         return new StringMatcher(str);

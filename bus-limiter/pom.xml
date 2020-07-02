@@ -6,25 +6,21 @@
 
     <groupId>org.aoju</groupId>
     <artifactId>bus-limiter</artifactId>
-    <version>5.8.2</version>
+    <version>6.0.1</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
     <description>Bus Limiter</description>
     <url>https://github.com/aoju/bus</url>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.5.RELEASE</version>
-    </parent>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.compiler.version>1.8</project.compiler.version>
-        <curator.version>4.2.0</curator.version>
+        <spring.boot.version>2.3.0.RELEASE</spring.boot.version>
+        <curator.version>4.3.0</curator.version>
         <redisson.version>3.11.2</redisson.version>
+        <guava.version>29.0-jre</guava.version>
     </properties>
 
     <dependencies>
@@ -34,9 +30,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
             <version>${redisson.version}</version>
+            <optional>true</optional>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -68,6 +71,7 @@
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
             <version>${curator.version}</version>
+            <optional>true</optional>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -86,13 +90,15 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
     <licenses>
         <license>
-            <name>The MIT License</name>
-            <url>https://www.mit-license.org</url>
+            <name>The MIT License (MIT)</name>
+            <url>https://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
 
@@ -128,7 +134,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -162,7 +168,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.2.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>

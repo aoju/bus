@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,7 +27,7 @@ package org.aoju.bus.core.io.file;
 import org.aoju.bus.core.io.LineHandler;
 import org.aoju.bus.core.io.watchers.SimpleWatcher;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.FileUtils;
+import org.aoju.bus.core.toolkit.FileKit;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -39,14 +39,14 @@ import java.nio.file.WatchEvent;
  * 行处理的Watcher实现
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class LineReadWatcher extends SimpleWatcher implements Runnable {
 
-    private RandomAccessFile randomAccessFile;
-    private Charset charset;
-    private LineHandler lineHandler;
+    private final RandomAccessFile randomAccessFile;
+    private final Charset charset;
+    private final LineHandler lineHandler;
 
     /**
      * 构造
@@ -85,7 +85,7 @@ public class LineReadWatcher extends SimpleWatcher implements Runnable {
             }
 
             // 读取行
-            FileUtils.readLines(randomAccessFile, charset, lineHandler);
+            FileKit.readLines(randomAccessFile, charset, lineHandler);
 
             // 记录当前读到的位置
             randomAccessFile.seek(currentLength);

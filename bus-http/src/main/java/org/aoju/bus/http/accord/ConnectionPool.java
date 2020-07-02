@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.http.accord;
 
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 import org.aoju.bus.http.Address;
 import org.aoju.bus.http.Builder;
 import org.aoju.bus.http.Route;
@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  * 该类实现了哪些连接保持开放以供将来使用的策略
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class ConnectionPool {
@@ -207,7 +207,7 @@ public final class ConnectionPool {
         }
 
         for (RealConnection connection : evictedConnections) {
-            IoUtils.close(connection.socket());
+            IoKit.close(connection.socket());
         }
     }
 
@@ -262,7 +262,7 @@ public final class ConnectionPool {
             }
         }
 
-        IoUtils.close(longestIdleConnection.socket());
+        IoKit.close(longestIdleConnection.socket());
         // 立即清理.
         return 0;
     }

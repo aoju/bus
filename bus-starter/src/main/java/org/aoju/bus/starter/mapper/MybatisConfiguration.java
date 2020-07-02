@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.starter.mapper;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.logger.Logger;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -43,7 +43,7 @@ import java.io.FileNotFoundException;
  * mybatis 配置
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @EnableConfigurationProperties(value = {MybatisProperties.class})
@@ -57,7 +57,7 @@ public class MybatisConfiguration {
         try {
             SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
             bean.setDataSource(dataSource);
-            if (StringUtils.isNotBlank(this.properties.getTypeAliasesPackage())) {
+            if (StringKit.isNotBlank(this.properties.getTypeAliasesPackage())) {
                 bean.setTypeAliasesPackage(this.properties.getTypeAliasesPackage());
             }
 

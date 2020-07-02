@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.starter.banner;
 
 import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 
 import java.io.InputStream;
 
@@ -34,7 +34,7 @@ import java.io.InputStream;
  * 旗标生成器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public abstract class AbstractBanner {
@@ -60,7 +60,7 @@ public abstract class AbstractBanner {
         try {
             if (resourceLocation != null) {
                 inputStream = resourceClass.getResourceAsStream(resourceLocation);
-                bannerText = IoUtils.toString(inputStream, Charset.DEFAULT_UTF_8);
+                bannerText = IoKit.toString(inputStream, Charset.DEFAULT_UTF_8);
             }
         } catch (Exception e) {
 
@@ -68,7 +68,7 @@ public abstract class AbstractBanner {
             banner = generateBanner(bannerText);
 
             if (inputStream != null) {
-                IoUtils.close(inputStream);
+                IoKit.close(inputStream);
             }
         }
     }

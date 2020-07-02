@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,13 +25,13 @@
 package org.aoju.bus.office.support;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ClassUtils;
+import org.aoju.bus.core.toolkit.ClassKit;
 
 /**
  * POI引入检查器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class PoiChecker {
@@ -46,7 +46,7 @@ public class PoiChecker {
      */
     public static void checkPoiImport() {
         try {
-            Class.forName("org.apache.poi.ss.usermodel.Workbook", false, ClassUtils.getClassLoader());
+            Class.forName("org.apache.poi.ss.usermodel.Workbook", false, ClassKit.getClassLoader());
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             throw new InstrumentException(NO_POI_ERROR_MSG);
         }

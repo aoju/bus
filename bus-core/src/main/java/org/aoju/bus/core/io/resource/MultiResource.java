@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.core.io.resource;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.CollUtils;
+import org.aoju.bus.core.toolkit.CollKit;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -41,12 +41,12 @@ import java.util.List;
  * 此资源为一个利用游标自循环资源,只有调用{@link #next()} 方法才会获取下一个资源,使用完毕后调用{@link #reset()}方法重置游标
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class MultiResource implements Resource, Iterable<Resource>, Iterator<Resource> {
 
-    private List<Resource> resources;
+    private final List<Resource> resources;
     private int cursor;
 
     /**
@@ -55,7 +55,7 @@ public class MultiResource implements Resource, Iterable<Resource>, Iterator<Res
      * @param resources 资源数组
      */
     public MultiResource(Resource... resources) {
-        this(CollUtils.newArrayList(resources));
+        this(CollKit.newArrayList(resources));
     }
 
     /**
@@ -67,7 +67,7 @@ public class MultiResource implements Resource, Iterable<Resource>, Iterator<Res
         if (resources instanceof List) {
             this.resources = (List<Resource>) resources;
         } else {
-            this.resources = CollUtils.newArrayList(resources);
+            this.resources = CollKit.newArrayList(resources);
         }
     }
 
@@ -92,13 +92,8 @@ public class MultiResource implements Resource, Iterable<Resource>, Iterator<Res
     }
 
     @Override
-    public String readStr(Charset charset) throws InstrumentException {
-        return resources.get(cursor).readStr(charset);
-    }
-
-    @Override
-    public String readUtf8Str() throws InstrumentException {
-        return resources.get(cursor).readUtf8Str();
+    public String readString(Charset charset) throws InstrumentException {
+        return resources.get(cursor).readString(charset);
     }
 
     @Override
@@ -117,7 +112,7 @@ public class MultiResource implements Resource, Iterable<Resource>, Iterator<Res
     }
 
     @Override
-    public Resource next() {
+    public synchronized Resource next() {
         if (cursor >= resources.size()) {
             throw new ConcurrentModificationException();
         }

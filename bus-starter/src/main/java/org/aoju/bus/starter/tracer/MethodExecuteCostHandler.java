@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
  * 方法执行耗时统计
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Component
@@ -69,14 +69,14 @@ public class MethodExecuteCostHandler {
                 //耗时
                 long cost = System.currentTimeMillis() - startTime;
 
-                //当设置了超时时间,但耗时小于超时时间,不进行日志打印,直接返回 （只有耗时大于超时时间才进行日志打印）
+                //当设置了超时时间,但耗时小于超时时间,不进行日志打印,直接返回 (只有耗时大于超时时间才进行日志打印)
                 if (tacerCostLogger.timeout() != -1 && cost < tacerCostLogger.timeout()) {
                     return obj;
                 }
 
                 //方法名
                 String methodName = null;
-                if (StringUtils.isEmpty(tacerCostLogger.methodName())) {
+                if (StringKit.isEmpty(tacerCostLogger.methodName())) {
                     //当methodName为默认值时,用signature(原方法名)代替
                     methodName = pjp.getSignature().toString();
                 } else if (tacerCostLogger.methodName() != null) {
@@ -86,7 +86,7 @@ public class MethodExecuteCostHandler {
 
                 //备注
                 String remark = null;
-                if (StringUtils.isEmpty(tacerCostLogger.remark())) {
+                if (StringKit.isEmpty(tacerCostLogger.remark())) {
                     remark = "";
                 } else if (tacerCostLogger.remark() != null) {
                     //有值则用值

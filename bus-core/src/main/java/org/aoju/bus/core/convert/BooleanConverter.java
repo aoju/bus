@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,24 +24,20 @@
  ********************************************************************************/
 package org.aoju.bus.core.convert;
 
-import org.aoju.bus.core.utils.BooleanUtils;
+import org.aoju.bus.core.toolkit.BooleanKit;
 
 /**
  * 波尔转换器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class BooleanConverter extends AbstractConverter<Boolean> {
 
     @Override
     protected Boolean convertInternal(Object value) {
-        if (boolean.class == value.getClass()) {
-            return Boolean.valueOf((boolean) value);
-        }
-        String valueStr = convertToStr(value);
-        return Boolean.valueOf(BooleanUtils.toBoolean(valueStr));
+        return BooleanKit.toBoolean(convertToStr(value));
     }
 
 }

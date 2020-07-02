@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,8 +27,8 @@ package org.aoju.bus.office.builtin;
 import org.aoju.bus.core.lang.MediaType;
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.StringUtils;
-import org.aoju.bus.http.Request;
+import org.aoju.bus.core.toolkit.StringKit;
+import org.aoju.bus.http.Httpz;
 import org.aoju.bus.http.bodys.MultipartBody;
 import org.aoju.bus.http.bodys.RequestBody;
 import org.aoju.bus.logger.Logger;
@@ -46,7 +46,7 @@ import java.util.Map;
  * 表示在线转换任务的默认行为.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class OnlineMadeInOffice extends AbstractOnlineOffice {
@@ -130,8 +130,12 @@ public class OnlineMadeInOffice extends AbstractOnlineOffice {
                         target.getFormat().getStoreProperties(source.getFormat().getInputFamily()),
                         Builder.STORE_PROPERTIES_PREFIX_PARAM);
 
-                Request request = new Request.Builder().url(urlBuilder.toString()).post(requestBody.build()).tag(context).build();
-                ((OnlineOfficeContextAware) context).getHttp().newCall(request).execute();
+                Httpz.post()
+                        .url(urlBuilder.toString())
+                        .multipartBody(requestBody.build())
+                        .tag(context)
+                        .build().execute();
+
                 // onComplete on target将把临时文件复制到/ OutputStream中，如果输出是OutputStream，则删除临时文件
                 target.onComplete(targetFile);
 
@@ -148,7 +152,7 @@ public class OnlineMadeInOffice extends AbstractOnlineOffice {
     }
 
     private String buildUrl(final String connectionUrl) {
-        return StringUtils.appendIfMissing(connectionUrl, Symbol.SLASH) + target.getFormat().getExtension();
+        return StringKit.appendIfMissing(connectionUrl, Symbol.SLASH) + target.getFormat().getExtension();
     }
 
 }

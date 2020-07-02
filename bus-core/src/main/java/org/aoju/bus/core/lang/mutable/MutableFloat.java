@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,13 +25,13 @@
 package org.aoju.bus.core.lang.mutable;
 
 
-import org.aoju.bus.core.utils.NumberUtils;
+import org.aoju.bus.core.toolkit.MathKit;
 
 /**
  * 可变 <code>float</code> 类型
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @see Float
  * @since JDK 1.8+
  */
@@ -215,7 +215,7 @@ public class MutableFloat extends Number implements Comparable<MutableFloat>, Mu
      */
     @Override
     public int compareTo(final MutableFloat other) {
-        return NumberUtils.compare(this.value, other.value);
+        return MathKit.compare(this.value, other.value);
     }
 
     @Override

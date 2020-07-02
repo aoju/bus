@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.crypto.asymmetric;
 
 import org.aoju.bus.core.codec.Base64;
-import org.aoju.bus.core.io.FastByteArray;
+import org.aoju.bus.core.io.streams.ByteArrayOutputStream;
 import org.aoju.bus.core.lang.exception.InstrumentException;
 import org.aoju.bus.crypto.Builder;
 
@@ -49,7 +49,7 @@ import java.security.PublicKey;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Asymmetric extends Safety<Asymmetric> {
@@ -241,7 +241,7 @@ public class Asymmetric extends Safety<Asymmetric> {
      * 加密或解密
      *
      * @param data         被加密或解密的内容数据
-     * @param maxBlockSize 最大块（分段）大小
+     * @param maxBlockSize 最大块(分段)大小
      * @return 加密或解密后的数据
      * @throws IllegalBlockSizeException 分段异常
      * @throws BadPaddingException       padding错误异常
@@ -273,7 +273,7 @@ public class Asymmetric extends Safety<Asymmetric> {
     private byte[] doFinalWithBlock(byte[] data, int maxBlockSize) throws IllegalBlockSizeException, BadPaddingException, IOException {
         final int dataLength = data.length;
 
-        final FastByteArray out = new FastByteArray();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         int offSet = 0;
         // 剩余长度

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,9 +26,9 @@ package org.aoju.bus.core.io.watchers;
 
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.FileUtils;
-import org.aoju.bus.core.utils.StringUtils;
-import org.aoju.bus.core.utils.UriUtils;
+import org.aoju.bus.core.toolkit.FileKit;
+import org.aoju.bus.core.toolkit.StringKit;
+import org.aoju.bus.core.toolkit.UriKit;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.nio.file.*;
  * 递归监听目录时,并不会监听新创建的目录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class WatchMonitor extends WatchServer {
@@ -159,11 +159,11 @@ public class WatchMonitor extends WatchServer {
      *
      * @param url      URL
      * @param events   监听的事件列表
-     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1（或小于1）时，表示不递归监听子目录
+     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1(或小于1)时，表示不递归监听子目录
      * @return 监听对象
      */
     public static WatchMonitor create(URL url, int maxDepth, WatchEvent.Kind<?>... events) {
-        return create(UriUtils.toURI(url), maxDepth, events);
+        return create(UriKit.toURI(url), maxDepth, events);
     }
 
     /**
@@ -182,7 +182,7 @@ public class WatchMonitor extends WatchServer {
      *
      * @param uri      URI
      * @param events   监听的事件列表
-     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1（或小于1）时，表示不递归监听子目录
+     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1(或小于1)时，表示不递归监听子目录
      * @return 监听对象
      */
     public static WatchMonitor create(URI uri, int maxDepth, WatchEvent.Kind<?>... events) {
@@ -205,7 +205,7 @@ public class WatchMonitor extends WatchServer {
      *
      * @param file     文件
      * @param events   监听的事件列表
-     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1（或小于1）时，表示不递归监听子目录
+     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1(或小于1)时，表示不递归监听子目录
      * @return 监听对象
      */
     public static WatchMonitor create(File file, int maxDepth, WatchEvent.Kind<?>... events) {
@@ -228,7 +228,7 @@ public class WatchMonitor extends WatchServer {
      *
      * @param path     路径
      * @param events   监听的事件列表
-     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1（或小于1）时，表示不递归监听子目录
+     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1(或小于1)时，表示不递归监听子目录
      * @return 监听对象
      */
     public static WatchMonitor create(String path, int maxDepth, WatchEvent.Kind<?>... events) {
@@ -251,7 +251,7 @@ public class WatchMonitor extends WatchServer {
      *
      * @param path     路径
      * @param events   监听事件列表
-     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1（或小于1）时，表示不递归监听子目录
+     * @param maxDepth 当监听目录时，监听目录的最大深度，当设置值为1(或小于1)时，表示不递归监听子目录
      * @return 监听对象
      */
     public static WatchMonitor create(Path path, int maxDepth, WatchEvent.Kind<?>... events) {
@@ -334,11 +334,11 @@ public class WatchMonitor extends WatchServer {
         //获取目录或文件路径
         if (false == Files.exists(this.path, LinkOption.NOFOLLOW_LINKS)) {
             // 不存在的路径
-            final Path lastPathEle = FileUtils.getLastPathEle(this.path);
+            final Path lastPathEle = FileKit.getLastPathEle(this.path);
             if (null != lastPathEle) {
                 final String lastPathEleStr = lastPathEle.toString();
                 //带有点表示有扩展名，按照未创建的文件对待。Linux下.d的为目录，排除之
-                if (StringUtils.contains(lastPathEleStr, Symbol.C_DOT) && false == StringUtils.endWithIgnoreCase(lastPathEleStr, ".d")) {
+                if (StringKit.contains(lastPathEleStr, Symbol.C_DOT) && false == StringKit.endWithIgnoreCase(lastPathEleStr, ".d")) {
                     this.filePath = this.path;
                     this.path = this.filePath.getParent();
                 }
@@ -404,7 +404,7 @@ public class WatchMonitor extends WatchServer {
 
     /**
      * 当监听目录时，监听目录的最大深度
-     * 当设置值为1（或小于1）时，表示不递归监听子目录
+     * 当设置值为1(或小于1)时，表示不递归监听子目录
      * 例如设置：
      * <pre>
      * maxDepth &lt;= 1 表示只监听当前目录
@@ -412,7 +412,7 @@ public class WatchMonitor extends WatchServer {
      * maxDepth = 3 表示监听当前目录以及下层
      * </pre>
      *
-     * @param maxDepth 最大深度，当设置值为1（或小于1）时，表示不递归监听子目录，监听所有子目录请传{@link Integer#MAX_VALUE}
+     * @param maxDepth 最大深度，当设置值为1(或小于1)时，表示不递归监听子目录，监听所有子目录请传{@link Integer#MAX_VALUE}
      * @return this
      */
     public WatchMonitor setMaxDepth(int maxDepth) {

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,8 +24,8 @@
  ********************************************************************************/
 package org.aoju.bus.validate.strategy;
 
-import org.aoju.bus.core.utils.CitizenIdUtils;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.CitizenIdKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
 import org.aoju.bus.validate.Context;
 import org.aoju.bus.validate.annotation.CitizenId;
 import org.aoju.bus.validate.validators.Matcher;
@@ -34,17 +34,17 @@ import org.aoju.bus.validate.validators.Matcher;
  * 身份证号码校验
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class CitizenIdStrategy implements Matcher<String, CitizenId> {
 
     @Override
     public boolean on(String object, CitizenId annotation, Context context) {
-        if (ObjectUtils.isEmpty(object)) {
+        if (ObjectKit.isEmpty(object)) {
             return false;
         }
-        return CitizenIdUtils.isValidCard(object);
+        return CitizenIdKit.isValidCard(object);
     }
 
 }

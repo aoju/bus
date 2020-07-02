@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -29,6 +29,7 @@ import org.aoju.bus.cron.factory.Task;
 import org.aoju.bus.cron.pattern.CronPattern;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -40,7 +41,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 任务的添加、移除使用读写锁保证线程安全性
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class TaskTable {
@@ -50,9 +51,9 @@ public class TaskTable {
     private Scheduler scheduler;
     private TimeZone timezone;
 
-    private ArrayList<String> ids = new ArrayList<>();
-    private ArrayList<CronPattern> patterns = new ArrayList<>();
-    private ArrayList<Task> tasks = new ArrayList<>();
+    private List<String> ids = new ArrayList<>();
+    private List<CronPattern> patterns = new ArrayList<>();
+    private List<Task> tasks = new ArrayList<>();
     private int size;
 
     /**
@@ -138,7 +139,6 @@ public class TaskTable {
      *
      * @param index 位置
      * @return {@link Task}
-     * @since 3.1.1
      */
     public Task getTask(int index) {
         final Lock readLock = lock.readLock();
@@ -155,7 +155,6 @@ public class TaskTable {
      *
      * @param id ID
      * @return {@link Task}
-     * @since 3.1.1
      */
     public Task getTask(String id) {
         final int index = ids.indexOf(id);
@@ -170,7 +169,6 @@ public class TaskTable {
      *
      * @param index 位置
      * @return {@link CronPattern}
-     * @since 3.1.1
      */
     public CronPattern getPattern(int index) {
         final Lock readLock = lock.readLock();
@@ -205,7 +203,6 @@ public class TaskTable {
      *
      * @param id ID
      * @return {@link CronPattern}
-     * @since 3.1.1
      */
     public CronPattern getPattern(String id) {
         final int index = ids.indexOf(id);
@@ -234,7 +231,6 @@ public class TaskTable {
      * 如果时间匹配则执行相应的Task,无锁
      *
      * @param millis 时间毫秒
-     * @since 3.1.1
      */
     protected void executeTaskIfMatchInternal(long millis) {
         for (int i = 0; i < size; i++) {

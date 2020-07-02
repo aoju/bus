@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,12 +26,14 @@ package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.codec.Base64;
 import org.aoju.bus.core.lang.Algorithm;
 import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.MediaType;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
+import org.aoju.bus.core.toolkit.UriKit;
 import org.aoju.bus.http.Httpx;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
@@ -39,37 +41,36 @@ import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 
 /**
  * 钉钉登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class DingTalkProvider extends DefaultProvider {
+public class DingTalkProvider extends AbstractProvider {
 
     public DingTalkProvider(Context context) {
         super(context, Registry.DINGTALK);
     }
 
-    public DingTalkProvider(Context context, StateCache stateCache) {
-        super(context, Registry.DINGTALK, stateCache);
+    public DingTalkProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.DINGTALK, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        return AccToken.builder().accessCode(Callback.getCode()).build();
+    public AccToken getAccessToken(Callback callback) {
+        return AccToken.builder().accessCode(callback.getCode()).build();
     }
 
     @Override
-    protected Object getUserInfo(AccToken oauthToken) {
-        String code = oauthToken.getAccessCode();
+    public Object getUserInfo(AccToken accToken) {
+        String code = accToken.getAccessCode();
         JSONObject param = new JSONObject();
         param.put("tmp_auth_code", code);
-        String response = Httpx.post(userInfoUrl(oauthToken), param.toJSONString(), MediaType.APPLICATION_JSON);
+        String response = Httpx.post(userInfoUrl(accToken), param.toJSONString(), MediaType.APPLICATION_JSON);
         JSONObject object = JSON.parseObject(response);
         if (object.getIntValue("errcode") != 0) {
             throw new AuthorizedException(object.getString("errmsg"));
@@ -80,6 +81,7 @@ public class DingTalkProvider extends DefaultProvider {
                 .unionId(object.getString("unionid"))
                 .build();
         return Property.builder()
+                .rawJson(object)
                 .uuid(object.getString("unionid"))
                 .nickname(object.getString("nick"))
                 .username(object.getString("nick"))
@@ -94,7 +96,6 @@ public class DingTalkProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {
@@ -110,16 +111,16 @@ public class DingTalkProvider extends DefaultProvider {
     /**
      * 返回获取userInfo的url
      *
-     * @param token 用户授权后的token
+     * @param accToken 用户授权后的token
      * @return 返回获取userInfo的url
      */
     @Override
-    protected String userInfoUrl(AccToken token) {
+    public String userInfoUrl(AccToken accToken) {
         // 根据timestamp, appSecret计算签名值
         String timestamp = System.currentTimeMillis() + Normal.EMPTY;
 
         byte[] signData = sign(context.getAppSecret().getBytes(Charset.UTF_8), timestamp.getBytes(Charset.UTF_8), Algorithm.HmacSHA256);
-        String urlEncodeSignature = urlEncode(new String(Base64.encode(signData, false)));
+        String urlEncodeSignature = UriKit.encode(new String(Base64.encode(signData, false)));
 
         return Builder.fromUrl(source.userInfo())
                 .queryParam("signature", urlEncodeSignature)

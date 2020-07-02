@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -30,7 +30,7 @@ package org.aoju.bus.core.lang;
  * @param <E> 元素类型
  * @param <T> 目标类类型,用于返回this对象
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public interface Chain<E, T> extends Iterable<E> {

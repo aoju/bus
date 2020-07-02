@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,14 +24,14 @@
  ********************************************************************************/
 package org.aoju.bus.setting.profile;
 
-import org.aoju.bus.core.lang.Singleton;
+import org.aoju.bus.core.instance.Instances;
 import org.aoju.bus.setting.Setting;
 
 /**
  * 全局的Profile配置中心
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class GlobalProfile {
@@ -46,17 +46,17 @@ public class GlobalProfile {
      * @return {@link Profile}
      */
     public static Profile setProfile(String profile) {
-        return Singleton.get(Profile.class, profile);
+        return Instances.singletion(Profile.class, profile);
     }
 
     /**
      * 获得全局的当前环境下对应的配置文件
      *
-     * @param settingName 配置文件名,可以忽略默认后者（.setting）
+     * @param settingName 配置文件名,可以忽略默认后者(.setting)
      * @return {@link Setting}
      */
     public static Setting getSetting(String settingName) {
-        return Singleton.get(Profile.class).getSetting(settingName);
+        return Instances.singletion(Profile.class).getSetting(settingName);
     }
 
 }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -33,14 +33,14 @@ import com.google.inject.name.Names;
 import org.aoju.bus.cache.magic.AbstractReader;
 import org.aoju.bus.cache.magic.MultiCacheReader;
 import org.aoju.bus.cache.magic.SingleCacheReader;
-import org.aoju.bus.core.utils.CollUtils;
+import org.aoju.bus.core.toolkit.CollKit;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Module extends AbstractModule {
@@ -68,7 +68,7 @@ public class Module extends AbstractModule {
     @Override
     protected void configure() {
         Preconditions.checkArgument(config != null, "config param can not be null.");
-        Preconditions.checkArgument(CollUtils.isNotEmpty(config.getCaches()), "caches param can not be empty.");
+        Preconditions.checkArgument(CollKit.isNotEmpty(config.getCaches()), "caches param can not be empty.");
 
         bind(Context.class).toInstance(config);
 
@@ -77,8 +77,8 @@ public class Module extends AbstractModule {
         config.getCaches().forEach((name, cache) -> mapBinder.addBinding(name).toInstance(cache));
 
         // bind baseProvider
-        Optional.ofNullable(config.getShooting())
-                .ifPresent(mxBean -> bind(Shooting.class).toInstance(mxBean));
+        Optional.ofNullable(config.getHitting())
+                .ifPresent(mxBean -> bind(Hitting.class).toInstance(mxBean));
 
         bind(AbstractReader.class).annotatedWith(Names.named("singleCacheReader")).to(SingleCacheReader.class);
         bind(AbstractReader.class).annotatedWith(Names.named("multiCacheReader")).to(MultiCacheReader.class);

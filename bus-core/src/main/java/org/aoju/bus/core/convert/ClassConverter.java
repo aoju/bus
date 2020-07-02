@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,14 +25,14 @@
 package org.aoju.bus.core.convert;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ClassUtils;
+import org.aoju.bus.core.toolkit.ClassKit;
 
 /**
  * 类转换器
  * 将类名转换为类
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class ClassConverter extends AbstractConverter<Class<?>> {
@@ -41,7 +41,7 @@ public class ClassConverter extends AbstractConverter<Class<?>> {
     protected Class<?> convertInternal(Object value) {
         String valueStr = convertToStr(value);
         try {
-            return ClassUtils.getClassLoader().loadClass(valueStr);
+            return ClassKit.getClassLoader().loadClass(valueStr);
         } catch (Exception e) {
             throw new InstrumentException(e);
         }

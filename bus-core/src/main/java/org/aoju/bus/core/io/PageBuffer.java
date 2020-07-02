@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,6 +24,8 @@
  ********************************************************************************/
 package org.aoju.bus.core.io;
 
+import org.aoju.bus.core.lang.Normal;
+
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,7 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * ByteBuffer内存页
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class PageBuffer {
@@ -178,7 +180,7 @@ public class PageBuffer {
                         freeBuffer.setParentLimit(next.getParentLimit());
                         iterator.remove();
                     } else if (next.getParentPosition() < freeBuffer.getParentLimit()) {
-                        throw new IllegalStateException("");
+                        throw new IllegalStateException(Normal.EMPTY);
                     }
                 }
                 return;

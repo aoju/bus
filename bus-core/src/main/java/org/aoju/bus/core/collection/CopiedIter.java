@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.core.collection;
 
-import org.aoju.bus.core.utils.CollUtils;
+import org.aoju.bus.core.toolkit.CollKit;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * 复制 {@link Iterator}为了解决并发情况下{@link Iterator}遍历导致的问题,当Iterator
- * 被修改会抛出ConcurrentModificationException）,故使用复制原Iterator的方式解决此问题
+ * 被修改会抛出ConcurrentModificationException),故使用复制原Iterator的方式解决此问题
  *
  * <p>
  * 解决方法为：在构造方法中遍历Iterator中的元素,装入新的List中然后遍历之
@@ -40,14 +40,14 @@ import java.util.List;
  *
  * @param <E> 元素类型
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class CopiedIter<E> implements Iterator<E>, Iterable<E>, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Iterator<E> listIterator;
+    private final Iterator<E> listIterator;
 
     /**
      * 构造
@@ -55,7 +55,7 @@ public class CopiedIter<E> implements Iterator<E>, Iterable<E>, Serializable {
      * @param iterator 被复制的Iterator
      */
     public CopiedIter(Iterator<E> iterator) {
-        final List<E> eleList = CollUtils.newArrayList(iterator);
+        final List<E> eleList = CollKit.newArrayList(iterator);
         this.listIterator = eleList.iterator();
     }
 

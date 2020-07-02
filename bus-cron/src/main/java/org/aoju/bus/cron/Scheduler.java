@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -28,8 +28,8 @@ import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.exception.InstrumentException;
 import org.aoju.bus.core.thread.ExecutorBuilder;
 import org.aoju.bus.core.thread.ThreadBuilder;
-import org.aoju.bus.core.utils.CollUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.CollKit;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.cron.factory.InvokeTask;
 import org.aoju.bus.cron.factory.RunnableTask;
 import org.aoju.bus.cron.factory.Task;
@@ -62,7 +62,7 @@ import java.util.concurrent.ExecutorService;
  * 其中：
  *
  * <pre>
- * <strong>TaskLauncher</strong>：定时器每分钟调用一次（如果{@link Scheduler#isMatchSecond()}为<code>true</code>每秒调用一次）,
+ * <strong>TaskLauncher</strong>：定时器每分钟调用一次(如果{@link Scheduler#isMatchSecond()}为<code>true</code>每秒调用一次),
  * 负责检查<strong>TaskTable</strong>是否有匹配到此时间运行的Task
  * </pre>
  *
@@ -71,7 +71,7 @@ import java.util.concurrent.ExecutorService;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Scheduler {
@@ -215,13 +215,13 @@ public class Scheduler {
      * @return this
      */
     public Scheduler schedule(Setting cronSetting) {
-        if (CollUtils.isNotEmpty(cronSetting)) {
+        if (CollKit.isNotEmpty(cronSetting)) {
             String group;
             for (Entry<String, LinkedHashMap<String, String>> groupedEntry : cronSetting.getGroupedMap().entrySet()) {
                 group = groupedEntry.getKey();
                 for (Entry<String, String> entry : groupedEntry.getValue().entrySet()) {
                     String jobClass = entry.getKey();
-                    if (StringUtils.isNotBlank(group)) {
+                    if (StringKit.isNotBlank(group)) {
                         jobClass = group + Symbol.DOT + jobClass;
                     }
                     final String pattern = entry.getValue();
@@ -325,7 +325,6 @@ public class Scheduler {
      *
      * @param id ID
      * @return {@link CronPattern}
-     * @since 3.1.1
      */
     public CronPattern getPattern(String id) {
         return this.taskTable.getPattern(id);
@@ -336,7 +335,6 @@ public class Scheduler {
      *
      * @param id ID
      * @return {@link Task}
-     * @since 3.1.1
      */
     public Task getTask(String id) {
         return this.taskTable.getTask(id);

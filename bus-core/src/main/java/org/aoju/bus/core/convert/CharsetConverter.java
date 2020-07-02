@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,22 +24,20 @@
  ********************************************************************************/
 package org.aoju.bus.core.convert;
 
-import org.aoju.bus.core.utils.CharsetUtils;
-
-import java.nio.charset.Charset;
+import org.aoju.bus.core.lang.Charset;
 
 /**
  * 编码对象转换器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class CharsetConverter extends AbstractConverter<Charset> {
+public class CharsetConverter extends AbstractConverter<java.nio.charset.Charset> {
 
     @Override
-    protected Charset convertInternal(Object value) {
-        return CharsetUtils.charset(convertToStr(value));
+    protected java.nio.charset.Charset convertInternal(Object value) {
+        return Charset.charset(convertToStr(value));
     }
 
 }

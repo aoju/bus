@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.tracer;
 
-import org.aoju.bus.tracer.config.TraceFilterConfiguration;
+import org.aoju.bus.tracer.config.TraceFilterConfig;
 
 import java.util.Map;
 
@@ -32,14 +32,14 @@ import java.util.Map;
  * 后端应该是线程安全的(读写被委托给线程本地状态).
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public interface Backend {
 
-    TraceFilterConfiguration getConfiguration(String profileName);
+    TraceFilterConfig getConfiguration(String profileName);
 
-    TraceFilterConfiguration getConfiguration();
+    TraceFilterConfig getConfiguration();
 
     boolean containsKey(String key);
 

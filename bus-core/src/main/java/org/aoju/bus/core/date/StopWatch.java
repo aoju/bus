@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,9 +26,9 @@ package org.aoju.bus.core.date;
 
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.DateUtils;
-import org.aoju.bus.core.utils.FileUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.DateKit;
+import org.aoju.bus.core.toolkit.FileKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ import java.util.List;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class StopWatch {
@@ -208,9 +208,9 @@ public class StopWatch {
     }
 
     /**
-     * 获取最后任务的花费时间（纳秒）
+     * 获取最后任务的花费时间(纳秒)
      *
-     * @return 任务的花费时间（纳秒）
+     * @return 任务的花费时间(纳秒)
      * @throws IllegalStateException 无任务
      */
     public long getLastTaskTimeNanos() throws IllegalStateException {
@@ -221,9 +221,9 @@ public class StopWatch {
     }
 
     /**
-     * 获取最后任务的花费时间（毫秒）
+     * 获取最后任务的花费时间(毫秒)
      *
-     * @return 任务的花费时间（毫秒）
+     * @return 任务的花费时间(毫秒)
      * @throws IllegalStateException 无任务
      */
     public long getLastTaskTimeMillis() throws IllegalStateException {
@@ -260,9 +260,9 @@ public class StopWatch {
     }
 
     /**
-     * 获取所有任务的总花费时间（纳秒）
+     * 获取所有任务的总花费时间(纳秒)
      *
-     * @return 所有任务的总花费时间（纳秒）
+     * @return 所有任务的总花费时间(纳秒)
      * @see #getTotalTimeMillis()
      * @see #getTotalTimeSeconds()
      */
@@ -271,25 +271,25 @@ public class StopWatch {
     }
 
     /**
-     * 获取所有任务的总花费时间（毫秒）
+     * 获取所有任务的总花费时间(毫秒)
      *
-     * @return 所有任务的总花费时间（毫秒）
+     * @return 所有任务的总花费时间(毫秒)
      * @see #getTotalTimeNanos()
      * @see #getTotalTimeSeconds()
      */
     public long getTotalTimeMillis() {
-        return DateUtils.nanosToMillis(this.totalTimeNanos);
+        return DateKit.nanosToMillis(this.totalTimeNanos);
     }
 
     /**
-     * 获取所有任务的总花费时间（秒）
+     * 获取所有任务的总花费时间(秒)
      *
-     * @return 所有任务的总花费时间（秒）
+     * @return 所有任务的总花费时间(秒)
      * @see #getTotalTimeNanos()
      * @see #getTotalTimeMillis()
      */
     public double getTotalTimeSeconds() {
-        return DateUtils.nanosToSeconds(this.totalTimeNanos);
+        return DateKit.nanosToSeconds(this.totalTimeNanos);
     }
 
     /**
@@ -319,7 +319,7 @@ public class StopWatch {
      * @return 任务信息
      */
     public String shortSummary() {
-        return StringUtils.format("StopWatch '{}': running time = {} ns", this.id, this.totalTimeNanos);
+        return StringKit.format("StopWatch '{}': running time = {} ns", this.id, this.totalTimeNanos);
     }
 
     /**
@@ -329,13 +329,13 @@ public class StopWatch {
      */
     public String prettyPrint() {
         StringBuilder sb = new StringBuilder(shortSummary());
-        sb.append(FileUtils.getLineSeparator());
+        sb.append(FileKit.getLineSeparator());
         if (null == this.taskList) {
             sb.append("No task info kept");
         } else {
-            sb.append("---------------------------------------------").append(FileUtils.getLineSeparator());
-            sb.append("ns         %     Task name").append(FileUtils.getLineSeparator());
-            sb.append("---------------------------------------------").append(FileUtils.getLineSeparator());
+            sb.append("---------------------------------------------").append(FileKit.getLineSeparator());
+            sb.append("ns         %     Task name").append(FileKit.getLineSeparator());
+            sb.append("---------------------------------------------").append(FileKit.getLineSeparator());
 
             final NumberFormat nf = NumberFormat.getNumberInstance();
             nf.setMinimumIntegerDigits(9);
@@ -347,7 +347,7 @@ public class StopWatch {
             for (TaskInfo task : getTaskInfo()) {
                 sb.append(nf.format(task.getTimeNanos())).append("  ");
                 sb.append(pf.format((double) task.getTimeNanos() / getTotalTimeNanos())).append("  ");
-                sb.append(task.getTaskName()).append(FileUtils.getLineSeparator());
+                sb.append(task.getTaskName()).append(FileKit.getLineSeparator());
             }
         }
         return sb.toString();
@@ -391,7 +391,7 @@ public class StopWatch {
         }
 
         /**
-         * 获取任务花费时间（单位：纳秒）
+         * 获取任务花费时间(单位：纳秒)
          *
          * @return the long
          * @see #getTimeMillis()
@@ -402,25 +402,25 @@ public class StopWatch {
         }
 
         /**
-         * 获取任务花费时间（单位：毫秒）
+         * 获取任务花费时间(单位：毫秒)
          *
          * @return the long
          * @see #getTimeNanos()
          * @see #getTimeSeconds()
          */
         public long getTimeMillis() {
-            return DateUtils.nanosToMillis(this.timeNanos);
+            return DateKit.nanosToMillis(this.timeNanos);
         }
 
         /**
-         * 获取任务花费时间（单位：秒）
+         * 获取任务花费时间(单位：秒)
          *
          * @return the double
          * @see #getTimeMillis()
          * @see #getTimeNanos()
          */
         public double getTimeSeconds() {
-            return DateUtils.nanosToSeconds(this.timeNanos);
+            return DateKit.nanosToSeconds(this.timeNanos);
         }
     }
 

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.core.map;
 
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +36,7 @@ import java.util.Map;
  * @param <K> 键类型
  * @param <V> 值类型
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class CamelCaseMap<K, V> extends CustomKeyMap<K, V> {
@@ -96,7 +96,7 @@ public class CamelCaseMap<K, V> extends CustomKeyMap<K, V> {
     @Override
     protected Object customKey(Object key) {
         if (null != key && key instanceof CharSequence) {
-            key = StringUtils.toCamelCase(key.toString());
+            key = StringKit.toCamelCase(key.toString());
         }
         return key;
     }

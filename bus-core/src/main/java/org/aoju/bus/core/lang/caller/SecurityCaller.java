@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,13 +24,13 @@
  ********************************************************************************/
 package org.aoju.bus.core.lang.caller;
 
-import org.aoju.bus.core.utils.ArrayUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
 
 /**
  * 方式获取调用者
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class SecurityCaller extends SecurityManager implements Caller {
@@ -67,7 +67,7 @@ public class SecurityCaller extends SecurityManager implements Caller {
     @Override
     public boolean isCalledBy(Class<?> clazz) {
         final Class<?>[] classes = getClassContext();
-        if (ArrayUtils.isNotEmpty(classes)) {
+        if (ArrayKit.isNotEmpty(classes)) {
             for (Class<?> contextClass : classes) {
                 if (contextClass.equals(clazz)) {
                     return true;

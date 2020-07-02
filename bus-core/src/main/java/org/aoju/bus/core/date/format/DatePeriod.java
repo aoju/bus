@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,13 +25,13 @@
 package org.aoju.bus.core.date.format;
 
 import org.aoju.bus.core.lang.Fields;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 /**
  * 时长格式化器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class DatePeriod {
@@ -111,7 +111,7 @@ public class DatePeriod {
             }
         }
 
-        if (StringUtils.isEmpty(sb)) {
+        if (StringKit.isEmpty(sb)) {
             sb.append(0).append(this.level.name);
         }
 
@@ -161,7 +161,7 @@ public class DatePeriod {
 
     /**
      * 等级数量是否有效
-     * 有效的定义是：levelMaxCount大于0（被设置）,当前等级数量没有超过这个最大值
+     * 有效的定义是：levelMaxCount大于0(被设置),当前等级数量没有超过这个最大值
      *
      * @param levelCount 登记数量
      * @return 是否有效

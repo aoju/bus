@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -33,14 +33,14 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import lombok.AllArgsConstructor;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 /**
  * 阿里云 短信服务
  * 通过该注入该类实现发送短信
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @AllArgsConstructor
@@ -92,7 +92,7 @@ public class AliSmsService {
      */
     public AliSmsResult send(AliSmsEntity entity) throws InstrumentException {
         try {
-            IClientProfile profile = DefaultProfile.getProfile(StringUtils.toString(this.profile, "default"), this.accessKey, this.accessSecret);
+            IClientProfile profile = DefaultProfile.getProfile(StringKit.toString(this.profile, "default"), this.accessKey, this.accessSecret);
             DefaultProfile.addEndpoint(this.profile, ALIYUN_PRODUCT, ALIYUN_PRODUCT_DOMAIN);
             IAcsClient acsClient = new DefaultAcsClient(profile);
 

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,9 @@
 package org.aoju.bus.core.convert;
 
 import org.aoju.bus.core.date.DateTime;
-import org.aoju.bus.core.utils.DateUtils;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.DateKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -50,12 +51,12 @@ import java.util.Objects;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class TemporalConverter extends AbstractConverter<TemporalAccessor> {
 
-    private Class<?> targetType;
+    private final Class<?> targetType;
     /**
      * 日期格式化
      */
@@ -106,7 +107,7 @@ public class TemporalConverter extends AbstractConverter<TemporalAccessor> {
         } else if (value instanceof TemporalAccessor) {
             return parseFromTemporalAccessor((TemporalAccessor) value);
         } else if (value instanceof Date) {
-            final DateTime dateTime = DateUtils.date((Date) value);
+            final DateTime dateTime = DateKit.date((Date) value);
             return parseFromInstant(dateTime.toInstant(), dateTime.getZoneId());
         } else if (value instanceof Calendar) {
             final Calendar calendar = (Calendar) value;
@@ -123,6 +124,9 @@ public class TemporalConverter extends AbstractConverter<TemporalAccessor> {
      * @return 日期对象
      */
     private TemporalAccessor parseFromCharSequence(CharSequence value) {
+        if (StringKit.isBlank(value)) {
+            return null;
+        }
         final Instant instant;
         ZoneId zoneId;
         if (null != this.format) {
@@ -130,7 +134,7 @@ public class TemporalConverter extends AbstractConverter<TemporalAccessor> {
             instant = formatter.parse(value, Instant::from);
             zoneId = formatter.getZone();
         } else {
-            final DateTime dateTime = DateUtils.parse(value);
+            final DateTime dateTime = DateKit.parse(value);
             instant = Objects.requireNonNull(dateTime).toInstant();
             zoneId = dateTime.getZoneId();
         }
@@ -162,7 +166,7 @@ public class TemporalConverter extends AbstractConverter<TemporalAccessor> {
         }
 
         if (null == result) {
-            result = parseFromInstant(DateUtils.toInstant(temporalAccessor), null);
+            result = parseFromInstant(DateKit.toInstant(temporalAccessor), null);
         }
 
         return result;
@@ -176,7 +180,7 @@ public class TemporalConverter extends AbstractConverter<TemporalAccessor> {
      */
     private TemporalAccessor parseFromLocalDateTime(LocalDateTime localDateTime) {
         if (Instant.class.equals(this.targetType)) {
-            return DateUtils.toInstant(localDateTime);
+            return DateKit.toInstant(localDateTime);
         }
         if (LocalDate.class.equals(this.targetType)) {
             return localDateTime.toLocalDate();
@@ -205,7 +209,7 @@ public class TemporalConverter extends AbstractConverter<TemporalAccessor> {
      */
     private TemporalAccessor parseFromZonedDateTime(ZonedDateTime zonedDateTime) {
         if (Instant.class.equals(this.targetType)) {
-            return DateUtils.toInstant(zonedDateTime);
+            return DateKit.toInstant(zonedDateTime);
         }
         if (LocalDateTime.class.equals(this.targetType)) {
             return zonedDateTime.toLocalDateTime();
@@ -238,7 +242,7 @@ public class TemporalConverter extends AbstractConverter<TemporalAccessor> {
             return instant;
         }
 
-        zoneId = ObjectUtils.defaultIfNull(zoneId, ZoneId.systemDefault());
+        zoneId = ObjectKit.defaultIfNull(zoneId, ZoneId.systemDefault());
 
         TemporalAccessor result = null;
         if (LocalDateTime.class.equals(this.targetType)) {

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.starter.socket;
 
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.starter.annotation.EnableSocket;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ResourceLoaderAware;
@@ -38,7 +38,7 @@ import java.util.List;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class SocketScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
@@ -55,12 +55,12 @@ public class SocketScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
 
         List<String> basePackages = new ArrayList<>();
         for (String pkg : attributes.getStringArray("basePackages")) {
-            if (StringUtils.hasText(pkg)) {
+            if (StringKit.hasText(pkg)) {
                 basePackages.add(pkg);
             }
         }
         scanner.registerFilters();
-        scanner.doScan(StringUtils.toStringArray(basePackages));
+        scanner.doScan(StringKit.toStringArray(basePackages));
     }
 
     @Override

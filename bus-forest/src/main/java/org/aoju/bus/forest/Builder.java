@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,6 +27,7 @@ package org.aoju.bus.forest;
 import org.aoju.bus.core.lang.Algorithm;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
+import org.aoju.bus.core.lang.System;
 import org.aoju.bus.forest.algorithm.Key;
 import org.aoju.bus.forest.algorithm.SecureRandom;
 import org.aoju.bus.forest.algorithm.SymmetricSecureKey;
@@ -49,7 +50,7 @@ import java.util.jar.Attributes;
  * Jar 工具类,包含I/O,密钥,过滤器的工具方法
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public abstract class Builder {
@@ -58,7 +59,7 @@ public abstract class Builder {
     public static final String WEB_INF_LIB = "WEB-INF/lib/";
     public static final String META_INF_MANIFEST = Normal.META_DATA_INF + "/MANIFEST.MF";
     public static final String XJAR_SRC_DIR = Builder.class.getPackage().getName().replace(Symbol.C_DOT, Symbol.C_SLASH) + Symbol.SLASH;
-    public static final String XJAR_INF_DIR = Normal.META_DATA_INF + "/";
+    public static final String XJAR_INF_DIR = Normal.META_DATA_INF + Symbol.SLASH;
     public static final String XJAR_INF_IDX = "FOREST.MF";
     public static final String XJAR_ALGORITHM = "--xjar.algorithm=";
     public static final String XJAR_KEYSIZE = "--xjar.keysize=";
@@ -455,7 +456,7 @@ public abstract class Builder {
     }
 
     public static String absolutize(String path) {
-        return normalize(isAbsolute(path) ? path : System.getProperty("user.dir") + File.separator + path);
+        return normalize(isAbsolute(path) ? path : System.getProperty(System.USER_DIR) + File.separator + path);
     }
 
     public static String normalize(String path) {

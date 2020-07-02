@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,14 +25,15 @@
 package org.aoju.bus.http.metric.http;
 
 import org.aoju.bus.core.io.ByteString;
+import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.io.IOException;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class Http2 {
@@ -86,10 +87,10 @@ public final class Http2 {
 
     static {
         for (int i = 0; i < BINARY.length; i++) {
-            BINARY[i] = StringUtils.format("%8s", Integer.toBinaryString(i)).replace(Symbol.C_SPACE, Symbol.C_ZERO);
+            BINARY[i] = StringKit.format("%8s", Integer.toBinaryString(i)).replace(Symbol.C_SPACE, Symbol.C_ZERO);
         }
 
-        FLAGS[FLAG_NONE] = "";
+        FLAGS[FLAG_NONE] = Normal.EMPTY;
         FLAGS[FLAG_END_STREAM] = "END_STREAM";
 
         int[] prefixFlags = new int[]{FLAG_END_STREAM};
@@ -123,22 +124,24 @@ public final class Http2 {
     }
 
     static IllegalArgumentException illegalArgument(String message, Object... args) {
-        throw new IllegalArgumentException(StringUtils.format(message, args));
+        throw new IllegalArgumentException(StringKit.format(message, args));
     }
 
     static IOException ioException(String message, Object... args) throws IOException {
-        throw new IOException(StringUtils.format(message, args));
+        throw new IOException(StringKit.format(message, args));
     }
 
     static String frameLog(boolean inbound, int streamId, int length, byte type, byte flags) {
-        String formattedType = type < FRAME_NAMES.length ? FRAME_NAMES[type] : StringUtils.format("0x%02x", type);
+        String formattedType = type < FRAME_NAMES.length ? FRAME_NAMES[type] : StringKit.format("0x%02x", type);
         String formattedFlags = formatFlags(type, flags);
-        return StringUtils.format("%s 0x%08x %5d %-13s %s", inbound ? "<<" : ">>", streamId, length,
+        return StringKit.format("%s 0x%08x %5d %-13s %s", inbound ? "<<" : ">>", streamId, length,
                 formattedType, formattedFlags);
     }
 
     static String formatFlags(byte type, byte flags) {
-        if (flags == 0) return "";
+        if (flags == 0) {
+            return Normal.EMPTY;
+        }
         switch (type) {
             case TYPE_SETTINGS:
             case TYPE_PING:

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
@@ -35,7 +36,6 @@ import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.util.Objects;
 
@@ -43,10 +43,10 @@ import java.util.Objects;
  * Pinterest登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class PinterestProvider extends DefaultProvider {
+public class PinterestProvider extends AbstractProvider {
 
     private static final String FAILURE = "failure";
 
@@ -54,13 +54,13 @@ public class PinterestProvider extends DefaultProvider {
         super(context, Registry.PINTEREST);
     }
 
-    public PinterestProvider(Context context, StateCache stateCache) {
-        super(context, Registry.PINTEREST, stateCache);
+    public PinterestProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.PINTEREST, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        JSONObject accessTokenObject = JSONObject.parseObject(doPostAuthorizationCode(Callback.getCode()));
+    public AccToken getAccessToken(Callback callback) {
+        JSONObject accessTokenObject = JSONObject.parseObject(doPostAuthorizationCode(callback.getCode()));
         this.checkResponse(accessTokenObject);
         return AccToken.builder()
                 .accessToken(accessTokenObject.getString("access_token"))
@@ -69,29 +69,30 @@ public class PinterestProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
-        String userinfoUrl = userInfoUrl(token);
-        JSONObject object = JSONObject.parseObject(Httpx.get(userinfoUrl));
-        this.checkResponse(object);
-        JSONObject userObj = object.getJSONObject("data");
+    public Property getUserInfo(AccToken accToken) {
+        String userinfoUrl = userInfoUrl(accToken);
+        JSONObject jsonObject = JSONObject.parseObject(Httpx.get(userinfoUrl));
+        this.checkResponse(jsonObject);
+        JSONObject object = jsonObject.getJSONObject("data");
         return Property.builder()
-                .uuid(userObj.getString("id"))
-                .avatar(getAvatarUrl(userObj))
-                .username(userObj.getString("username"))
-                .nickname(userObj.getString("first_name") + Symbol.SPACE + userObj.getString("last_name"))
+                .rawJson(object)
+                .uuid(object.getString("id"))
+                .avatar(getAvatarUrl(object))
+                .username(object.getString("username"))
+                .nickname(object.getString("first_name") + Symbol.SPACE + object.getString("last_name"))
                 .gender(Normal.Gender.UNKNOWN)
-                .remark(userObj.getString("bio"))
-                .token(token)
+                .remark(object.getString("bio"))
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
 
-    private String getAvatarUrl(JSONObject userObj) {
-        JSONObject jsonObject = userObj.getJSONObject("image");
-        if (Objects.isNull(jsonObject)) {
+    private String getAvatarUrl(JSONObject jsonObject) {
+        JSONObject object = jsonObject.getJSONObject("image");
+        if (Objects.isNull(object)) {
             return null;
         }
-        return jsonObject.getJSONObject("60x60").getString("url");
+        return object.getJSONObject("60x60").getString("url");
     }
 
     /**
@@ -99,7 +100,6 @@ public class PinterestProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {
@@ -115,13 +115,13 @@ public class PinterestProvider extends DefaultProvider {
     /**
      * 返回获取userInfo的url
      *
-     * @param token token
+     * @param accToken token
      * @return 返回获取userInfo的url
      */
     @Override
-    protected String userInfoUrl(AccToken token) {
+    public String userInfoUrl(AccToken accToken) {
         return Builder.fromUrl(source.userInfo())
-                .queryParam("access_token", token.getAccessToken())
+                .queryParam("access_token", accToken.getAccessToken())
                 .queryParam("fields", "id,username,first_name,last_name,bio,image")
                 .build();
     }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,13 +24,13 @@
  ********************************************************************************/
 package org.aoju.bus.cron.pattern.matcher;
 
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 /**
  * 值匹配,始终返回<code>true</code>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class AlwaysTrueValueMatcher implements ValueMatcher {
@@ -42,7 +42,7 @@ public class AlwaysTrueValueMatcher implements ValueMatcher {
 
     @Override
     public String toString() {
-        return StringUtils.format("[Matcher]: always true.");
+        return StringKit.format("[Matcher]: always true.");
     }
 
 }

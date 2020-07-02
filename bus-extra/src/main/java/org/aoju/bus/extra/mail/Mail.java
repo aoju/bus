@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,8 @@
 package org.aoju.bus.extra.mail;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ArrayUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -43,7 +43,7 @@ import java.util.Date;
  * 邮件发送客户端
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Mail {
@@ -57,11 +57,11 @@ public class Mail {
      */
     private String[] tos;
     /**
-     * 抄送人列表（carbon copy）
+     * 抄送人列表(carbon copy)
      */
     private String[] ccs;
     /**
-     * 密送人列表（blind carbon copy）
+     * 密送人列表(blind carbon copy)
      */
     private String[] bccs;
     /**
@@ -144,7 +144,7 @@ public class Mail {
     }
 
     /**
-     * 设置多个抄送人（carbon copy）
+     * 设置多个抄送人(carbon copy)
      *
      * @param ccs 抄送人列表
      * @return this
@@ -155,7 +155,7 @@ public class Mail {
     }
 
     /**
-     * 设置多个密送人（blind carbon copy）
+     * 设置多个密送人(blind carbon copy)
      *
      * @param bccs 密送人列表
      * @return this
@@ -282,7 +282,7 @@ public class Mail {
         final MimeMessage msg = new MimeMessage(getSession(this.useGlobalSession));
         // 发件人
         final String from = this.mailAccount.getFrom();
-        if (StringUtils.isEmpty(from)) {
+        if (StringKit.isEmpty(from)) {
             // 用户未提供发送方,则从Session中自动获取
             msg.setFrom();
         } else {
@@ -297,11 +297,11 @@ public class Mail {
         // 收件人
         msg.setRecipients(MimeMessage.RecipientType.TO, InternalMail.parseAddressFromStrs(this.tos, charset));
         // 抄送人
-        if (ArrayUtils.isNotEmpty(this.ccs)) {
+        if (ArrayKit.isNotEmpty(this.ccs)) {
             msg.setRecipients(MimeMessage.RecipientType.CC, InternalMail.parseAddressFromStrs(this.ccs, charset));
         }
         // 密送人
-        if (ArrayUtils.isNotEmpty(this.bccs)) {
+        if (ArrayKit.isNotEmpty(this.bccs)) {
             msg.setRecipients(MimeMessage.RecipientType.BCC, InternalMail.parseAddressFromStrs(this.bccs, charset));
         }
         return msg;
@@ -319,11 +319,11 @@ public class Mail {
 
         // 正文
         final BodyPart body = new MimeBodyPart();
-        body.setContent(content, StringUtils.format("text/{}; charset={}", isHtml ? "html" : "plain", charset));
+        body.setContent(content, StringKit.format("text/{}; charset={}", isHtml ? "html" : "plain", charset));
         mainPart.addBodyPart(body);
 
         // 附件
-        if (ArrayUtils.isNotEmpty(this.attachments)) {
+        if (ArrayKit.isNotEmpty(this.attachments)) {
             BodyPart bodyPart;
             for (DataSource attachment : attachments) {
                 bodyPart = new MimeBodyPart();

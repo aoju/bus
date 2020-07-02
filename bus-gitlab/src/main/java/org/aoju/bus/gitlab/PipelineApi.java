@@ -1,3 +1,27 @@
+/*********************************************************************************
+ *                                                                               *
+ * The MIT License (MIT)                                                         *
+ *                                                                               *
+ * Copyright (c) 2015-2020 aoju.org Greg Messner and other contributors.         *
+ *                                                                               *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy  *
+ * of this software and associated documentation files (the "Software"), to deal *
+ * in the Software without restriction, including without limitation the rights  *
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell     *
+ * copies of the Software, and to permit persons to whom the Software is         *
+ * furnished to do so, subject to the following conditions:                      *
+ *                                                                               *
+ * The above copyright notice and this permission notice shall be included in    *
+ * all copies or substantial portions of the Software.                           *
+ *                                                                               *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR    *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE   *
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER        *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, *
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN     *
+ * THE SOFTWARE.                                                                 *
+ ********************************************************************************/
 package org.aoju.bus.gitlab;
 
 import org.aoju.bus.gitlab.models.*;
@@ -16,6 +40,10 @@ import java.util.stream.Stream;
  * <a href="https://docs.gitlab.com/ee/api/pipelines.html">Pipelines API</a>
  * <a href="https://docs.gitlab.com/ee/api/pipeline_schedules.html">Pipeline Schedules API</a>
  * <a href="https://docs.gitlab.com/ee/api/pipeline_triggers.html">Pipeline Triggers API</a>
+ *
+ * @author Kimi Liu
+ * @version 6.0.1
+ * @since JDK 1.8+
  */
 public class PipelineApi extends AbstractApi implements Constants {
 
@@ -80,6 +108,51 @@ public class PipelineApi extends AbstractApi implements Constants {
      */
     public Stream<Pipeline> getPipelinesStream(Object projectIdOrPath) throws GitLabApiException {
         return (getPipelines(projectIdOrPath, getDefaultPerPage()).stream());
+    }
+
+    /**
+     * Get a list of pipelines in a project filtered with the provided {@link PipelineFilter}.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/pipelines</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param filter          a PipelineFilter instance used to filter the results
+     * @return a list containing the pipelines for the specified project ID and matching the provided filter
+     * @throws GitLabApiException if any exception occurs during execution
+     */
+    public List<Pipeline> getPipelines(Object projectIdOrPath, PipelineFilter filter) throws GitLabApiException {
+        return (getPipelines(projectIdOrPath, filter, getDefaultPerPage()).all());
+    }
+
+    /**
+     * Get a Pager of pipelines in a project filtered with the provided {@link PipelineFilter}.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/pipelines</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param filter          a PipelineFilter instance used to filter the results
+     * @param itemsPerPage    the number of Pipeline instances that will be fetched per page
+     * @return a Pager containing the pipelines for the specified project ID and matching the provided filter
+     * @throws GitLabApiException if any exception occurs during execution
+     */
+    public Pager<Pipeline> getPipelines(Object projectIdOrPath, PipelineFilter filter, int itemsPerPage) throws GitLabApiException {
+        GitLabApiForm formData = (filter != null ? filter.getQueryParams() : new GitLabApiForm());
+        return (new Pager<Pipeline>(this, Pipeline.class, itemsPerPage, formData.asMap(),
+                "projects", getProjectIdOrPath(projectIdOrPath), "pipelines"));
+    }
+
+    /**
+     * Get a Stream of pipelines in a project filtered with the provided {@link PipelineFilter}.
+     *
+     * <pre><code>GitLab Endpoint: GET /projects/:id/pipelines</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance
+     * @param filter          a PipelineFilter instance used to filter the results
+     * @return a Stream containing the pipelines for the specified project ID and matching the provided filter
+     * @throws GitLabApiException if any exception occurs during execution
+     */
+    public Stream<Pipeline> getPipelinesStream(Object projectIdOrPath, PipelineFilter filter) throws GitLabApiException {
+        return (getPipelines(projectIdOrPath, filter, getDefaultPerPage()).stream());
     }
 
     /**
@@ -192,7 +265,7 @@ public class PipelineApi extends AbstractApi implements Constants {
         GitLabApiForm formData = new GitLabApiForm()
                 .withParam("scope", scope)
                 .withParam("status", status)
-                .withParam("ref", ref)
+                .withParam("ref", (ref != null ? urlEncode(ref) : null))
                 .withParam("yaml_errors", yamlErrors)
                 .withParam("name", name)
                 .withParam("username", username)
@@ -795,4 +868,5 @@ public class PipelineApi extends AbstractApi implements Constants {
     public Stream<Variable> getPipelineVariablesStream(Object projectIdOrPath, Integer pipelineId) throws GitLabApiException {
         return (getPipelineVariables(projectIdOrPath, pipelineId, getDefaultPerPage()).stream());
     }
+
 }

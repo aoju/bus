@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -28,13 +28,13 @@ package org.aoju.bus.core.thread;
  * 带有信号量控制的{@link Runnable} 接口抽象实现
  *
  * <p>
- * 通过设置信号量,可以限制可以访问某些资源（物理或逻辑的）线程数目
+ * 通过设置信号量,可以限制可以访问某些资源(物理或逻辑的)线程数目
  * 例如：设置信号量为2,表示最多有两个线程可以同时执行方法逻辑,
  * 其余线程等待,直到此线程逻辑执行完毕
  * </p>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Semaphore implements Runnable {
@@ -59,16 +59,27 @@ public class Semaphore implements Runnable {
         this.semaphore = semaphore;
     }
 
+    /**
+     * 获得信号量
+     *
+     * @return {@link java.util.concurrent.Semaphore}
+     */
+    public java.util.concurrent.Semaphore getSemaphore() {
+        return this.semaphore;
+    }
+
     @Override
     public void run() {
         if (null != this.semaphore) {
             try {
                 semaphore.acquire();
-                this.runnable.run();
+                try {
+                    this.runnable.run();
+                } finally {
+                    semaphore.release();
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            } finally {
-                semaphore.release();
             }
         }
     }

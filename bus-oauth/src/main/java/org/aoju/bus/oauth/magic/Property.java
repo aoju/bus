@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,6 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.oauth.magic;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.*;
 import org.aoju.bus.core.lang.Normal;
 
@@ -31,7 +32,7 @@ import org.aoju.bus.core.lang.Normal;
  * 授权成功后的用户信息,根据授权平台的不同,获取的数据完整性也不同
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Getter
@@ -43,8 +44,6 @@ public class Property {
 
     /**
      * 用户第三方系统的唯一id 在调用方集成改组件时,可以用uuid + source唯一确定一个用户
-     *
-     * @since 1.3.3
      */
     private String uuid;
     /**
@@ -76,7 +75,7 @@ public class Property {
      */
     private String email;
     /**
-     * 用户备注（各平台中的用户个人介绍）
+     * 用户备注(各平台中的用户个人介绍)
      */
     private String remark;
     /**
@@ -91,5 +90,9 @@ public class Property {
      * 用户授权的token信息
      */
     private AccToken token;
+    /**
+     * 第三方平台返回的原始用户信息
+     */
+    private JSONObject rawJson;
 
 }

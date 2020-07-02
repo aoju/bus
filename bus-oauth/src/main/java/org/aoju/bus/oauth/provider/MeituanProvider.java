@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
 import org.aoju.bus.http.Httpx;
@@ -35,7 +36,6 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,25 +44,25 @@ import java.util.Map;
  * 美团登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class MeituanProvider extends DefaultProvider {
+public class MeituanProvider extends AbstractProvider {
 
     public MeituanProvider(Context context) {
         super(context, Registry.MEITUAN);
     }
 
-    public MeituanProvider(Context context, StateCache stateCache) {
-        super(context, Registry.MEITUAN, stateCache);
+    public MeituanProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.MEITUAN, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
+    public AccToken getAccessToken(Callback callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("app_id", context.getAppKey());
         params.put("secret", context.getAppSecret());
-        params.put("code", Callback.getCode());
+        params.put("code", callback.getCode());
         params.put("grant_type", "authorization_code");
 
         String response = Httpx.post(source.accessToken(), params);
@@ -78,11 +78,11 @@ public class MeituanProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
+    public Property getUserInfo(AccToken accToken) {
         Map<String, Object> params = new HashMap<>();
         params.put("app_id", context.getAppKey());
         params.put("secret", context.getAppSecret());
-        params.put("access_token", token.getAccessToken());
+        params.put("access_token", accToken.getAccessToken());
 
         String response = Httpx.post(source.refresh(), params);
         JSONObject object = JSONObject.parseObject(response);
@@ -90,22 +90,23 @@ public class MeituanProvider extends DefaultProvider {
         this.checkResponse(object);
 
         return Property.builder()
+                .rawJson(object)
                 .uuid(object.getString("openid"))
                 .username(object.getString("nickname"))
                 .nickname(object.getString("nickname"))
                 .avatar(object.getString("avatar"))
                 .gender(Normal.Gender.UNKNOWN)
-                .token(token)
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
 
     @Override
-    public Message refresh(AccToken oldToken) {
+    public Message refresh(AccToken accToken) {
         Map<String, Object> params = new HashMap<>();
         params.put("app_id", context.getAppKey());
         params.put("secret", context.getAppSecret());
-        params.put("refresh_token", oldToken.getRefreshToken());
+        params.put("refresh_token", accToken.getRefreshToken());
         params.put("grant_type", "refresh_token");
 
         String response = Httpx.post(source.refresh(), params);
@@ -114,19 +115,13 @@ public class MeituanProvider extends DefaultProvider {
         this.checkResponse(object);
 
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
                 .data(AccToken.builder()
                         .accessToken(object.getString("access_token"))
                         .refreshToken(object.getString("refresh_token"))
                         .expireIn(object.getIntValue("expires_in"))
                         .build())
                 .build();
-    }
-
-    private void checkResponse(JSONObject object) {
-        if (object.containsKey("error_code")) {
-            throw new AuthorizedException(object.getString("erroe_msg"));
-        }
     }
 
     @Override
@@ -138,6 +133,12 @@ public class MeituanProvider extends DefaultProvider {
                 .queryParam("state", getRealState(state))
                 .queryParam("scope", Normal.EMPTY)
                 .build();
+    }
+
+    private void checkResponse(JSONObject object) {
+        if (object.containsKey("error_code")) {
+            throw new AuthorizedException(object.getString("erroe_msg"));
+        }
     }
 
 }

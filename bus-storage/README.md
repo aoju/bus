@@ -8,7 +8,7 @@
     <jd.oss.version>1.11.136</jd.oss.version>
     <minio.oss.version>3.0.12</minio.oss.version>
     <qiniu.oss.version>[7.2.0, 7.2.99]</qiniu.oss.version>
-    <tencent.oss.version>5.8.2</tencent.oss.version>
+    <tencent.oss.version>5.5.9</tencent.oss.version>
     <upyun.oss.version>4.0.1</upyun.oss.version>
 ```
 ```
@@ -104,7 +104,7 @@
 #### 工厂模式
 ##### 配置文件,xx.yml
 
-# 服务提供者可选值（qiniu，aliyun）
+# 服务提供者可选值(qiniu，aliyun)
 ```
 extend:
   storage:
@@ -132,8 +132,8 @@ extend:
 Context context = new Context();
 context.setAccessKey(xxx);
 context.setSecretKey(xxx);
-StorageProvider shooting = new AliyunossProvider(context);
-shooting.upload("test", null, new File("/Users/leaves/logo.gif"));
+StorageProvider provider = new AliyunossProvider(context);
+provider.upload("test", null, new File("/Users/leaves/logo.gif"));
 ```
 ##### 用法②
 
@@ -141,5 +141,5 @@ shooting.upload("test", null, new File("/Users/leaves/logo.gif"));
 @Autowired
 StorageProviderService service;
 service.get(Registry.ALIYUN);
-shooting.upload("test", null, new File("/Users/leaves/logo.gif"));
+provider.upload("test", null, new File("/Users/leaves/logo.gif"));
 ```

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,13 +27,13 @@ package org.aoju.bus.notify.provider.aliyun;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.aoju.bus.notify.metric.Template;
+import org.aoju.bus.notify.magic.Template;
 
 /**
  * 阿里云短信模版
  *
  * @author Justubborn
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK1.8+
  */
 @Getter

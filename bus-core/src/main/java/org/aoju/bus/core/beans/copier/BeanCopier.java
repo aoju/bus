@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -31,7 +31,7 @@ import org.aoju.bus.core.convert.Convert;
 import org.aoju.bus.core.lang.Typed;
 import org.aoju.bus.core.lang.copier.Copier;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.*;
+import org.aoju.bus.core.toolkit.*;
 
 import java.io.Serializable;
 import java.lang.reflect.*;
@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * @param <T> 目标对象类型
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class BeanCopier<T> implements Copier<T>, Serializable {
@@ -58,7 +58,7 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
      */
     private final T dest;
     /**
-     * 目标的类型（用于泛型类注入）
+     * 目标的类型(用于泛型类注入)
      */
     private final Type destType;
     /**
@@ -116,10 +116,10 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
      * @return 映射值，无对应值返回字段名
      */
     private static String mappingKey(Map<String, String> mapping, String fieldName) {
-        if (MapUtils.isEmpty(mapping)) {
+        if (MapKit.isEmpty(mapping)) {
             return fieldName;
         }
-        return ObjectUtils.defaultIfNull(mapping.get(fieldName), fieldName);
+        return ObjectKit.defaultIfNull(mapping.get(fieldName), fieldName);
     }
 
     @Override
@@ -162,7 +162,10 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
      * @param bean Bean
      */
     private void mapToBean(Map<?, ?> map, Object bean) {
-        valueProviderToBean(new MapValueProvider(map, this.copyOptions.ignoreCase), bean);
+        valueProviderToBean(
+                new MapValueProvider(map, this.copyOptions.ignoreCase, this.copyOptions.ignoreError),
+                bean
+        );
     }
 
     /**
@@ -184,8 +187,8 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
      * @param targetMap 目标的Map
      */
     private void beanToMap(Object bean, Map targetMap) {
-        final Collection<BeanDesc.PropDesc> props = BeanUtils.getBeanDesc(bean.getClass()).getProps();
-        final HashSet<String> ignoreSet = (null != copyOptions.ignoreProperties) ? CollUtils.newHashSet(copyOptions.ignoreProperties) : null;
+        final Collection<BeanDesc.PropDesc> props = BeanKit.getBeanDesc(bean.getClass()).getProps();
+        final HashSet<String> ignoreSet = (null != copyOptions.ignoreProperties) ? CollKit.newHashSet(copyOptions.ignoreProperties) : null;
         final CopyOptions copyOptions = this.copyOptions;
 
         String key;
@@ -207,7 +210,7 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
                         throw new InstrumentException("Get value of [{}] error!", prop.getFieldName());
                     }
                 }
-                if (CollUtils.contains(ignoreSet, key)) {
+                if (CollKit.contains(ignoreSet, key)) {
                     // 目标属性值被忽略或值提供者无此key时跳过
                     continue;
                 }
@@ -238,14 +241,14 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
         if (null != copyOptions.editable) {
             // 检查限制类是否为target的父类或接口
             if (false == copyOptions.editable.isInstance(bean)) {
-                throw new IllegalArgumentException(StringUtils.format("Target class [{}] not assignable to Editable class [{}]", bean.getClass().getName(), copyOptions.editable.getName()));
+                throw new IllegalArgumentException(StringKit.format("Target class [{}] not assignable to Editable class [{}]", bean.getClass().getName(), copyOptions.editable.getName()));
             }
             actualEditable = copyOptions.editable;
         }
-        final HashSet<String> ignoreSet = (null != copyOptions.ignoreProperties) ? CollUtils.newHashSet(copyOptions.ignoreProperties) : null;
+        final HashSet<String> ignoreSet = (null != copyOptions.ignoreProperties) ? CollKit.newHashSet(copyOptions.ignoreProperties) : null;
         final Map<String, String> fieldReverseMapping = copyOptions.getReversedMapping();
 
-        final Collection<BeanDesc.PropDesc> props = BeanUtils.getBeanDesc(actualEditable).getProps();
+        final Collection<BeanDesc.PropDesc> props = BeanKit.getBeanDesc(actualEditable).getProps();
         Field field;
         String fieldName;
         Object value;
@@ -255,7 +258,7 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
             // 获取值
             field = prop.getField();
             fieldName = prop.getFieldName();
-            if (CollUtils.contains(ignoreSet, fieldName)) {
+            if (CollKit.contains(ignoreSet, fieldName)) {
                 // 目标属性值被忽略或值提供者无此key时跳过
                 continue;
             }
@@ -265,35 +268,35 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
                 continue;
             }
             setterMethod = prop.getSetter();
-            if (null == setterMethod && false == ModifierUtils.isPublic(field)) {
+            if (null == setterMethod && false == BeanKit.isPublic(field)) {
                 // Setter方法不存在或者字段为非public跳过
                 //5.1.0新增支持public字段注入支持
                 continue;
             }
 
-            Type valueType = (null == setterMethod) ? TypeUtils.getType(field) : TypeUtils.getFirstParamType(setterMethod);
+            Type valueType = (null == setterMethod) ? TypeKit.getType(field) : TypeKit.getFirstParamType(setterMethod);
             if (valueType instanceof ParameterizedType) {
                 // 参数为泛型参数类型，解析对应泛型类型为真实类型
                 ParameterizedType tmp = (ParameterizedType) valueType;
                 Type[] actualTypeArguments = tmp.getActualTypeArguments();
-                if (TypeUtils.hasTypeVeriable(actualTypeArguments)) {
+                if (TypeKit.hasTypeVeriable(actualTypeArguments)) {
                     // 泛型对象中含有未被转换的泛型变量
-                    actualTypeArguments = TypeUtils.getActualTypes(this.destType, field.getDeclaringClass(), tmp.getActualTypeArguments());
-                    if (ArrayUtils.isNotEmpty(actualTypeArguments)) {
+                    actualTypeArguments = TypeKit.getActualTypes(this.destType, field.getDeclaringClass(), tmp.getActualTypeArguments());
+                    if (ArrayKit.isNotEmpty(actualTypeArguments)) {
                         // 替换泛型变量为实际类型
                         valueType = new Typed(actualTypeArguments, tmp.getOwnerType(), tmp.getRawType());
                     }
                 }
             } else if (valueType instanceof TypeVariable) {
-                // 参数为泛型，查找其真实类型（适用于泛型方法定义于泛型父类）
-                valueType = TypeUtils.getActualType(this.destType, field.getDeclaringClass(), valueType);
+                // 参数为泛型，查找其真实类型(适用于泛型方法定义于泛型父类)
+                valueType = TypeKit.getActualType(this.destType, field.getDeclaringClass(), valueType);
             }
 
             value = valueProvider.value(providerKey, valueType);
             if (null == value && copyOptions.ignoreNullValue) {
                 continue;// 当允许跳过空时，跳过
             }
-            if (bean.equals(value)) {
+            if (bean == value) {
                 continue;// 值不能为bean本身，防止循环引用
             }
 
@@ -309,10 +312,10 @@ public class BeanCopier<T> implements Copier<T>, Serializable {
 
                 if (null == setterMethod) {
                     // 直接注入值
-                    ReflectUtils.setFieldValue(bean, field, value);
+                    ReflectKit.setFieldValue(bean, field, value);
                 } else {
                     // 执行set方法注入值
-                    ReflectUtils.invoke(bean, setterMethod, value);
+                    ReflectKit.invoke(bean, setterMethod, value);
                 }
             } catch (Exception e) {
                 if (false == copyOptions.ignoreError) {

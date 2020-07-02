@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -36,7 +36,7 @@ import org.aoju.bus.core.lang.Symbol;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @see #MAC
  * @see #LINUX
  * @see #WINDOWS
@@ -57,7 +57,7 @@ public enum LineSeparator {
      */
     WINDOWS(Symbol.CRLF);
 
-    private String value;
+    private final String value;
 
     LineSeparator(String lineSeparator) {
         this.value = lineSeparator;

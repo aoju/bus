@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -33,7 +33,7 @@ import java.util.Enumeration;
  * 模式匹配资源加载器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public abstract class PatternLoader extends DelegateLoader implements Loader {
@@ -54,6 +54,7 @@ public abstract class PatternLoader extends DelegateLoader implements Loader {
      * @return 所有匹配模式表达式的资源
      * @throws IOException I/O 异常
      */
+    @Override
     public Enumeration<Resource> load(String pattern, boolean recursively, Filter filter) throws IOException {
         Filter matcher = filter(pattern);
         AllFilter allFilter = new AllFilter();

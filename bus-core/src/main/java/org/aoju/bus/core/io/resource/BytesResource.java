@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.core.io.resource;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -39,7 +39,7 @@ import java.nio.charset.Charset;
  * 注意：此对象中getUrl方法始终返回null
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class BytesResource implements Resource {
@@ -84,17 +84,12 @@ public class BytesResource implements Resource {
 
     @Override
     public BufferedReader getReader(Charset charset) {
-        return new BufferedReader(new StringReader(readStr(charset)));
+        return new BufferedReader(new StringReader(readString(charset)));
     }
 
     @Override
-    public String readStr(Charset charset) throws InstrumentException {
-        return StringUtils.toString(this.bytes, charset);
-    }
-
-    @Override
-    public String readUtf8Str() throws InstrumentException {
-        return readStr(org.aoju.bus.core.lang.Charset.UTF_8);
+    public String readString(Charset charset) throws InstrumentException {
+        return StringKit.toString(this.bytes, charset);
     }
 
     @Override

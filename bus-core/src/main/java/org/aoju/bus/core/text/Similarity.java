@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,8 @@
 package org.aoju.bus.core.text;
 
 import org.aoju.bus.core.lang.Murmur;
-import org.aoju.bus.core.utils.NumberUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.MathKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -38,7 +38,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 在hash之后,仍然能保持这种相似性,就称之为局部敏感hash
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Similarity {
@@ -108,7 +108,7 @@ public class Similarity {
         }
 
         int temp2 = longestCommonSubstring(newStrA, newStrB).length();
-        return NumberUtils.div(temp2, temp);
+        return MathKit.div(temp2, temp);
     }
 
     /**
@@ -120,7 +120,7 @@ public class Similarity {
      * @return 百分比
      */
     public static String similar(String strA, String strB, int scale) {
-        return NumberUtils.formatPercent(similar(strA, strB), scale);
+        return MathKit.formatPercent(similar(strA, strB), scale);
     }
 
     /**
@@ -131,7 +131,7 @@ public class Similarity {
      */
     private static String removeSign(String str) {
         int length = str.length();
-        StringBuilder sb = StringUtils.builder(length);
+        StringBuilder sb = StringKit.builder(length);
         // 遍历字符串str,如果是汉字数字或字母，则追加到ab上面
         char c;
         for (int i = 0; i < length; i++) {

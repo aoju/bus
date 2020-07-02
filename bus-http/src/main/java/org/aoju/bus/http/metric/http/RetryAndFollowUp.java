@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.http.metric.http;
 
 import org.aoju.bus.core.lang.Http;
 import org.aoju.bus.core.lang.exception.RelevantException;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 import org.aoju.bus.http.*;
 import org.aoju.bus.http.accord.RouteException;
 import org.aoju.bus.http.accord.StreamAllocation;
@@ -54,7 +54,7 @@ import java.security.cert.CertificateException;
  * 如果调用被取消，它可能会抛出{@link IOException}
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class RetryAndFollowUp implements Interceptor {
@@ -167,7 +167,7 @@ public final class RetryAndFollowUp implements Interceptor {
                 return response;
             }
 
-            IoUtils.close(response.body());
+            IoKit.close(response.body());
 
             if (++followUpCount > MAX_FOLLOW_UPS) {
                 streamAllocation.release();

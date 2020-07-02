@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,12 +26,12 @@ package org.aoju.bus.socket.origin.plugins.ssl;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class SSLConfig {
     /**
-     * 配置引擎在握手时使用客户端（或服务器）模式
+     * 配置引擎在握手时使用客户端(或服务器)模式
      */
     private boolean clientMode;
     private String keyFile;

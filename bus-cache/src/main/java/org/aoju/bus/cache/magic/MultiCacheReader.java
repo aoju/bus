@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,8 @@
 package org.aoju.bus.cache.magic;
 
 import org.aoju.bus.cache.Context;
+import org.aoju.bus.cache.Hitting;
 import org.aoju.bus.cache.Manage;
-import org.aoju.bus.cache.Shooting;
 import org.aoju.bus.cache.support.*;
 import org.aoju.bus.core.annotation.Inject;
 import org.aoju.bus.core.annotation.Singleton;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Singleton
@@ -51,7 +51,7 @@ public class MultiCacheReader extends AbstractReader {
     private Context config;
 
     @Inject(optional = true)
-    private Shooting baseShooting;
+    private Hitting baseHitting;
 
     private static Map mergeMap(Class<?> resultMapType,
                                 Map proceedEntryValueMap,
@@ -166,7 +166,7 @@ public class MultiCacheReader extends AbstractReader {
                 // 为了兼容@CachedGet注解, 客户端缓存
                 if (needWrite) {
                     // 将方法调用返回的map转换成key_value_map写入Cache
-                    Map<String, Object> keyValueMap = KeyValueUtils.mapToKeyValue(proceedEntryValueMap, missKeys, multiEntry2Key, config.getPrevent());
+                    Map<String, Object> keyValueMap = KeyValue.mapToKeyValue(proceedEntryValueMap, missKeys, multiEntry2Key, config.getPrevent());
                     cacheManager.writeBatch(annoHolder.getCache(), keyValueMap, annoHolder.getExpire());
                 }
                 // 将方法调用返回的map与从Cache中读取的key_value_map合并返回
@@ -177,7 +177,7 @@ public class MultiCacheReader extends AbstractReader {
                 // 为了兼容@CachedGet注解, 客户端缓存
                 if (needWrite) {
                     // 将方法调用返回的collection转换成key_value_map写入Cache
-                    Map<String, Object> keyValueMap = KeyValueUtils.collectionToKeyValue(proceedCollection, annoHolder.getId(), missKeys, multiEntry2Key, config.getPrevent());
+                    Map<String, Object> keyValueMap = KeyValue.collectionToKeyValue(proceedCollection, annoHolder.getId(), missKeys, multiEntry2Key, config.getPrevent());
                     cacheManager.writeBatch(annoHolder.getCache(), keyValueMap, annoHolder.getExpire());
                 }
                 // 将方法调用返回的collection与从Cache中读取的key_value_map合并返回
@@ -258,12 +258,12 @@ public class MultiCacheReader extends AbstractReader {
         Logger.info("multi cache hit rate: {}/{}, missed keys: {}",
                 hitCount, totalCount, missKeys);
 
-        if (this.baseShooting != null) {
+        if (this.baseHitting != null) {
             // 分组模板
             String pattern = PatternGenerator.generatePattern(annoHolder);
 
-            this.baseShooting.hitIncr(pattern, hitCount);
-            this.baseShooting.reqIncr(pattern, totalCount);
+            this.baseHitting.hitIncr(pattern, hitCount);
+            this.baseHitting.reqIncr(pattern, totalCount);
         }
     }
 

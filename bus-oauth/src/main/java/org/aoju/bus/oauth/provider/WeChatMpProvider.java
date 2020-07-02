@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,9 +25,10 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.http.Httpx;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
@@ -36,66 +37,66 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 /**
  * 微信公众平台登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class WeChatMpProvider extends DefaultProvider {
+public class WeChatMpProvider extends AbstractProvider {
 
     public WeChatMpProvider(Context context) {
         super(context, Registry.WECHAT_MP);
     }
 
-    public WeChatMpProvider(Context context, StateCache stateCache) {
-        super(context, Registry.WECHAT_MP, stateCache);
+    public WeChatMpProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.WECHAT_MP, extendCache);
     }
 
     /**
      * 微信的特殊性，此时返回的信息同时包含 openid 和 access_token
      *
-     * @param authCallback 回调返回的参数
+     * @param callback 回调返回的参数
      * @return 所有信息
      */
     @Override
-    protected AccToken getAccessToken(Callback authCallback) {
-        return this.getToken(accessTokenUrl(authCallback.getCode()));
+    public AccToken getAccessToken(Callback callback) {
+        return this.getToken(accessTokenUrl(callback.getCode()));
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
-        String openId = token.getOpenId();
+    public Property getUserInfo(AccToken accToken) {
+        String openId = accToken.getOpenId();
 
-        JSONObject object = JSONObject.parseObject(doGetUserInfo(token));
+        JSONObject object = JSONObject.parseObject(doGetUserInfo(accToken));
         this.checkResponse(object);
 
         String location = String.format("%s-%s-%s", object.getString("country"), object.getString("province"), object.getString("city"));
 
         if (object.containsKey("unionid")) {
-            token.setUnionId(object.getString("unionid"));
+            accToken.setUnionId(object.getString("unionid"));
         }
 
         return Property.builder()
+                .rawJson(object)
                 .username(object.getString("nickname"))
                 .nickname(object.getString("nickname"))
                 .avatar(object.getString("headimgurl"))
                 .location(location)
                 .uuid(openId)
                 .gender(Normal.Gender.getGender(object.getString("sex")))
-                .token(token)
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
 
     @Override
-    public Message refresh(AccToken token) {
+    public Message refresh(AccToken accToken) {
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
-                .data(this.getToken(refreshTokenUrl(token.getRefreshToken())))
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
+                .data(this.getToken(refreshTokenUrl(accToken.getRefreshToken())))
                 .build();
     }
 
@@ -106,7 +107,7 @@ public class WeChatMpProvider extends DefaultProvider {
      */
     private void checkResponse(JSONObject object) {
         if (object.containsKey("errcode")) {
-            throw new AuthorizedException(StringUtils.toString(object.getIntValue("errcode")), object.getString("errmsg"));
+            throw new AuthorizedException(StringKit.toString(object.getIntValue("errcode")), object.getString("errmsg"));
         }
     }
 
@@ -135,7 +136,6 @@ public class WeChatMpProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数，可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {
@@ -155,7 +155,7 @@ public class WeChatMpProvider extends DefaultProvider {
      * @return 返回获取accessToken的url
      */
     @Override
-    protected String accessTokenUrl(String code) {
+    public String accessTokenUrl(String code) {
         return Builder.fromUrl(source.accessToken())
                 .queryParam("appid", context.getAppKey())
                 .queryParam("secret", context.getAppSecret())
@@ -171,7 +171,7 @@ public class WeChatMpProvider extends DefaultProvider {
      * @return 返回获取userInfo的url
      */
     @Override
-    protected String userInfoUrl(AccToken accToken) {
+    public String userInfoUrl(AccToken accToken) {
         return Builder.fromUrl(source.userInfo())
                 .queryParam("access_token", accToken.getAccessToken())
                 .queryParam("openid", accToken.getOpenId())
@@ -186,7 +186,7 @@ public class WeChatMpProvider extends DefaultProvider {
      * @return 返回获取userInfo的url
      */
     @Override
-    protected String refreshTokenUrl(String refreshToken) {
+    public String refreshTokenUrl(String refreshToken) {
         return Builder.fromUrl(source.refresh())
                 .queryParam("appid", context.getAppKey())
                 .queryParam("grant_type", "refresh_token")

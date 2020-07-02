@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,8 +26,10 @@ package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.MediaType;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
+import org.aoju.bus.core.toolkit.UriKit;
 import org.aoju.bus.http.Httpx;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
@@ -36,7 +38,6 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,21 +46,21 @@ import java.util.Map;
  * 支付宝登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class FeishuProvider extends DefaultProvider {
+public class FeishuProvider extends AbstractProvider {
 
     public FeishuProvider(Context context) {
         super(context, Registry.FEISHU);
     }
 
-    public FeishuProvider(Context context, StateCache stateCache) {
-        super(context, Registry.FEISHU, stateCache);
+    public FeishuProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.FEISHU, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback callback) {
+    public AccToken getAccessToken(Callback callback) {
         JSONObject requestObject = new JSONObject();
         requestObject.put("app_id", context.getAppKey());
         requestObject.put("app_secret", context.getAppSecret());
@@ -79,18 +80,19 @@ public class FeishuProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken authToken) {
+    public Property getUserInfo(AccToken authToken) {
         String accessToken = authToken.getAccessToken();
 
         Map<String, String> map = new HashMap<>();
         map.put("Content-Type", MediaType.APPLICATION_JSON);
         map.put("Authorization", "Bearer " + accessToken);
         String response = Httpx.get(source.userInfo(), null, map);
-        JSONObject jsonObject = JSON.parseObject(response);
+        JSONObject object = JSON.parseObject(response);
         return Property.builder()
-                .avatar(jsonObject.getString("AvatarUrl"))
-                .username(jsonObject.getString("Mobile"))
-                .email(jsonObject.getString("Email"))
+                .rawJson(object)
+                .avatar(object.getString("AvatarUrl"))
+                .username(object.getString("Mobile"))
+                .email(object.getString("Email"))
                 .nickname("Name")
                 .build();
     }
@@ -107,7 +109,7 @@ public class FeishuProvider extends DefaultProvider {
         JSONObject jsonObject = JSON.parseObject(response);
         this.checkResponse(jsonObject);
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
                 .data(AccToken.builder()
                         .accessToken(jsonObject.getString("access_token"))
                         .refreshToken(jsonObject.getString("refresh_token"))
@@ -123,7 +125,7 @@ public class FeishuProvider extends DefaultProvider {
     public String authorize(String state) {
         return Builder.fromUrl(source.authorize())
                 .queryParam("app_id", context.getAppKey())
-                .queryParam("redirect_uri", urlEncode(context.getRedirectUri()))
+                .queryParam("redirect_uri", UriKit.encode(context.getRedirectUri()))
                 .queryParam("state", getRealState(state))
                 .build();
     }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -29,7 +29,7 @@ import org.aoju.bus.cache.magic.CachePair;
 import org.aoju.bus.core.annotation.Inject;
 import org.aoju.bus.core.annotation.Singleton;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.logger.Logger;
 
 import java.util.*;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Singleton
@@ -161,11 +161,11 @@ public class Manage {
     }
 
     private CachePair<String, CacheX> getCacheImpl(String cacheName) {
-        if (StringUtils.isEmpty(cacheName)) {
+        if (StringKit.isEmpty(cacheName)) {
             return defaultCache;
         } else {
             return cachePool.computeIfAbsent(cacheName, (key) -> {
-                throw new InstrumentException(StringUtils.format("no cache implementation named [%s].", key));
+                throw new InstrumentException(StringKit.format("no cache implementation named [%s].", key));
             });
         }
     }

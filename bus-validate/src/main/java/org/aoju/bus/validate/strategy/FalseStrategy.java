@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.validate.strategy;
 
-import org.aoju.bus.core.utils.BooleanUtils;
+import org.aoju.bus.core.toolkit.BooleanKit;
 import org.aoju.bus.validate.Context;
 import org.aoju.bus.validate.annotation.False;
 import org.aoju.bus.validate.validators.Matcher;
@@ -33,14 +33,14 @@ import org.aoju.bus.validate.validators.Matcher;
  * FALSE 校验
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class FalseStrategy implements Matcher<Boolean, False> {
 
     @Override
     public boolean on(Boolean object, False annotation, Context context) {
-        if (BooleanUtils.isFalse(object)) {
+        if (BooleanKit.isFalse(object)) {
             return annotation.nullable();
         }
         return !object;

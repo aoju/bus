@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,8 @@
  ********************************************************************************/
 package org.aoju.bus.http.secure;
 
-import java.nio.charset.Charset;
+import org.aoju.bus.core.lang.Charset;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -35,7 +36,7 @@ import java.util.Map.Entry;
  * RFC 7235兼容的认证
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class Challenge {
@@ -75,7 +76,7 @@ public final class Challenge {
      * @param charset 字符集
      * @return 返回此字符集的副本
      */
-    public Challenge withCharset(Charset charset) {
+    public Challenge withCharset(java.nio.charset.Charset charset) {
         if (charset == null) throw new NullPointerException("charset == null");
         Map<String, String> authParams = new LinkedHashMap<>(this.authParams);
         authParams.put("charset", charset.name());
@@ -94,15 +95,15 @@ public final class Challenge {
         return authParams.get("realm");
     }
 
-    public Charset charset() {
+    public java.nio.charset.Charset charset() {
         String charset = authParams.get("charset");
         if (charset != null) {
             try {
-                return Charset.forName(charset);
+                return java.nio.charset.Charset.forName(charset);
             } catch (Exception ignore) {
             }
         }
-        return org.aoju.bus.core.lang.Charset.ISO_8859_1;
+        return Charset.ISO_8859_1;
     }
 
     @Override

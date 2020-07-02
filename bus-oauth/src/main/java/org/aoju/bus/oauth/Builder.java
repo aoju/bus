@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -30,17 +30,18 @@ import lombok.Setter;
 import lombok.ToString;
 import org.aoju.bus.core.lang.Assert;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.MapUtils;
-import org.aoju.bus.oauth.provider.DefaultProvider;
+import org.aoju.bus.core.toolkit.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * 构造URL
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Setter
@@ -63,6 +64,44 @@ public class Builder {
         return builder;
     }
 
+    /**
+     * 如果给定字符串{@code str}中不包含{@code appendStr},则在{@code str}后追加{@code appendStr}；
+     * 如果已包含{@code appendStr},则在{@code str}后追加{@code otherwise}
+     *
+     * @param str       给定的字符串
+     * @param appendStr 需要追加的内容
+     * @param otherwise 当{@code appendStr}不满足时追加到{@code str}后的内容
+     * @return 追加后的字符串
+     */
+    public static String appendIfNotContain(String str, String appendStr, String otherwise) {
+        if (StringKit.isEmpty(str) || StringKit.isEmpty(appendStr)) {
+            return str;
+        }
+        if (str.contains(appendStr)) {
+            return str.concat(otherwise);
+        }
+        return str.concat(appendStr);
+    }
+
+    /**
+     * map转字符串,转换后的字符串格式为 {@code xxx=xxx&xxx=xxx}
+     *
+     * @param params 待转换的map
+     * @param encode 是否转码
+     * @return str
+     */
+    public static String parseMapToString(Map<String, Object> params, boolean encode) {
+        List<String> paramList = new ArrayList<>();
+        params.forEach((k, v) -> {
+            if (ObjectKit.isNull(v)) {
+                paramList.add(k + Symbol.EQUAL);
+            } else {
+                String valueString = v.toString();
+                paramList.add(k + Symbol.EQUAL + (encode ? UriKit.encode(valueString) : valueString));
+            }
+        });
+        return CollKit.join(paramList, Symbol.AND);
+    }
 
     /**
      * 添加参数
@@ -104,23 +143,19 @@ public class Builder {
      * @return url
      */
     public String build(boolean encode) {
-        if (MapUtils.isEmpty(this.params)) {
+        if (MapKit.isEmpty(this.params)) {
             return this.baseUrl;
         }
-        String baseUrl = DefaultProvider.appendIfNotContain(this.baseUrl, Symbol.QUESTION_MARK, Symbol.AND);
-        String paramString = DefaultProvider.parseMapToString(this.params, encode);
+        String baseUrl = appendIfNotContain(this.baseUrl, Symbol.QUESTION_MARK, Symbol.AND);
+        String paramString = parseMapToString(this.params, encode);
         return baseUrl + paramString;
     }
 
     @Getter
     @AllArgsConstructor
-    public enum Status {
-        /**
-         * 2000：正常；
-         * other：调用异常,具体异常内容见{@code msg}
-         */
-        SUCCESS("2000", "Success"),
-        FAILURE("5000", "Failure"),
+    public enum ErrorCode {
+        SUCCESS("0", "Success"),
+        FAILURE("-1", "Failure"),
         NOT_IMPLEMENTED("5001", "Not Implemented"),
         PARAMETER_INCOMPLETE("5002", "Parameter incomplete"),
         UNSUPPORTED("5003", "Unsupported operation"),
@@ -128,7 +163,9 @@ public class Builder {
         UNIDENTIFIED_PLATFORM("5005", "Unidentified platform"),
         ILLEGAL_REDIRECT_URI("5006", "Illegal redirect uri"),
         ILLEGAL_REQUEST("5007", "Illegal request"),
-        ILLEGAL_CODE("5008", "Illegal code");
+        ILLEGAL_CODE("5008", "Illegal code"),
+        ILLEGAL_STATUS("5009", "Illegal state"),
+        REQUIRED_REFRESH_TOKEN("5010", "The refresh token is required; it must not be null");
 
         private String code;
         private String msg;
@@ -142,7 +179,7 @@ public class Builder {
     @ToString
     public enum Type {
         /**
-         * 使用JustAuth内置的缓存
+         * 使用内置的缓存
          */
         DEFAULT,
         /**

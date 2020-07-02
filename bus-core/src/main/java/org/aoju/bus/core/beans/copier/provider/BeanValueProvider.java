@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,9 +26,11 @@ package org.aoju.bus.core.beans.copier.provider;
 
 import org.aoju.bus.core.beans.BeanDesc;
 import org.aoju.bus.core.beans.copier.ValueProvider;
+import org.aoju.bus.core.convert.Convert;
+import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.BeanUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.BeanKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -38,7 +40,7 @@ import java.util.Map;
  * Bean的值提供者
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class BeanValueProvider implements ValueProvider<String> {
@@ -57,35 +59,41 @@ public class BeanValueProvider implements ValueProvider<String> {
     public BeanValueProvider(Object bean, boolean ignoreCase, boolean ignoreError) {
         this.source = bean;
         this.ignoreError = ignoreError;
-        sourcePdMap = BeanUtils.getBeanDesc(source.getClass()).getPropMap(ignoreCase);
+        sourcePdMap = BeanKit.getBeanDesc(source.getClass()).getPropMap(ignoreCase);
     }
 
     @Override
     public Object value(String key, Type valueType) {
         BeanDesc.PropDesc sourcePd = sourcePdMap.get(key);
         if (null == sourcePd && (Boolean.class == valueType || boolean.class == valueType)) {
-            //boolean类型字段字段名支持两种方式
-            sourcePd = sourcePdMap.get(StringUtils.upperFirstAndAddPre(key, "is"));
+            // boolean类型字段字段名支持两种方式
+            sourcePd = sourcePdMap.get(StringKit.upperFirstAndAddPre(key, Normal.IS));
         }
 
+        Object result = null;
         if (null != sourcePd) {
             final Method getter = sourcePd.getGetter();
             if (null != getter) {
                 try {
-                    return getter.invoke(source);
+                    result = getter.invoke(source);
                 } catch (Exception e) {
                     if (false == ignoreError) {
                         throw new InstrumentException("Inject [{}] error!", key);
                     }
                 }
+                // 尝试转换为目标类型，失败将返回原类型
+                final Object convertValue = Convert.convertWithCheck(valueType, result, null, ignoreError);
+                if (null != convertValue) {
+                    result = convertValue;
+                }
             }
         }
-        return null;
+        return result;
     }
 
     @Override
     public boolean containsKey(String key) {
-        return sourcePdMap.containsKey(key) || sourcePdMap.containsKey(StringUtils.upperFirstAndAddPre(key, "is"));
+        return sourcePdMap.containsKey(key) || sourcePdMap.containsKey(StringKit.upperFirstAndAddPre(key, Normal.IS));
     }
 
 }

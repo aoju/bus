@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.starter.druid;
 
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.logger.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -39,7 +39,7 @@ import java.lang.reflect.Method;
  * AOP切面切点
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Order(-1)
@@ -68,7 +68,7 @@ public class AspectjDruidProxy {
         Method method = ((MethodSignature) point.getSignature()).getMethod();
         // 获取方法的@DataSource注解
         DataSource dataSource = method.getAnnotation(DataSource.class);
-        if (!StringUtils.hasLength(dataSource.value())) {
+        if (!StringKit.hasLength(dataSource.value())) {
             // 获取类级别的@DataSource注解
             dataSource = method.getDeclaringClass().getAnnotation(DataSource.class);
         }

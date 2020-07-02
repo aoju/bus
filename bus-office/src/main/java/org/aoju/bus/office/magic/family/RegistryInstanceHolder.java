@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,13 +24,13 @@
  ********************************************************************************/
 package org.aoju.bus.office.magic.family;
 
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
 
 /**
  * 保存默认的{@link FormatRegistry}实例.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class RegistryInstanceHolder {
@@ -518,7 +518,7 @@ public final class RegistryInstanceHolder {
      */
     public static FormatRegistry getInstance() {
         synchronized (FormatRegistry.class) {
-            if (ObjectUtils.isEmpty(instance)) {
+            if (ObjectKit.isEmpty(instance)) {
                 instance = JsonFormatRegistry.create(json);
             }
             return instance;

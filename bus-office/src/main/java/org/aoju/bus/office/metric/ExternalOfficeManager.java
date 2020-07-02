@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -39,7 +39,7 @@ import java.io.File;
  * 但是，如果外部进程是手动重新启动的，那么它将自动重新连接到外部进程
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class ExternalOfficeManager extends AbstractOfficeManager {

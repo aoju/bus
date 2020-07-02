@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,9 +25,9 @@
 package org.aoju.bus.core.lang;
 
 import lombok.Data;
-import org.aoju.bus.core.utils.MapUtils;
+import org.aoju.bus.core.toolkit.MapKit;
 
-import java.nio.charset.Charset;
+import java.util.Locale;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  * HTTP 媒体类型
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Data
@@ -287,12 +287,17 @@ public class MediaType {
     /**
      * "multipart/related;type=application/dicom"
      */
-    public static final MediaType MULTIPART_RELATED_APPLICATION_DICOM_TYPE = new MediaType("multipart", "related", Collections.singletonMap("type", APPLICATION_DICOM));
+    public final static String MULTIPART_RELATED_APPLICATION_DICOM = "multipart/related;type=\"application/dicom\"";
+    public static final MediaType MULTIPART_RELATED_APPLICATION_DICOM_TYPE =
+            new MediaType("multipart", "related", Collections.singletonMap("type", APPLICATION_DICOM));
 
     /**
-     * "multipart/related;type=application/dicom+xml"
+     * "multipart/related;type=\"application/dicom+xml\""
      */
-    public static final MediaType MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE = new MediaType("multipart", "related", Collections.singletonMap("type", APPLICATION_DICOM_XML));
+    public final static String MULTIPART_RELATED_APPLICATION_DICOM_XML = "multipart/related;type=\"application/dicom+xml\"";
+    public final static MediaType MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE =
+            new MediaType("multipart", "related", Collections.singletonMap("type", APPLICATION_DICOM_XML));
+
 
     public static final String TOKEN = "([a-zA-Z0-9-!#$%&'*+.^_`{|}~]+)";
     public static final String QUOTED = "\"([^\"]*)\"";
@@ -339,8 +344,8 @@ public class MediaType {
         this.mediaType = mediaType == null ? APPLICATION_FORM_URLENCODED : mediaType;
         this.type = type == null ? MEDIA_TYPE_WILDCARD : type;
         this.subtype = subtype == null ? MEDIA_TYPE_WILDCARD : subtype;
-        this.charset = charset == null ? org.aoju.bus.core.lang.Charset.DEFAULT_UTF_8 : charset;
-        if (MapUtils.isNotEmpty(params)) {
+        this.charset = charset == null ? Charset.DEFAULT_UTF_8 : charset;
+        if (MapKit.isNotEmpty(params)) {
             params = new TreeMap((Comparator<String>) (o1, o2) -> o1.compareToIgnoreCase(o2));
         }
         params = params == null ? new HashMap<>() : params;
@@ -452,7 +457,7 @@ public class MediaType {
      *
      * @return the string
      */
-    public Charset charset() {
+    public java.nio.charset.Charset charset() {
         return charset(null);
     }
 
@@ -463,9 +468,9 @@ public class MediaType {
      * @param defaultValue 字符集
      * @return the charset
      */
-    public Charset charset(Charset defaultValue) {
+    public java.nio.charset.Charset charset(java.nio.charset.Charset defaultValue) {
         try {
-            return charset != null ? Charset.forName(charset) : defaultValue;
+            return charset != null ? java.nio.charset.Charset.forName(charset) : defaultValue;
         } catch (IllegalArgumentException e) {
             return defaultValue;
         }

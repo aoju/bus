@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.http.cache;
 
 import org.aoju.bus.core.io.Sink;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 import org.aoju.bus.http.Request;
 import org.aoju.bus.http.Response;
 
@@ -42,7 +42,7 @@ import java.util.Map;
  * 适配 {@link ResponseCache} 到 {@link InternalCache}.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class CacheAdapter implements InternalCache {
@@ -78,7 +78,7 @@ public final class CacheAdapter implements InternalCache {
             @Override
             public Sink body() throws IOException {
                 OutputStream body = request.getBody();
-                return body != null ? IoUtils.sink(body) : null;
+                return body != null ? IoKit.sink(body) : null;
             }
 
             @Override

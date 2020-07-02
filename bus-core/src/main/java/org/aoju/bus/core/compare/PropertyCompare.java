@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,8 @@
 package org.aoju.bus.core.compare;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.BeanUtils;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.BeanKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -37,7 +37,7 @@ import java.util.Comparator;
  *
  * @param <T> 被比较的Bean
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class PropertyCompare<T> implements Comparator<T>, Serializable {
@@ -60,7 +60,7 @@ public class PropertyCompare<T> implements Comparator<T>, Serializable {
      * 构造
      *
      * @param property      属性名
-     * @param isNullGreater null值是否排在后（从小到大排序）
+     * @param isNullGreater null值是否排在后(从小到大排序)
      */
     public PropertyCompare(String property, boolean isNullGreater) {
         this.property = property;
@@ -80,8 +80,8 @@ public class PropertyCompare<T> implements Comparator<T>, Serializable {
         java.lang.Comparable<?> v1;
         java.lang.Comparable<?> v2;
         try {
-            v1 = (java.lang.Comparable<?>) BeanUtils.getProperty(o1, property);
-            v2 = (java.lang.Comparable<?>) BeanUtils.getProperty(o2, property);
+            v1 = (java.lang.Comparable<?>) BeanKit.getProperty(o1, property);
+            v2 = (java.lang.Comparable<?>) BeanKit.getProperty(o2, property);
         } catch (Exception e) {
             throw new InstrumentException(e);
         }
@@ -90,9 +90,9 @@ public class PropertyCompare<T> implements Comparator<T>, Serializable {
     }
 
     private int compare(T o1, T o2, java.lang.Comparable fieldValue1, java.lang.Comparable fieldValue2) {
-        int result = ObjectUtils.compare(fieldValue1, fieldValue2, isNullGreater);
+        int result = ObjectKit.compare(fieldValue1, fieldValue2, isNullGreater);
         if (0 == result) {
-            result = ObjectUtils.compare(o1, o2, this.isNullGreater);
+            result = ObjectKit.compare(o1, o2, this.isNullGreater);
         }
         return result;
     }

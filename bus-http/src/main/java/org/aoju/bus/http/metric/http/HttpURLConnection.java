@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,9 +24,10 @@
  ********************************************************************************/
 package org.aoju.bus.http.metric.http;
 
-import org.aoju.bus.Version;
+import org.aoju.bus.core.Version;
 import org.aoju.bus.core.io.Buffer;
-import org.aoju.bus.core.utils.DateUtils;
+import org.aoju.bus.core.lang.Symbol;
+import org.aoju.bus.core.toolkit.DateKit;
 import org.aoju.bus.http.*;
 import org.aoju.bus.http.accord.platform.Platform;
 import org.aoju.bus.http.bodys.BufferedBody;
@@ -47,7 +48,7 @@ import java.util.concurrent.TimeUnit;
  * 此实现使用{@linkplain NewCall}发送请求和接收响应
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class HttpURLConnection extends java.net.HttpURLConnection implements Callback {
@@ -127,10 +128,10 @@ public final class HttpURLConnection extends java.net.HttpURLConnection implemen
 
             Buffer buffer = new Buffer();
             buffer.writeUtf8(s, 0, i);
-            buffer.writeUtf8CodePoint('?');
+            buffer.writeUtf8CodePoint(Symbol.C_QUESTION_MARK);
             for (int j = i + Character.charCount(c); j < length; j += Character.charCount(c)) {
                 c = s.codePointAt(j);
-                buffer.writeUtf8CodePoint(c > '\u001f' && c < '\u007f' ? c : '?');
+                buffer.writeUtf8CodePoint(c > '\u001f' && c < '\u007f' ? c : Symbol.C_QUESTION_MARK);
             }
             return buffer.readUtf8();
         }
@@ -323,7 +324,7 @@ public final class HttpURLConnection extends java.net.HttpURLConnection implemen
             hostname = proxyAddress.getHostName();
             hostPort = proxyAddress.getPort();
         }
-        return new SocketPermission(hostname + ":" + hostPort, "connect, resolve");
+        return new SocketPermission(hostname + Symbol.COLON + hostPort, "connect, resolve");
     }
 
     @Override
@@ -534,7 +535,7 @@ public final class HttpURLConnection extends java.net.HttpURLConnection implemen
     public void setIfModifiedSince(long newValue) {
         super.setIfModifiedSince(newValue);
         if (ifModifiedSince != 0) {
-            requestHeaders.set("If-Modified-Since", DateUtils.format(new Date(ifModifiedSince)));
+            requestHeaders.set("If-Modified-Since", DateKit.format(new Date(ifModifiedSince)));
         } else {
             requestHeaders.removeAll("If-Modified-Since");
         }

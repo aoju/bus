@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -28,7 +28,7 @@ package org.aoju.bus.starter;
  * 全局扩展配置
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class BusXExtend {
@@ -58,6 +58,10 @@ public class BusXExtend {
      */
     public static final String I18N = "extend.i18n";
     /**
+     * 图像解析
+     */
+    public static final String IMAGE = "extend.image";
+    /**
      * 限流支持
      */
     public static final String LIMITER = "extend.limiter";
@@ -66,17 +70,17 @@ public class BusXExtend {
      */
     public static final String MYBATIS = "extend.mybatis";
     /**
-     * API网关
+     * 消息通知
      */
-    public static final String METRIC = "extend.metric";
+    public static final String NOTIFY = "extend.notify";
     /**
      * 授权登陆
      */
     public static final String OAUTH = "extend.oauth";
     /**
-     * 文件在线预览
+     * 文件预览
      */
-    public static final String PREVIEW = "extend.preview";
+    public static final String OFFICE = "extend.office";
     /**
      * 数据脱敏
      */

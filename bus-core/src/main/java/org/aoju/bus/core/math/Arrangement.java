@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.core.math;
 
-import org.aoju.bus.core.utils.NumberUtils;
+import org.aoju.bus.core.toolkit.MathKit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ import java.util.List;
  * 排列组合相关类
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Arrangement {
@@ -70,9 +70,9 @@ public class Arrangement {
      */
     public static long count(int n, int m) {
         if (n == m) {
-            return NumberUtils.factorial(n);
+            return MathKit.factorial(n);
         }
-        return (n > m) ? NumberUtils.factorial(n, n - m) : 0;
+        return (n > m) ? MathKit.factorial(n, n - m) : 0;
     }
 
     /**
@@ -90,7 +90,7 @@ public class Arrangement {
     }
 
     /**
-     * 全排列选择（列表全部参与排列）
+     * 全排列选择(列表全部参与排列)
      *
      * @return 所有排列列表
      */
@@ -99,7 +99,7 @@ public class Arrangement {
     }
 
     /**
-     * 排列选择（从列表中选择m个排列）
+     * 排列选择(从列表中选择m个排列)
      *
      * @param m 选择个数
      * @return 所有排列列表
@@ -126,7 +126,7 @@ public class Arrangement {
     /**
      * 排列选择
      *
-     * @param resultList  前面（resultIndex-1）个的排列结果
+     * @param resultList  前面(resultIndex-1)个的排列结果
      * @param resultIndex 选择索引,从0开始
      * @param result      最终结果
      */

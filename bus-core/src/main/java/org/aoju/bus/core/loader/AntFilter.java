@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -30,12 +30,17 @@ import org.aoju.bus.core.lang.Symbol;
  * ANT风格路径过滤器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class AntFilter extends RegexFilter implements Filter {
 
-    public static final String[] SYMBOLS = {"\\", "$", "(", ")", "+", ".", "[", "]", "^", "{", "}", "|"};
+    public static final String[] SYMBOLS = {
+            Symbol.BACKSLASH, Symbol.DOLLAR, Symbol.PARENTHESE_LEFT,
+            Symbol.PARENTHESE_RIGHT, Symbol.PLUS, Symbol.DOT,
+            Symbol.BRACKET_LEFT, Symbol.BRACKET_RIGHT, Symbol.CARET,
+            Symbol.BRACE_LEFT, Symbol.BRACE_RIGHT, Symbol.OR
+    };
 
     public AntFilter(String ant) {
         super(convert(ant));

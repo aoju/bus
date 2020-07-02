@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.core.io.resource;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -37,13 +37,13 @@ import java.nio.charset.Charset;
  * 注意：此对象中getUrl方法始终返回null
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class InputStreamResource implements Resource {
 
-    private InputStream in;
-    private String name;
+    private final InputStream in;
+    private final String name;
 
     /**
      * 构造
@@ -82,23 +82,18 @@ public class InputStreamResource implements Resource {
 
     @Override
     public BufferedReader getReader(Charset charset) {
-        return IoUtils.getReader(this.in, charset);
+        return IoKit.getReader(this.in, charset);
     }
 
     @Override
-    public String readStr(Charset charset) throws InstrumentException {
+    public String readString(Charset charset) throws InstrumentException {
         BufferedReader reader = null;
         try {
             reader = getReader(charset);
-            return IoUtils.read(reader);
+            return IoKit.read(reader);
         } finally {
-            IoUtils.close(reader);
+            IoKit.close(reader);
         }
-    }
-
-    @Override
-    public String readUtf8Str() throws InstrumentException {
-        return readStr(org.aoju.bus.core.lang.Charset.UTF_8);
     }
 
     @Override
@@ -106,9 +101,9 @@ public class InputStreamResource implements Resource {
         InputStream in = null;
         try {
             in = getStream();
-            return IoUtils.readBytes(in);
+            return IoKit.readBytes(in);
         } finally {
-            IoUtils.close(in);
+            IoKit.close(in);
         }
     }
 

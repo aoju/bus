@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,20 +24,19 @@
  ********************************************************************************/
 package org.aoju.bus.core.codec;
 
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.StringUtils;
-
-import java.nio.charset.Charset;
+import org.aoju.bus.core.toolkit.StringKit;
 
 /**
  * Base32 - encodes and decodes RFC3548 Base32 (see http://www.faqs.org/rfcs/rfc3548.html )
- * base32就是用32（2的5次方）个特定ASCII码来表示256个ASCII码
- * 所以,5个ASCII字符经过base32编码后会变为8个字符（公约数为40）,长度增加3/5.不足8n用“=”补足
+ * base32就是用32(2的5次方)个特定ASCII码来表示256个ASCII码
+ * 所以,5个ASCII字符经过base32编码后会变为8个字符(公约数为40),长度增加3/5.不足8n用“=”补足
  * see http://blog.csdn.net/earbao/article/details/44453937
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class Base32 {
@@ -91,7 +90,7 @@ public final class Base32 {
      * @return 被加密后的字符串
      */
     public static String encode(String source) {
-        return encode(source, org.aoju.bus.core.lang.Charset.UTF_8);
+        return encode(source, Charset.UTF_8);
     }
 
     /**
@@ -102,7 +101,7 @@ public final class Base32 {
      * @return 被加密后的字符串
      */
     public static String encode(String source, String charset) {
-        return encode(StringUtils.bytes(source, charset));
+        return encode(StringKit.bytes(source, charset));
     }
 
     /**
@@ -112,8 +111,8 @@ public final class Base32 {
      * @param charset 字符集
      * @return 被加密后的字符串
      */
-    public static String encode(String source, Charset charset) {
-        return encode(StringUtils.bytes(source, charset));
+    public static String encode(String source, java.nio.charset.Charset charset) {
+        return encode(StringKit.bytes(source, charset));
     }
 
     /**
@@ -173,7 +172,7 @@ public final class Base32 {
      * @return 被加密后的字符串
      */
     public static String decodeStr(String source) {
-        return decodeStr(source, org.aoju.bus.core.lang.Charset.UTF_8);
+        return decodeStr(source, Charset.UTF_8);
     }
 
     /**
@@ -184,7 +183,7 @@ public final class Base32 {
      * @return 被加密后的字符串
      */
     public static String decodeStr(String source, String charset) {
-        return StringUtils.toString(decode(source), charset);
+        return StringKit.toString(decode(source), charset);
     }
 
     /**
@@ -194,8 +193,8 @@ public final class Base32 {
      * @param charset 字符集
      * @return 被加密后的字符串
      */
-    public static String decodeStr(String source, Charset charset) {
-        return StringUtils.toString(decode(source), charset);
+    public static String decodeStr(String source, java.nio.charset.Charset charset) {
+        return StringKit.toString(decode(source), charset);
     }
 
 }

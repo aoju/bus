@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -31,7 +31,7 @@ import org.aoju.bus.office.metric.OfficeManagerEntryBuilder;
  * 当不需要office实例来执行转换时，该类保存{@link OnlineOfficeEntryManager}的配置.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class OnlineOfficeEntryBuilder implements OfficeManagerEntryBuilder {

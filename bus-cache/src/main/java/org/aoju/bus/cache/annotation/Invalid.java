@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,11 +25,13 @@
 package org.aoju.bus.cache.annotation;
 
 
+import org.aoju.bus.core.lang.Normal;
+
 import java.lang.annotation.*;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Documented
@@ -40,16 +42,16 @@ public @interface Invalid {
     /**
      * @return as {@code @Cached}
      */
-    String value() default "";
+    String value() default Normal.EMPTY;
 
     /**
      * @return as {@code @Cached}
      */
-    String prefix() default "";
+    String prefix() default Normal.EMPTY;
 
     /**
      * @return as {@code @Cached}
      */
-    String condition() default "";
+    String condition() default Normal.EMPTY;
 
 }

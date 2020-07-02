@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,8 @@
 package org.aoju.bus.validate.strategy;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ObjectUtils;
-import org.aoju.bus.core.utils.ReflectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.core.toolkit.ReflectKit;
 import org.aoju.bus.validate.Context;
 import org.aoju.bus.validate.annotation.InEnum;
 import org.aoju.bus.validate.validators.Matcher;
@@ -38,14 +38,14 @@ import java.util.Objects;
  * int enum 校验
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class InEnumStrategy implements Matcher<Object, InEnum> {
 
     @Override
     public boolean on(Object object, InEnum annotation, Context context) {
-        if (ObjectUtils.isEmpty(object)) {
+        if (ObjectKit.isEmpty(object)) {
             return false;
         }
         Class<? extends Enum> enumClass = annotation.enumClass();
@@ -53,7 +53,7 @@ public class InEnumStrategy implements Matcher<Object, InEnum> {
             Method method = enumClass.getMethod(annotation.method());
             Enum[] enums = enumClass.getEnumConstants();
             for (Enum e : enums) {
-                Object value = ReflectUtils.invokeMethod(method, e);
+                Object value = ReflectKit.invokeMethod(method, e);
                 if (Objects.equals(value, object)) {
                     return true;
                 }

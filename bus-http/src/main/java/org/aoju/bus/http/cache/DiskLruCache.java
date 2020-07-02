@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,8 +26,9 @@ package org.aoju.bus.http.cache;
 
 import org.aoju.bus.core.io.FileSystem;
 import org.aoju.bus.core.io.*;
+import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 import org.aoju.bus.http.Builder;
 import org.aoju.bus.logger.Logger;
 
@@ -46,7 +47,7 @@ import java.util.regex.Pattern;
  * 每个值必须在{@code 0}和{@code Integer之间。MAX_VALUE}字节的长度
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class DiskLruCache implements Closeable, Flushable {
@@ -113,7 +114,7 @@ public final class DiskLruCache implements Closeable, Flushable {
                     }
                 } catch (IOException e) {
                     mostRecentRebuildFailed = true;
-                    journalWriter = IoUtils.buffer(IoUtils.blackhole());
+                    journalWriter = IoKit.buffer(IoKit.blackhole());
                 }
             }
         }
@@ -204,7 +205,7 @@ public final class DiskLruCache implements Closeable, Flushable {
     }
 
     private void readJournal() throws IOException {
-        BufferSource source = IoUtils.buffer(fileSystem.source(journalFile));
+        BufferSource source = IoKit.buffer(fileSystem.source(journalFile));
         try {
             String magic = source.readUtf8LineStrict();
             String version = source.readUtf8LineStrict();
@@ -215,7 +216,7 @@ public final class DiskLruCache implements Closeable, Flushable {
                     || !VERSION_1.equals(version)
                     || !Integer.toString(appVersion).equals(appVersionString)
                     || !Integer.toString(valueCount).equals(valueCountString)
-                    || !"".equals(blank)) {
+                    || !Normal.EMPTY.equals(blank)) {
                 throw new IOException("unexpected journal header: [" + magic + ", " + version + ", "
                         + valueCountString + ", " + blank + "]");
             }
@@ -238,7 +239,7 @@ public final class DiskLruCache implements Closeable, Flushable {
                 journalWriter = newJournalWriter();
             }
         } finally {
-            IoUtils.close(source);
+            IoKit.close(source);
         }
     }
 
@@ -251,7 +252,7 @@ public final class DiskLruCache implements Closeable, Flushable {
                 hasJournalErrors = true;
             }
         };
-        return IoUtils.buffer(faultHidingSink);
+        return IoKit.buffer(faultHidingSink);
     }
 
     private void readJournalLine(String line) throws IOException {
@@ -327,7 +328,7 @@ public final class DiskLruCache implements Closeable, Flushable {
             journalWriter.close();
         }
 
-        BufferSink writer = IoUtils.buffer(fileSystem.sink(journalFileTmp));
+        BufferSink writer = IoKit.buffer(fileSystem.sink(journalFileTmp));
         try {
             writer.writeUtf8(MAGIC).writeByte(Symbol.C_LF);
             writer.writeUtf8(VERSION_1).writeByte(Symbol.C_LF);
@@ -754,7 +755,7 @@ public final class DiskLruCache implements Closeable, Flushable {
 
         public void close() {
             for (Source in : sources) {
-                IoUtils.close(in);
+                IoKit.close(in);
             }
         }
     }
@@ -804,7 +805,7 @@ public final class DiskLruCache implements Closeable, Flushable {
                     throw new IllegalStateException();
                 }
                 if (entry.currentEditor != this) {
-                    return IoUtils.blackhole();
+                    return IoKit.blackhole();
                 }
                 if (!entry.readable) {
                     written[index] = true;
@@ -814,7 +815,7 @@ public final class DiskLruCache implements Closeable, Flushable {
                 try {
                     sink = fileSystem.sink(dirtyFile);
                 } catch (FileNotFoundException e) {
-                    return IoUtils.blackhole();
+                    return IoKit.blackhole();
                 }
                 return new FaultHideSink(sink) {
                     @Override
@@ -939,7 +940,7 @@ public final class DiskLruCache implements Closeable, Flushable {
             } catch (FileNotFoundException e) {
                 for (int i = 0; i < valueCount; i++) {
                     if (sources[i] != null) {
-                        IoUtils.close(sources[i]);
+                        IoKit.close(sources[i]);
                     } else {
                         break;
                     }

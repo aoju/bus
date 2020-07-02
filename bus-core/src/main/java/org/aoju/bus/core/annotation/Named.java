@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,6 +24,8 @@
  ********************************************************************************/
 package org.aoju.bus.core.annotation;
 
+import org.aoju.bus.core.lang.Normal;
+
 import java.io.Serializable;
 import java.lang.annotation.*;
 
@@ -31,7 +33,7 @@ import java.lang.annotation.*;
  * 注解命名
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Binding
@@ -39,7 +41,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 public @interface Named {
 
-    String value() default "";
+    String value() default Normal.EMPTY;
 
     class Names implements Named, Serializable {
 

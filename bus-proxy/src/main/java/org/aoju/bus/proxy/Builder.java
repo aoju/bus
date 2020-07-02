@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.proxy;
 
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.ClassUtils;
+import org.aoju.bus.core.toolkit.ClassKit;
 import org.aoju.bus.proxy.aspects.Aspectj;
 import org.aoju.bus.proxy.factory.AbstractFactory;
 import org.aoju.bus.proxy.invoker.NullInvoker;
@@ -40,7 +40,7 @@ import java.util.Map;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Builder {
@@ -156,7 +156,7 @@ public class Builder {
      * @return 代理类
      */
     public static <T> T newProxyInstance(InvocationHandler invocationHandler, Class<?>... interfaces) {
-        return newProxyInstance(ClassUtils.getClassLoader(), invocationHandler, interfaces);
+        return newProxyInstance(ClassKit.getClassLoader(), invocationHandler, interfaces);
     }
 
 }

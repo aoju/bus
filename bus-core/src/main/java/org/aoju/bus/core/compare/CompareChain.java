@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -35,7 +35,7 @@ import java.util.*;
  * 此类copy from Apache-commons-collections
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class CompareChain<E> implements Chain<Comparator<E>, CompareChain<E>>, Comparator<E>, Serializable {
@@ -49,7 +49,7 @@ public class CompareChain<E> implements Chain<Comparator<E>, CompareChain<E>>, C
     /**
      * 对应比较器位置是否反序.
      */
-    private BitSet orderingBits;
+    private final BitSet orderingBits;
     /**
      * 比较器是否被锁定 锁定的比较器链不能再添加新的比较器 比较器会在开始比较时开始加锁
      */
@@ -201,7 +201,7 @@ public class CompareChain<E> implements Chain<Comparator<E>, CompareChain<E>>, C
     }
 
     /**
-     * 是否已经被锁定 当开始比较时（调用compare方法）此值为true
+     * 是否已经被锁定 当开始比较时(调用compare方法)此值为true
      *
      * @return true = ComparatorChain cannot be modified; false = ComparatorChain can still be modified.
      */
@@ -273,10 +273,11 @@ public class CompareChain<E> implements Chain<Comparator<E>, CompareChain<E>>, C
         if (null == object) {
             return false;
         }
+
         if (object.getClass().equals(this.getClass())) {
             final CompareChain<?> otherChain = (CompareChain<?>) object;
-            return (null == orderingBits ? null == otherChain.orderingBits : this.orderingBits.equals(otherChain.orderingBits)) //
-                    && (null == otherChain ? null == otherChain.chain : this.chain.equals(otherChain.chain));
+            return Objects.equals(this.orderingBits, otherChain.orderingBits)
+                    && this.chain.equals(otherChain.chain);
         }
         return false;
     }

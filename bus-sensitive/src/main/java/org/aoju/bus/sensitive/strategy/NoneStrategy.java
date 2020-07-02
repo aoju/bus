@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.sensitive.strategy;
 
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
 import org.aoju.bus.sensitive.Context;
 import org.aoju.bus.sensitive.provider.AbstractProvider;
 
@@ -32,14 +32,14 @@ import org.aoju.bus.sensitive.provider.AbstractProvider;
  * 不脱敏
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class NoneStrategy extends AbstractProvider {
 
     @Override
     public Object build(Object object, Context context) {
-        if (ObjectUtils.isEmpty(object)) {
+        if (ObjectKit.isEmpty(object)) {
             return null;
         }
         return object.toString();

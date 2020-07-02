@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -29,7 +29,7 @@ import org.aoju.bus.core.io.resource.UriResource;
 import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.UriUtils;
+import org.aoju.bus.core.toolkit.UriKit;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +43,7 @@ import java.util.jar.JarFile;
  * Jar包资源加载器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class JarLoader extends ResourceLoader implements Loader {
@@ -52,7 +52,7 @@ public class JarLoader extends ResourceLoader implements Loader {
     private final JarFile jarFile;
 
     public JarLoader(File file) throws IOException {
-        this(new URL("jar:" + file.toURI().toURL() + Normal.JAR_URL_SEPARATOR), new JarFile(file));
+        this(new URL(Normal.JAR_URL_PREFIX + file.toURI().toURL() + Normal.JAR_URL_SEPARATOR), new JarFile(file));
     }
 
     public JarLoader(URL jarURL) throws IOException {
@@ -108,7 +108,7 @@ public class JarLoader extends ResourceLoader implements Loader {
                         || (recursively && name.startsWith(folder))
                         || (!recursively && name.startsWith(folder) && name.indexOf(Symbol.SLASH, folder.length()) < 0)) {
                     try {
-                        URL url = new URL(context, UriUtils.encodePath(name, Charset.UTF_8));
+                        URL url = new URL(context, UriKit.encodePath(name, Charset.UTF_8));
                         if (filter.filtrate(name, url)) {
                             next = new UriResource(url, name);
                             return true;

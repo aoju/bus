@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,6 +24,8 @@
  ********************************************************************************/
 package org.aoju.bus.core.annotation;
 
+import org.aoju.bus.core.lang.Normal;
+
 import java.lang.annotation.*;
 
 /**
@@ -31,7 +33,7 @@ import java.lang.annotation.*;
  * 有助于代码的维护与审查,以及一些自动化的分析工具找到潜在的安全性错误
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Documented
@@ -45,6 +47,6 @@ public @interface GuardeBy {
      *
      * @return 对应的锁信息
      */
-    String value() default "";
+    String value() default Normal.EMPTY;
 
 }

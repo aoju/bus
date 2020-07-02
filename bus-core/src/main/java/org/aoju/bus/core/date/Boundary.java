@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.core.date;
 
 import org.aoju.bus.core.lang.Fields;
 import org.aoju.bus.core.lang.Range;
-import org.aoju.bus.core.utils.DateUtils;
+import org.aoju.bus.core.toolkit.DateKit;
 
 import java.util.Date;
 
@@ -34,7 +34,7 @@ import java.util.Date;
  * 日期范围
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Boundary extends Range<DateTime> {
@@ -75,7 +75,7 @@ public class Boundary extends Range<DateTime> {
      * @param isIncludeEnd   是否包含结束的时间
      */
     public Boundary(Date start, Date end, final Fields.DateField unit, final int step, boolean isIncludeStart, boolean isIncludeEnd) {
-        super(DateUtils.date(start), DateUtils.date(end), (current, end1, index) -> {
+        super(DateKit.date(start), DateKit.date(end), (current, end1, index) -> {
             DateTime dt = current.offset(unit, step);
             if (dt.isAfter(end1)) {
                 return null;

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.core.text.csv;
 
 import org.aoju.bus.core.lang.Symbol;
+import org.aoju.bus.core.toolkit.BeanKit;
 
 import java.util.*;
 
@@ -32,7 +33,7 @@ import java.util.*;
  * CSV中一行的表示
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class CsvRow implements List<String> {
@@ -127,6 +128,17 @@ public final class CsvRow implements List<String> {
      */
     public int getFieldCount() {
         return fields.size();
+    }
+
+    /**
+     * 数据转换为Bean对象
+     *
+     * @param <T>   Bean类型
+     * @param clazz bean类
+     * @return Bean
+     */
+    public <T> T toBean(Class<T> clazz) {
+        return BeanKit.mapToBean(getFieldMap(), clazz, true);
     }
 
     @Override

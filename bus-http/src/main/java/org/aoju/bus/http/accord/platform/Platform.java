@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.http.accord.platform;
 
 import org.aoju.bus.core.io.Buffer;
+import org.aoju.bus.core.lang.Http;
 import org.aoju.bus.http.Protocol;
 import org.aoju.bus.http.secure.BasicCertificateChainCleaner;
 import org.aoju.bus.http.secure.BasicTrustRootIndex;
@@ -59,7 +60,7 @@ import java.util.List;
  * 支持Android 6.0+ {@code NetworkSecurityPolicy}
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Platform {
@@ -253,7 +254,6 @@ public class Platform {
 
     public CertificateChainCleaner buildCertificateChainCleaner(SSLSocketFactory sslSocketFactory) {
         X509TrustManager trustManager = trustManager(sslSocketFactory);
-
         if (trustManager == null) {
             throw new IllegalStateException("Unable to extract the trust manager on "
                     + Platform.get()
@@ -266,17 +266,12 @@ public class Platform {
 
     public SSLContext getSSLContext() {
         String jvmVersion = System.getProperty("java.specification.version");
-        if ("1.7".equals(jvmVersion)) {
-            try {
-                // JDK 1.7(公共版本)只支持带命名协议的> TLSv1
-                return SSLContext.getInstance("TLSv1.2");
-            } catch (NoSuchAlgorithmException e) {
-                Logger.error(e);
-            }
-        }
-
         try {
-            return SSLContext.getInstance("TLS");
+            if ("1.7".equals(jvmVersion)) {
+                // JDK 1.7(公共版本)只支持带命名协议的> TLSv1
+                return SSLContext.getInstance(Http.TLS_12);
+            }
+            return SSLContext.getInstance(Http.TLS);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("No TLS provider", e);
         }
@@ -287,6 +282,7 @@ public class Platform {
     }
 
     public void configureSslSocketFactory(SSLSocketFactory socketFactory) {
+
     }
 
     @Override

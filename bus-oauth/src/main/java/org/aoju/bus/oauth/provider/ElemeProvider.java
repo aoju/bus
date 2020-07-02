@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,6 +26,7 @@ package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.codec.Base64;
 import org.aoju.bus.core.key.ObjectID;
 import org.aoju.bus.core.lang.Algorithm;
@@ -41,7 +42,6 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.security.MessageDigest;
 import java.util.HashMap;
@@ -54,17 +54,17 @@ import java.util.TreeMap;
  * 注：集成的是正式环境,非沙箱环境
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class ElemeProvider extends DefaultProvider {
+public class ElemeProvider extends AbstractProvider {
 
     public ElemeProvider(Context context) {
         super(context, Registry.ELEME);
     }
 
-    public ElemeProvider(Context context, StateCache stateCache) {
-        super(context, Registry.ELEME, stateCache);
+    public ElemeProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.ELEME, extendCache);
     }
 
     /**
@@ -120,11 +120,11 @@ public class ElemeProvider extends DefaultProvider {
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
+    public AccToken getAccessToken(Callback callback) {
         Map<String, String> header = new HashMap<>();
         header.put("client_id", context.getAppKey());
         header.put("redirect_uri", context.getRedirectUri());
-        header.put("code", Callback.getCode());
+        header.put("code", callback.getCode());
         header.put("grant_type", "authorization_code");
 
         // 设置header
@@ -144,9 +144,9 @@ public class ElemeProvider extends DefaultProvider {
     }
 
     @Override
-    public Message refresh(AccToken oldToken) {
+    public Message refresh(AccToken accToken) {
         Map<String, String> header = new HashMap<>();
-        header.put("refresh_token", oldToken.getRefreshToken());
+        header.put("refresh_token", accToken.getRefreshToken());
         header.put("grant_type", "refresh_token");
         this.setHeader(header);
         String response = Httpx.post(source.refresh(), null, header);
@@ -155,7 +155,7 @@ public class ElemeProvider extends DefaultProvider {
         this.checkResponse(object);
 
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
                 .data(AccToken.builder()
                         .accessToken(object.getString("access_token"))
                         .refreshToken(object.getString("refresh_token"))
@@ -169,6 +169,57 @@ public class ElemeProvider extends DefaultProvider {
     public String authorize(String state) {
         return Builder.fromUrl(super.authorize(state))
                 .queryParam("scope", "all")
+                .build();
+    }
+
+    @Override
+    public Property getUserInfo(AccToken accToken) {
+        Map<String, Object> parameters = new HashMap<>();
+        // 获取商户账号信息的API接口名称
+        String action = "eleme.user.getUser";
+        // 时间戳,单位秒 API服务端允许客户端请求最大时间误差为正负5分钟
+        final long timestamp = System.currentTimeMillis();
+        // 公共参数
+        Map<String, String> metasHashMap = new HashMap<>();
+        metasHashMap.put("app_key", context.getAppKey());
+        metasHashMap.put("timestamp", Normal.EMPTY + timestamp);
+        String signature = signature(context.getAppKey(), context.getAppSecret(), timestamp, action, accToken.getAccessToken(), parameters);
+
+        String requestId = this.getRequestId();
+
+        Map<String, String> header = new HashMap<>();
+        header.put("nop", "1.0.0");
+        header.put("id", requestId);
+        header.put("action", action);
+        header.put("token", accToken.getAccessToken());
+        header.put("metas", metasHashMap.toString());
+        header.put("params", parameters.toString());
+        header.put("signature", signature);
+
+        // 设置header
+        this.setHeader(header, "application/json; charset=utf-8", requestId);
+
+        String response = Httpx.post(source.userInfo(), null, header);
+        JSONObject jsonObject = JSONObject.parseObject(response);
+
+        // 校验请求
+        if (jsonObject.containsKey("name")) {
+            throw new AuthorizedException(jsonObject.getString("message"));
+        }
+        if (jsonObject.containsKey("error") && null != jsonObject.get("error")) {
+            throw new AuthorizedException(jsonObject.getJSONObject("error").getString("message"));
+        }
+
+        JSONObject object = jsonObject.getJSONObject("result");
+
+        return Property.builder()
+                .rawJson(object)
+                .uuid(object.getString("userId"))
+                .username(object.getString("userName"))
+                .nickname(object.getString("userName"))
+                .gender(Normal.Gender.UNKNOWN)
+                .token(accToken)
+                .source(source.toString())
                 .build();
     }
 
@@ -196,61 +247,10 @@ public class ElemeProvider extends DefaultProvider {
         return (ObjectID.id() + Symbol.OR + System.currentTimeMillis()).toUpperCase();
     }
 
-    @Override
-    protected Property getUserInfo(AccToken token) {
-        Map<String, Object> parameters = new HashMap<>();
-        // 获取商户账号信息的API接口名称
-        String action = "eleme.user.getUser";
-        // 时间戳,单位秒 API服务端允许客户端请求最大时间误差为正负5分钟
-        final long timestamp = System.currentTimeMillis();
-        // 公共参数
-        Map<String, String> metasHashMap = new HashMap<>();
-        metasHashMap.put("app_key", context.getAppKey());
-        metasHashMap.put("timestamp", Normal.EMPTY + timestamp);
-        String signature = signature(context.getAppKey(), context.getAppSecret(), timestamp, action, token.getAccessToken(), parameters);
-
-        String requestId = this.getRequestId();
-
-        Map<String, String> header = new HashMap<>();
-        header.put("nop", "1.0.0");
-        header.put("id", requestId);
-        header.put("action", action);
-        header.put("token", token.getAccessToken());
-        header.put("metas", metasHashMap.toString());
-        header.put("params", parameters.toString());
-        header.put("signature", signature);
-
-        // 设置header
-        this.setHeader(header, "application/json; charset=utf-8", requestId);
-
-        String response = Httpx.post(source.userInfo(), null, header);
-        JSONObject object = JSONObject.parseObject(response);
-
-        // 校验请求
-        if (object.containsKey("name")) {
-            throw new AuthorizedException(object.getString("message"));
-        }
-        if (object.containsKey("error") && null != object.get("error")) {
-            throw new AuthorizedException(object.getJSONObject("error").getString("message"));
-        }
-
-        JSONObject result = object.getJSONObject("result");
-
-        return Property.builder()
-                .uuid(result.getString("userId"))
-                .username(result.getString("userName"))
-                .nickname(result.getString("userName"))
-                .gender(Normal.Gender.UNKNOWN)
-                .token(token)
-                .source(source.toString())
-                .build();
-    }
-
     private void checkResponse(JSONObject object) {
         if (object.containsKey("error")) {
             throw new AuthorizedException(object.getString("error_description"));
         }
     }
-
 
 }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.proxy.invoker;
 
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
  * 切面实现类
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class InvocationInvoker implements ProxyChain {
@@ -93,7 +93,7 @@ public class InvocationInvoker implements ProxyChain {
      */
     @Override
     public Method getMethod() {
-        if (ObjectUtils.isEmpty(method)) {
+        if (ObjectKit.isEmpty(method)) {
             Signature signature = joinPoint.getSignature();
             MethodSignature methodSignature = (MethodSignature) signature;
             this.method = methodSignature.getMethod();

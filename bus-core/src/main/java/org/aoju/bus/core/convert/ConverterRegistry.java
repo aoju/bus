@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,10 +27,10 @@ package org.aoju.bus.core.convert;
 import org.aoju.bus.core.date.DateTime;
 import org.aoju.bus.core.lang.Types;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.BeanUtils;
-import org.aoju.bus.core.utils.ObjectUtils;
-import org.aoju.bus.core.utils.ReflectUtils;
-import org.aoju.bus.core.utils.TypeUtils;
+import org.aoju.bus.core.toolkit.BeanKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.core.toolkit.ReflectKit;
+import org.aoju.bus.core.toolkit.TypeKit;
 
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 转换器,默认转换器预定义的一些转换器,自定义转换器存放用户自定的转换器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class ConverterRegistry {
@@ -91,7 +91,7 @@ public class ConverterRegistry {
      * @return {@link ConverterRegistry}
      */
     public ConverterRegistry putCustom(Type type, Class<? extends Converter<?>> converterClass) {
-        return putCustom(type, ReflectUtils.newInstance(converterClass));
+        return putCustom(type, ReflectKit.newInstance(converterClass));
     }
 
     /**
@@ -140,7 +140,7 @@ public class ConverterRegistry {
     /**
      * 获得默认转换器
      *
-     * @param <T>  转换的目标类型（转换器转换到的类型）
+     * @param <T>  转换的目标类型(转换器转换到的类型)
      * @param type 类型
      * @return 转换器
      */
@@ -151,7 +151,7 @@ public class ConverterRegistry {
     /**
      * 获得自定义转换器
      *
-     * @param <T>  转换的目标类型（转换器转换到的类型）
+     * @param <T>  转换的目标类型(转换器转换到的类型)
      * @param type 类型
      * @return 转换器
      */
@@ -162,7 +162,7 @@ public class ConverterRegistry {
     /**
      * 转换值为指定类型
      *
-     * @param <T>           转换的目标类型（转换器转换到的类型）
+     * @param <T>           转换的目标类型(转换器转换到的类型)
      * @param type          类型目标
      * @param value         被转换值
      * @param defaultValue  默认值
@@ -171,14 +171,14 @@ public class ConverterRegistry {
      * @throws InstrumentException 转换器不存在
      */
     public <T> T convert(Type type, Object value, T defaultValue, boolean isCustomFirst) throws InstrumentException {
-        if (TypeUtils.isUnknow(type) && null == defaultValue) {
+        if (TypeKit.isUnknow(type) && null == defaultValue) {
             // 对于用户不指定目标类型的情况，返回原值
             return (T) value;
         }
-        if (ObjectUtils.isNull(value)) {
+        if (ObjectKit.isNull(value)) {
             return defaultValue;
         }
-        if (TypeUtils.isUnknow(type)) {
+        if (TypeKit.isUnknow(type)) {
             type = defaultValue.getClass();
         }
 
@@ -192,7 +192,7 @@ public class ConverterRegistry {
             return converter.convert(value, defaultValue);
         }
 
-        Class<T> rowType = (Class<T>) TypeUtils.getClass(type);
+        Class<T> rowType = (Class<T>) TypeKit.getClass(type);
         if (null == rowType) {
             if (null != defaultValue) {
                 rowType = (Class<T>) defaultValue.getClass();
@@ -209,7 +209,7 @@ public class ConverterRegistry {
         }
 
         // 尝试转Bean
-        if (BeanUtils.isBean(rowType)) {
+        if (BeanKit.isBean(rowType)) {
             return new BeanConverter<T>(type).convert(value, defaultValue);
         }
 
@@ -221,7 +221,7 @@ public class ConverterRegistry {
      * 转换值为指定类型
      * 自定义转换器优先
      *
-     * @param <T>          转换的目标类型（转换器转换到的类型）
+     * @param <T>          转换的目标类型(转换器转换到的类型)
      * @param type         类型
      * @param value        值
      * @param defaultValue 默认值
@@ -235,7 +235,7 @@ public class ConverterRegistry {
     /**
      * 转换值为指定类型
      *
-     * @param <T>   转换的目标类型（转换器转换到的类型）
+     * @param <T>   转换的目标类型(转换器转换到的类型)
      * @param type  类型
      * @param value 值
      * @return 转换后的值, 默认为<code>null</code>
@@ -252,11 +252,11 @@ public class ConverterRegistry {
      * <pre>
      * Collection
      * Map
-     * 强转（无需转换）
+     * 强转(无需转换)
      * 数组
      * </pre>
      *
-     * @param <T>          转换的目标类型（转换器转换到的类型）
+     * @param <T>          转换的目标类型(转换器转换到的类型)
      * @param type         类型
      * @param value        值
      * @param defaultValue 默认值
@@ -267,13 +267,13 @@ public class ConverterRegistry {
             return null;
         }
 
-        // 集合转换（不可以默认强转）
+        // 集合转换(不可以默认强转)
         if (Collection.class.isAssignableFrom(rowType)) {
             final CollectionConverter collectionConverter = new CollectionConverter(type);
             return (T) collectionConverter.convert(value, (Collection<?>) defaultValue);
         }
 
-        // Map类型（不可以默认强转）
+        // Map类型(不可以默认强转)
         if (Map.class.isAssignableFrom(rowType)) {
             final MapConverter mapConverter = new MapConverter(type);
             return (T) mapConverter.convert(value, (Map<?, ?>) defaultValue);

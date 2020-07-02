@@ -21,7 +21,7 @@
 ## 使用方式
 
 1,编写加解密实现类以及配置mybatis的插件，下面在springboot场景下的一个配置案例。
-```java
+```
     /**
      * 插件配置
      */
@@ -33,7 +33,7 @@
     }
 ```
 2，在vo类上添加功能注解使得插件生效：
-```java
+```
 @Data
 public class Entity {
 
@@ -143,7 +143,7 @@ public class Entity {
 
      此注解适用于如下场景：
      例如，数据库只存了username字段的加密信息，没有冗余脱敏展示的字段。
-     我的响应类里希望将数据库的加密的某个字段映射到响应的两个属性上（一个解密的属性，一个脱敏的属性）就可以使用该注解。
+     我的响应类里希望将数据库的加密的某个字段映射到响应的两个属性上(一个解密的属性，一个脱敏的属性)就可以使用该注解。
      例如，dto里有如下字段：
      @EncryptField
      private String name
@@ -154,7 +154,7 @@ public class Entity {
      则当查询出结果时，userNameOnlyDTO会赋值为username解密后再脱敏的值。
      相当于数据库的一个字段的值以不同的形式映射到了对象的两个字段上。
 ## 脱敏类型
-```java
+```
     public enum Type {
        /**
         * 不脱敏
@@ -214,11 +214,11 @@ public class Entity {
 
 #### 使用领域对象化的参数和响应
 必须使用javabean类入参声明方式才能使得本插件生效。例如：
-```java
+```
  int insert(Entity entity);
 ```
 使用如下的方式操作mybatis，则本插件无效。
-```java
+```
  int insert(Map map);
  int insert(String name,String idCard);
 ```

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.http;
 
 import org.aoju.bus.core.lang.Http;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
 import org.aoju.bus.http.accord.Connection;
 import org.aoju.bus.http.accord.ConnectionSuite;
 import org.aoju.bus.http.secure.Authenticator;
@@ -46,7 +46,7 @@ import java.util.List;
  * 共享相同的{@code Address}的HTTP请求也可能共享相同的{@link Connection}
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class Address {
@@ -202,10 +202,10 @@ public final class Address {
                 && this.protocols.equals(that.protocols)
                 && this.connectionSuites.equals(that.connectionSuites)
                 && this.proxySelector.equals(that.proxySelector)
-                && ObjectUtils.equal(this.proxy, that.proxy)
-                && ObjectUtils.equal(this.sslSocketFactory, that.sslSocketFactory)
-                && ObjectUtils.equal(this.hostnameVerifier, that.hostnameVerifier)
-                && ObjectUtils.equal(this.certificatePinner, that.certificatePinner)
+                && ObjectKit.equal(this.proxy, that.proxy)
+                && ObjectKit.equal(this.sslSocketFactory, that.sslSocketFactory)
+                && ObjectKit.equal(this.hostnameVerifier, that.hostnameVerifier)
+                && ObjectKit.equal(this.certificatePinner, that.certificatePinner)
                 && this.url().port() == that.url().port();
     }
 

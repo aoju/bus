@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.core.map;
 
-import org.aoju.bus.core.utils.MapUtils;
+import org.aoju.bus.core.toolkit.MapKit;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -35,7 +35,7 @@ import java.util.Map;
  * @param <K> Key类型
  * @param <V> Value类型
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class MapBuilder<K, V> implements Serializable {
@@ -52,13 +52,35 @@ public class MapBuilder<K, V> implements Serializable {
     }
 
     /**
+     * 创建Builder，默认HashMap实现
+     *
+     * @param <K> Key类型
+     * @param <V> Value类型
+     * @return MapBuilder
+     */
+    public static <K, V> MapBuilder<K, V> create() {
+        return create(false);
+    }
+
+    /**
+     * 创建Builder
+     *
+     * @param <K>      Key类型
+     * @param <V>      Value类型
+     * @param isLinked true创建LinkedHashMap，false创建HashMap
+     * @return MapBuilder
+     */
+    public static <K, V> MapBuilder<K, V> create(boolean isLinked) {
+        return create(MapKit.newHashMap(isLinked));
+    }
+
+    /**
      * 创建Builder
      *
      * @param <K> Key类型
      * @param <V> Value类型
      * @param map Map实体类
      * @return MapBuilder
-     * @since 3.2.3
      */
     public static <K, V> MapBuilder<K, V> create(Map<K, V> map) {
         return new MapBuilder<>(map);
@@ -100,7 +122,6 @@ public class MapBuilder<K, V> implements Serializable {
      * 创建后的map
      *
      * @return 创建后的map
-     * @since 3.3.0
      */
     public Map<K, V> build() {
         return map();
@@ -114,7 +135,7 @@ public class MapBuilder<K, V> implements Serializable {
      * @return 连接字符串
      */
     public String join(String separator, final String keyValueSeparator) {
-        return MapUtils.join(this.map, separator, keyValueSeparator);
+        return MapKit.join(this.map, separator, keyValueSeparator);
     }
 
     /**
@@ -125,7 +146,7 @@ public class MapBuilder<K, V> implements Serializable {
      * @return 连接后的字符串
      */
     public String joinIgnoreNull(String separator, final String keyValueSeparator) {
-        return MapUtils.joinIgnoreNull(this.map, separator, keyValueSeparator);
+        return MapKit.joinIgnoreNull(this.map, separator, keyValueSeparator);
     }
 
     /**
@@ -137,7 +158,7 @@ public class MapBuilder<K, V> implements Serializable {
      * @return 连接后的字符串
      */
     public String join(String separator, final String keyValueSeparator, boolean isIgnoreNull) {
-        return MapUtils.join(this.map, separator, keyValueSeparator, isIgnoreNull);
+        return MapKit.join(this.map, separator, keyValueSeparator, isIgnoreNull);
     }
 
 }

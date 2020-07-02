@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,10 +26,10 @@ package org.aoju.bus.core.io.resource;
 
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.FileUtils;
-import org.aoju.bus.core.utils.IoUtils;
-import org.aoju.bus.core.utils.ObjectUtils;
-import org.aoju.bus.core.utils.UriUtils;
+import org.aoju.bus.core.toolkit.FileKit;
+import org.aoju.bus.core.toolkit.IoKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.core.toolkit.UriKit;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,7 +41,7 @@ import java.nio.charset.Charset;
  * URL资源访问类
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class UriResource implements Resource {
@@ -66,7 +66,7 @@ public class UriResource implements Resource {
      */
     public UriResource(URL url, String name) {
         this.url = url;
-        this.name = ObjectUtils.defaultIfNull(name, (null != url) ? FileUtils.getName(url.getPath()) : null);
+        this.name = ObjectKit.defaultIfNull(name, (null != url) ? FileKit.getName(url.getPath()) : null);
     }
 
     @Override
@@ -82,9 +82,9 @@ public class UriResource implements Resource {
     @Override
     public InputStream getStream() {
         if (null == this.url) {
-            throw new InstrumentException("Resource [{" + this.url + "}] not exist!");
+            throw new InstrumentException("Resource URL is null!");
         }
-        return UriUtils.getStream(url);
+        return UriKit.getStream(url);
     }
 
     /**
@@ -92,27 +92,21 @@ public class UriResource implements Resource {
      *
      * @param charset 编码
      * @return {@link BufferedReader}
-     * @since 3.0.1
      */
     @Override
     public BufferedReader getReader(Charset charset) {
-        return UriUtils.getReader(this.url, charset);
+        return UriKit.getReader(this.url, charset);
     }
 
     @Override
-    public String readStr(Charset charset) throws InstrumentException {
+    public String readString(Charset charset) throws InstrumentException {
         BufferedReader reader = null;
         try {
             reader = getReader(charset);
-            return IoUtils.read(reader);
+            return IoKit.read(reader);
         } finally {
-            IoUtils.close(reader);
+            IoKit.close(reader);
         }
-    }
-
-    @Override
-    public String readUtf8Str() throws InstrumentException {
-        return readStr(org.aoju.bus.core.lang.Charset.UTF_8);
     }
 
     @Override
@@ -120,9 +114,9 @@ public class UriResource implements Resource {
         InputStream in = null;
         try {
             in = getStream();
-            return IoUtils.readBytes(in);
+            return IoKit.readBytes(in);
         } finally {
-            IoUtils.close(in);
+            IoKit.close(in);
         }
     }
 
@@ -132,7 +126,7 @@ public class UriResource implements Resource {
      * @return {@link File}
      */
     public File getFile() {
-        return FileUtils.file(this.url);
+        return FileKit.file(this.url);
     }
 
     /**

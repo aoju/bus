@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -28,7 +28,7 @@ package org.aoju.bus.core.lang.mutable;
  * 可变 <code>boolean</code> 类型
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @see Boolean
  * @since JDK 1.8+
  */

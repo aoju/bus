@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,8 +24,9 @@
  ********************************************************************************/
 package org.aoju.bus.starter.storage;
 
-import lombok.RequiredArgsConstructor;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.exception.InstrumentException;
+import org.aoju.bus.core.toolkit.ObjectKit;
 import org.aoju.bus.storage.Builder;
 import org.aoju.bus.storage.Context;
 import org.aoju.bus.storage.Provider;
@@ -33,21 +34,52 @@ import org.aoju.bus.storage.Registry;
 import org.aoju.bus.storage.metric.StorageCache;
 import org.aoju.bus.storage.provider.*;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * 存储服务提供
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-@RequiredArgsConstructor
 public class StorageProviderService {
 
-    public final StorageProperties properties;
-    public final StorageCache storageCache;
+    /**
+     * 组件配置
+     */
+    private static Map<Registry, Context> CACHE = new ConcurrentHashMap<>();
+    public StorageProperties properties;
+    public ExtendCache extendCache;
 
-    public Provider get(Registry type) {
-        Context context = properties.getType().get(type);
+    public StorageProviderService(StorageProperties properties) {
+        this(properties, StorageCache.INSTANCE);
+    }
+
+    public StorageProviderService(StorageProperties properties, ExtendCache extendCache) {
+        this.properties = properties;
+        this.extendCache = extendCache;
+    }
+
+    /**
+     * 注册组件
+     *
+     * @param type    组件名称
+     * @param context 组件对象
+     */
+    public static void register(Registry type, Context context) {
+        if (CACHE.containsKey(type)) {
+            throw new InstrumentException("重复注册同名称的组件：" + type.name());
+        }
+        CACHE.putIfAbsent(type, context);
+    }
+
+    public Provider require(Registry type) {
+        Context context = CACHE.get(type);
+        if (ObjectKit.isEmpty(context)) {
+            context = properties.getType().get(type);
+        }
         if (Registry.ALIYUN.equals(type)) {
             return new AliYunOssProvider(context);
         } else if (Registry.BAIDU.equals(type)) {
@@ -67,7 +99,7 @@ public class StorageProviderService {
         } else if (Registry.LOCAL.equals(type)) {
             return new LocalFileProvider(context);
         }
-        throw new InstrumentException(Builder.FAILURE);
+        throw new InstrumentException(Builder.ErrorCode.UNSUPPORTED.getMsg());
     }
 
 }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.logger;
 
 import org.aoju.bus.core.lang.Normal;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.logger.level.Level;
 
 import java.io.Serializable;
@@ -35,7 +35,7 @@ import java.io.Serializable;
  * 实现了一些通用的接口
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8++
  */
 public abstract class AbstractAware implements Log, Serializable {
@@ -56,7 +56,7 @@ public abstract class AbstractAware implements Log, Serializable {
             case ERROR:
                 return isError();
             default:
-                throw new Error(StringUtils.format("Can not identify level: {}", level));
+                throw new Error(StringKit.format("Can not identify level: {}", level));
         }
     }
 

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,6 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.oauth.provider;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
@@ -31,45 +32,47 @@ import com.alipay.api.request.AlipaySystemOauthTokenRequest;
 import com.alipay.api.request.AlipayUserInfoShareRequest;
 import com.alipay.api.response.AlipaySystemOauthTokenResponse;
 import com.alipay.api.response.AlipayUserInfoShareResponse;
+import org.aoju.bus.cache.metric.ExtendCache;
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
 import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
+import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 /**
  * 支付宝登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class AlipayProvider extends DefaultProvider {
+public class AlipayProvider extends AbstractProvider {
 
-    private AlipayClient alipayClient;
+    private final AlipayClient alipayClient;
 
     public AlipayProvider(Context context) {
         super(context, Registry.ALIPAY);
-        this.alipayClient = new DefaultAlipayClient(Registry.ALIPAY.accessToken(), context.getAppKey(), context.getAppSecret(), "json", "UTF-8", context
+        this.alipayClient = new DefaultAlipayClient(Registry.ALIPAY.accessToken(), context.getAppKey(), context.getAppSecret(), "json", Charset.DEFAULT_UTF_8, context
                 .getPublicKey(), "RSA2");
     }
 
-    public AlipayProvider(Context context, StateCache stateCache) {
-        super(context, Registry.ALIPAY, stateCache);
-        this.alipayClient = new DefaultAlipayClient(Registry.ALIPAY.accessToken(), context.getAppKey(), context.getAppSecret(), "json", "UTF-8", context
+    public AlipayProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.ALIPAY, extendCache);
+        this.alipayClient = new DefaultAlipayClient(Registry.ALIPAY.accessToken(), context.getAppKey(), context.getAppSecret(), "json", Charset.DEFAULT_UTF_8, context
                 .getPublicKey(), "RSA2");
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
+    public AccToken getAccessToken(Callback callback) {
         AlipaySystemOauthTokenRequest request = new AlipaySystemOauthTokenRequest();
         request.setGrantType("authorization_code");
-        request.setCode(Callback.getAuth_code());
+        request.setCode(callback.getAuth_code());
         AlipaySystemOauthTokenResponse response;
         try {
             response = this.alipayClient.execute(request);
@@ -87,31 +90,63 @@ public class AlipayProvider extends DefaultProvider {
                 .build();
     }
 
+    /**
+     * 刷新access token （续期）
+     *
+     * @param accToken 登录成功后返回的Token信息
+     * @return the message
+     */
     @Override
-    protected Property getUserInfo(AccToken token) {
-        String accessToken = token.getAccessToken();
-        AlipayUserInfoShareRequest request = new AlipayUserInfoShareRequest();
-        AlipayUserInfoShareResponse response;
+    public Message refresh(AccToken accToken) {
+        AlipaySystemOauthTokenRequest request = new AlipaySystemOauthTokenRequest();
+        request.setGrantType("refresh_token");
+        request.setRefreshToken(accToken.getRefreshToken());
+        AlipaySystemOauthTokenResponse response;
         try {
-            response = this.alipayClient.execute(request, accessToken);
-        } catch (AlipayApiException e) {
-            throw new AuthorizedException(e.getErrMsg(), e);
+            response = this.alipayClient.execute(request);
+        } catch (Exception e) {
+            throw new AuthorizedException(e);
         }
         if (!response.isSuccess()) {
             throw new AuthorizedException(response.getSubMsg());
         }
+        return Message.builder()
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
+                .data(AccToken.builder()
+                        .accessToken(response.getAccessToken())
+                        .uid(response.getUserId())
+                        .expireIn(Integer.parseInt(response.getExpiresIn()))
+                        .refreshToken(response.getRefreshToken())
+                        .build())
+                .build();
+    }
 
-        String province = response.getProvince(), city = response.getCity();
-        String location = String.format("%s %s", StringUtils.isEmpty(province) ? Normal.EMPTY : province, StringUtils.isEmpty(city) ? Normal.EMPTY : city);
+    @Override
+    public Property getUserInfo(AccToken accToken) {
+        String accessToken = accToken.getAccessToken();
+        AlipayUserInfoShareRequest request = new AlipayUserInfoShareRequest();
+        AlipayUserInfoShareResponse object;
+        try {
+            object = this.alipayClient.execute(request, accessToken);
+        } catch (AlipayApiException e) {
+            throw new AuthorizedException(e.getErrMsg(), e);
+        }
+        if (!object.isSuccess()) {
+            throw new AuthorizedException(object.getSubMsg());
+        }
+
+        String province = object.getProvince(), city = object.getCity();
+        String location = String.format("%s %s", StringKit.isEmpty(province) ? Normal.EMPTY : province, StringKit.isEmpty(city) ? Normal.EMPTY : city);
 
         return Property.builder()
-                .uuid(response.getUserId())
-                .username(StringUtils.isEmpty(response.getUserName()) ? response.getNickName() : response.getUserName())
-                .nickname(response.getNickName())
-                .avatar(response.getAvatar())
+                .rawJson(JSONObject.parseObject(JSONObject.toJSONString(object)))
+                .uuid(object.getUserId())
+                .username(StringKit.isEmpty(object.getUserName()) ? object.getNickName() : object.getUserName())
+                .nickname(object.getNickName())
+                .avatar(object.getAvatar())
                 .location(location)
-                .gender(Normal.Gender.getGender(response.getGender()))
-                .token(token)
+                .gender(Normal.Gender.getGender(object.getGender()))
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
@@ -121,7 +156,6 @@ public class AlipayProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,8 +26,8 @@ package org.aoju.bus.core.io.watchers;
 
 import org.aoju.bus.core.lang.Filter;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ArrayUtils;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.IoKit;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import java.util.Map;
  * 文件监听服务，此服务可以同时监听多个路径
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class WatchServer extends Thread implements Closeable, Serializable {
@@ -112,7 +112,7 @@ public class WatchServer extends Thread implements Closeable, Serializable {
     public void registerPath(Path path, int maxDepth) {
         try {
             final WatchKey key;
-            if (ArrayUtils.isEmpty(this.modifiers)) {
+            if (ArrayKit.isEmpty(this.modifiers)) {
                 key = path.register(this.watchService, this.events);
             } else {
                 key = path.register(this.watchService, this.events, this.modifiers);
@@ -183,7 +183,7 @@ public class WatchServer extends Thread implements Closeable, Serializable {
     @Override
     public void close() {
         isClosed = true;
-        IoUtils.close(watchService);
+        IoKit.close(watchService);
     }
 
 }

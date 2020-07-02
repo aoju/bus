@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
 import org.aoju.bus.http.Httpx;
@@ -35,53 +36,116 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 /**
  * 抖音登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class DouyinProvider extends DefaultProvider {
+public class DouyinProvider extends AbstractProvider {
 
     public DouyinProvider(Context context) {
         super(context, Registry.DOUYIN);
     }
 
-    public DouyinProvider(Context context, StateCache stateCache) {
-        super(context, Registry.DOUYIN, stateCache);
+    public DouyinProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.DOUYIN, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        return this.getToken(accessTokenUrl(Callback.getCode()));
+    public AccToken getAccessToken(Callback callback) {
+        return this.getToken(accessTokenUrl(callback.getCode()));
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
-        JSONObject object = JSONObject.parseObject(doGetUserInfo(token));
-        this.checkResponse(object);
-        JSONObject dataObj = object.getJSONObject("data");
+    public Property getUserInfo(AccToken accToken) {
+        JSONObject jsonObject = JSONObject.parseObject(doGetUserInfo(accToken));
+        this.checkResponse(jsonObject);
+        JSONObject object = jsonObject.getJSONObject("data");
         return Property.builder()
-                .uuid(dataObj.getString("union_id"))
-                .username(dataObj.getString("nickname"))
-                .nickname(dataObj.getString("nickname"))
-                .avatar(dataObj.getString("avatar"))
-                .remark(dataObj.getString("description"))
-                .gender(Normal.Gender.getGender(dataObj.getString("gender")))
-                .location(String.format("%s %s %s", dataObj.getString("country"), dataObj.getString("province"), dataObj.getString("city")))
-                .token(token)
+                .rawJson(object)
+                .uuid(object.getString("union_id"))
+                .username(object.getString("nickname"))
+                .nickname(object.getString("nickname"))
+                .avatar(object.getString("avatar"))
+                .remark(object.getString("description"))
+                .gender(Normal.Gender.getGender(object.getString("gender")))
+                .location(String.format("%s %s %s", object.getString("country"), object.getString("province"), object.getString("city")))
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
 
     @Override
-    public Message refresh(AccToken oldToken) {
+    public Message refresh(AccToken accToken) {
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
-                .data(getToken(refreshTokenUrl(oldToken.getRefreshToken())))
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
+                .data(getToken(refreshTokenUrl(accToken.getRefreshToken())))
+                .build();
+    }
+
+
+    /**
+     * 返回带{@code state}参数的授权url,授权回调时会带上这个{@code state}
+     *
+     * @param state state 验证授权流程的参数,可以防止csrf
+     * @return 返回授权地址
+     */
+    @Override
+    public String authorize(String state) {
+        return Builder.fromUrl(source.authorize())
+                .queryParam("response_type", "code")
+                .queryParam("client_key", context.getAppKey())
+                .queryParam("redirect_uri", context.getRedirectUri())
+                .queryParam("scope", "user_info")
+                .queryParam("state", getRealState(state))
+                .build();
+    }
+
+    /**
+     * 返回获取accessToken的url
+     *
+     * @param code oauth的授权码
+     * @return 返回获取accessToken的url
+     */
+    @Override
+    public String accessTokenUrl(String code) {
+        return Builder.fromUrl(source.accessToken())
+                .queryParam("code", code)
+                .queryParam("client_key", context.getAppKey())
+                .queryParam("client_secret", context.getAppSecret())
+                .queryParam("grant_type", "authorization_code")
+                .build();
+    }
+
+    /**
+     * 返回获取userInfo的url
+     *
+     * @param accToken oauth返回的token
+     * @return 返回获取userInfo的url
+     */
+    @Override
+    public String userInfoUrl(AccToken accToken) {
+        return Builder.fromUrl(source.userInfo())
+                .queryParam("access_token", accToken.getAccessToken())
+                .queryParam("open_id", accToken.getOpenId())
+                .build();
+    }
+
+    /**
+     * 返回获取accessToken的url
+     *
+     * @param refreshToken oauth返回的refreshtoken
+     * @return 返回获取accessToken的url
+     */
+    @Override
+    public String refreshTokenUrl(String refreshToken) {
+        return Builder.fromUrl(source.refresh())
+                .queryParam("client_key", context.getAppKey())
+                .queryParam("refresh_token", refreshToken)
+                .queryParam("grant_type", "refresh_token")
                 .build();
     }
 
@@ -115,69 +179,6 @@ public class DouyinProvider extends DefaultProvider {
                 .expireIn(dataObj.getIntValue("expires_in"))
                 .refreshToken(dataObj.getString("refresh_token"))
                 .scope(dataObj.getString("scope"))
-                .build();
-    }
-
-    /**
-     * 返回带{@code state}参数的授权url,授权回调时会带上这个{@code state}
-     *
-     * @param state state 验证授权流程的参数,可以防止csrf
-     * @return 返回授权地址
-     * @since 1.9.3
-     */
-    @Override
-    public String authorize(String state) {
-        return Builder.fromUrl(source.authorize())
-                .queryParam("response_type", "code")
-                .queryParam("client_key", context.getAppKey())
-                .queryParam("redirect_uri", context.getRedirectUri())
-                .queryParam("scope", "user_info")
-                .queryParam("state", getRealState(state))
-                .build();
-    }
-
-    /**
-     * 返回获取accessToken的url
-     *
-     * @param code oauth的授权码
-     * @return 返回获取accessToken的url
-     */
-    @Override
-    protected String accessTokenUrl(String code) {
-        return Builder.fromUrl(source.accessToken())
-                .queryParam("code", code)
-                .queryParam("client_key", context.getAppKey())
-                .queryParam("client_secret", context.getAppSecret())
-                .queryParam("grant_type", "authorization_code")
-                .build();
-    }
-
-    /**
-     * 返回获取userInfo的url
-     *
-     * @param token oauth返回的token
-     * @return 返回获取userInfo的url
-     */
-    @Override
-    protected String userInfoUrl(AccToken token) {
-        return Builder.fromUrl(source.userInfo())
-                .queryParam("access_token", token.getAccessToken())
-                .queryParam("open_id", token.getOpenId())
-                .build();
-    }
-
-    /**
-     * 返回获取accessToken的url
-     *
-     * @param refreshToken oauth返回的refreshtoken
-     * @return 返回获取accessToken的url
-     */
-    @Override
-    protected String refreshTokenUrl(String refreshToken) {
-        return Builder.fromUrl(source.refresh())
-                .queryParam("client_key", context.getAppKey())
-                .queryParam("refresh_token", refreshToken)
-                .queryParam("grant_type", "refresh_token")
                 .build();
     }
 

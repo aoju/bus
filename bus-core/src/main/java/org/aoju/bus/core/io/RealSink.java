@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.core.io;
 
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.nio.charset.Charset;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class RealSink implements BufferSink {
@@ -301,7 +301,7 @@ public final class RealSink implements BufferSink {
         }
         closed = true;
 
-        if (thrown != null) IoUtils.sneakyRethrow(thrown);
+        if (thrown != null) IoKit.sneakyRethrow(thrown);
     }
 
     @Override

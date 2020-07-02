@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,14 +25,14 @@
 package org.aoju.bus.cron.pattern.parser;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
 
 /**
  * 每月的几号值处理
  * 每月最多31天,32和“L”都表示最后一天
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class DayOfMonthValueParser extends SimpleValueParser {
@@ -44,7 +44,7 @@ public class DayOfMonthValueParser extends SimpleValueParser {
     @Override
     public int parse(String value) throws InstrumentException {
         //每月最后一天
-        if ("L".equalsIgnoreCase(value) || ObjectUtils.equal(value, "32")) {
+        if ("L".equalsIgnoreCase(value) || ObjectKit.equal(value, "32")) {
             return 32;
         } else {
             return super.parse(value);

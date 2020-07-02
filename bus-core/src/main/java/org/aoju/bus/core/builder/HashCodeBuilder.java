@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,7 +27,7 @@ package org.aoju.bus.core.builder;
 
 import org.aoju.bus.core.lang.Assert;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.ArrayUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -63,7 +63,7 @@ import java.util.Set;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class HashCodeBuilder implements Builder<Integer> {
@@ -139,7 +139,7 @@ public class HashCodeBuilder implements Builder<Integer> {
             final Field[] fields = clazz.getDeclaredFields();
             AccessibleObject.setAccessible(fields, true);
             for (final Field field : fields) {
-                if (!ArrayUtils.contains(excludeFields, field.getName())
+                if (!ArrayKit.contains(excludeFields, field.getName())
                         && !field.getName().contains(Symbol.DOLLAR)
                         && (useTransients || !Modifier.isTransient(field.getModifiers()))
                         && !Modifier.isStatic(field.getModifiers())

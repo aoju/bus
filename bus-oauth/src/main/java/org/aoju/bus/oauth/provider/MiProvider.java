@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,9 +25,10 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.http.Httpx;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
@@ -36,7 +37,6 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.text.MessageFormat;
 
@@ -44,27 +44,27 @@ import java.text.MessageFormat;
  * 小米登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class MiProvider extends DefaultProvider {
+public class MiProvider extends AbstractProvider {
 
     public MiProvider(Context context) {
         super(context, Registry.MI);
     }
 
-    public MiProvider(Context context, StateCache stateCache) {
-        super(context, Registry.MI, stateCache);
+    public MiProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.MI, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        return getToken(accessTokenUrl(Callback.getCode()));
+    public AccToken getAccessToken(Callback callback) {
+        return getToken(accessTokenUrl(callback.getCode()));
     }
 
     private AccToken getToken(String accessTokenUrl) {
         String response = Httpx.get(accessTokenUrl);
-        JSONObject object = JSONObject.parseObject(StringUtils.replace(response, "&&&START&&&", Normal.EMPTY));
+        JSONObject object = JSONObject.parseObject(StringKit.replace(response, "&&&START&&&", Normal.EMPTY));
 
         if (object.containsKey("error")) {
             throw new AuthorizedException(object.getString("error_description"));
@@ -83,29 +83,30 @@ public class MiProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
+    public Property getUserInfo(AccToken accToken) {
         // 获取用户信息
-        JSONObject object = JSONObject.parseObject(doGetUserInfo(token));
-        if ("error".equalsIgnoreCase(object.getString("result"))) {
-            throw new AuthorizedException(object.getString("description"));
+        JSONObject jsonObject = JSONObject.parseObject(doGetUserInfo(accToken));
+        if ("error".equalsIgnoreCase(jsonObject.getString("result"))) {
+            throw new AuthorizedException(jsonObject.getString("description"));
         }
 
-        JSONObject user = object.getJSONObject("data");
+        JSONObject object = jsonObject.getJSONObject("data");
 
         Property property = Property.builder()
-                .uuid(token.getOpenId())
-                .username(user.getString("miliaoNick"))
-                .nickname(user.getString("miliaoNick"))
-                .avatar(user.getString("miliaoIcon"))
-                .email(user.getString("mail"))
+                .rawJson(object)
+                .uuid(accToken.getOpenId())
+                .username(object.getString("miliaoNick"))
+                .nickname(object.getString("miliaoNick"))
+                .avatar(object.getString("miliaoIcon"))
+                .email(object.getString("mail"))
                 .gender(Normal.Gender.UNKNOWN)
-                .token(token)
+                .token(accToken)
                 .source(source.toString())
                 .build();
 
         // 获取用户邮箱手机号等信息
         String emailPhoneUrl = MessageFormat.format("{0}?clientId={1}&token={2}", "https://open.account.xiaomi.com/user/phoneAndEmail", context
-                .getAppKey(), token.getAccessToken());
+                .getAppKey(), accToken.getAccessToken());
 
         JSONObject userEmailPhone = JSONObject.parseObject(Httpx.get(emailPhoneUrl));
         if (!"error".equalsIgnoreCase(userEmailPhone.getString("result"))) {
@@ -117,16 +118,16 @@ public class MiProvider extends DefaultProvider {
     }
 
     /**
-     * 刷新access token （续期）
+     * 刷新access token (续期)
      *
-     * @param token 登录成功后返回的Token信息
+     * @param accToken 登录成功后返回的Token信息
      * @return AuthResponse
      */
     @Override
-    public Message refresh(AccToken token) {
+    public Message refresh(AccToken accToken) {
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
-                .data(getToken(refreshTokenUrl(token.getRefreshToken())))
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
+                .data(getToken(refreshTokenUrl(accToken.getRefreshToken())))
                 .build();
     }
 
@@ -135,7 +136,6 @@ public class MiProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {
@@ -152,14 +152,14 @@ public class MiProvider extends DefaultProvider {
     /**
      * 返回获取userInfo的url
      *
-     * @param token 用户授权后的token
+     * @param accToken 用户授权后的token
      * @return 返回获取userInfo的url
      */
     @Override
-    protected String userInfoUrl(AccToken token) {
+    public String userInfoUrl(AccToken accToken) {
         return Builder.fromUrl(source.userInfo())
                 .queryParam("clientId", context.getAppKey())
-                .queryParam("token", token.getAccessToken())
+                .queryParam("token", accToken.getAccessToken())
                 .build();
     }
 

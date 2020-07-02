@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.core.codec;
 
 import org.aoju.bus.core.lang.Assert;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +36,7 @@ import java.util.Map;
  * 莫尔斯电码的编码和解码
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Morse {
@@ -174,14 +174,14 @@ public class Morse {
         final char dit = this.dit;
         final char dah = this.dah;
         final char split = this.split;
-        if (false == StringUtils.containsOnly(morse, dit, dah, split)) {
+        if (false == StringKit.containsOnly(morse, dit, dah, split)) {
             throw new IllegalArgumentException("Incorrect morse.");
         }
-        final List<String> words = StringUtils.split(morse, split);
+        final List<String> words = StringKit.split(morse, split);
         final StringBuilder textBuilder = new StringBuilder();
         Integer codePoint;
         for (String word : words) {
-            if (StringUtils.isEmpty(word)) {
+            if (StringKit.isEmpty(word)) {
                 continue;
             }
             word = word.replace(dit, Symbol.C_ZERO).replace(dah, Symbol.C_ONE);

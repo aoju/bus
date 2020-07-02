@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -32,22 +32,22 @@ import org.aoju.bus.core.io.resource.UriResource;
 import org.aoju.bus.core.io.watchers.SimpleWatcher;
 import org.aoju.bus.core.io.watchers.WatchMonitor;
 import org.aoju.bus.core.lang.Assert;
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.*;
+import org.aoju.bus.core.toolkit.*;
 import org.aoju.bus.logger.Logger;
 import org.aoju.bus.setting.dialect.Props;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * 设置工具类  用于支持设置（配置）文件
+ * 设置工具类  用于支持设置(配置)文件
  * BasicSetting用于替换Properties类,提供功能更加强大的配置文件,同时对Properties文件向下兼容
  *
  * <pre>
@@ -58,7 +58,7 @@ import java.util.function.Consumer;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Setting extends AbsSetting implements Map<String, String> {
@@ -71,7 +71,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
     /**
      * 本设置对象的字符集
      */
-    protected Charset charset;
+    protected java.nio.charset.Charset charset;
     /**
      * 是否使用变量
      */
@@ -106,7 +106,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
      * @param isUseVariable 是否使用变量
      */
     public Setting(String path, boolean isUseVariable) {
-        this(path, org.aoju.bus.core.lang.Charset.UTF_8, isUseVariable);
+        this(path, Charset.UTF_8, isUseVariable);
     }
 
     /**
@@ -116,9 +116,9 @@ public class Setting extends AbsSetting implements Map<String, String> {
      * @param charset       字符集
      * @param isUseVariable 是否使用变量
      */
-    public Setting(String path, Charset charset, boolean isUseVariable) {
+    public Setting(String path, java.nio.charset.Charset charset, boolean isUseVariable) {
         Assert.notBlank(path, "Blank setting path !");
-        this.init(ResourceUtils.getResourceObj(path), charset, isUseVariable);
+        this.init(FileKit.getResourceObj(path), charset, isUseVariable);
     }
 
     /**
@@ -128,7 +128,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
      * @param charset       字符集
      * @param isUseVariable 是否使用变量
      */
-    public Setting(File configFile, Charset charset, boolean isUseVariable) {
+    public Setting(File configFile, java.nio.charset.Charset charset, boolean isUseVariable) {
         Assert.notNull(configFile, "Null setting file define!");
         this.init(new FileResource(configFile), charset, isUseVariable);
     }
@@ -141,7 +141,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
      * @param charset       字符集
      * @param isUseVariable 是否使用变量
      */
-    public Setting(String path, Class<?> clazz, Charset charset, boolean isUseVariable) {
+    public Setting(String path, Class<?> clazz, java.nio.charset.Charset charset, boolean isUseVariable) {
         Assert.notBlank(path, "Blank setting path !");
         this.init(new ClassPathResource(path, clazz), charset, isUseVariable);
     }
@@ -153,7 +153,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
      * @param charset       字符集
      * @param isUseVariable 是否使用变量
      */
-    public Setting(URL url, Charset charset, boolean isUseVariable) {
+    public Setting(URL url, java.nio.charset.Charset charset, boolean isUseVariable) {
         Assert.notNull(url, "Null setting url define!");
         this.init(new UriResource(url), charset, isUseVariable);
     }
@@ -166,7 +166,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
      * @param isUseVariable 是否使用变量
      * @return 成功初始化与否
      */
-    public boolean init(Resource resource, Charset charset, boolean isUseVariable) {
+    public boolean init(Resource resource, java.nio.charset.Charset charset, boolean isUseVariable) {
         if (resource == null) {
             throw new NullPointerException("Null setting url define!");
         }
@@ -211,7 +211,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
                 // 先关闭之前的监听
                 this.watchMonitor.close();
             }
-            this.watchMonitor = WatchUtils.createModify(this.settingUrl, new SimpleWatcher() {
+            this.watchMonitor = WatchKit.createModify(this.settingUrl, new SimpleWatcher() {
                 @Override
                 public void onModify(WatchEvent<?> event, Path currentPath) {
                     boolean success = load();
@@ -224,7 +224,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
             this.watchMonitor.start();
             Logger.debug("Auto load for [{}] listenning...", this.settingUrl);
         } else {
-            IoUtils.close(this.watchMonitor);
+            IoKit.close(this.watchMonitor);
             this.watchMonitor = null;
         }
     }
@@ -255,7 +255,6 @@ public class Setting extends AbsSetting implements Map<String, String> {
      *
      * @param keys 键列表,常用于别名
      * @return 值
-     * @since 3.1.9
      */
     public Object getAndRemove(String... keys) {
         Object value = null;
@@ -273,7 +272,6 @@ public class Setting extends AbsSetting implements Map<String, String> {
      *
      * @param keys 键列表,常用于别名
      * @return 字符串值
-     * @since 3.1.9
      */
     public String getAndRemoveStr(String... keys) {
         Object value = null;
@@ -356,7 +354,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
         for (Entry<String, LinkedHashMap<String, String>> groupEntry : this.groupedMap.entrySet()) {
             group = groupEntry.getKey();
             for (Entry<String, String> entry : groupEntry.getValue().entrySet()) {
-                properties.setProperty(StringUtils.isEmpty(group) ? entry.getKey() : group + Symbol.DOT + entry.getKey(), entry.getValue());
+                properties.setProperty(StringKit.isEmpty(group) ? entry.getKey() : group + Symbol.DOT + entry.getKey(), entry.getValue());
             }
         }
         return properties;
@@ -377,7 +375,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
      * @return 获得所有分组名
      */
     public List<String> getGroups() {
-        return CollUtils.newArrayList(this.groupedMap.keySet());
+        return CollKit.newArrayList(this.groupedMap.keySet());
     }
 
     /**
@@ -518,7 +516,6 @@ public class Setting extends AbsSetting implements Map<String, String> {
      * @param key   键
      * @param value 值
      * @return this
-     * @since 3.3.1
      */
     public Setting set(String key, String value) {
         this.groupedMap.put(Normal.EMPTY, key, value);
@@ -531,7 +528,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 默认分组（空分组）中是否包含指定key对应的值
+     * 默认分组(空分组)中是否包含指定key对应的值
      *
      * @param key 键
      * @return 默认分组中是否包含指定key对应的值
@@ -542,7 +539,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 默认分组（空分组）中是否包含指定值
+     * 默认分组(空分组)中是否包含指定值
      *
      * @param value 值
      * @return 默认分组中是否包含指定值
@@ -553,10 +550,10 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 获取默认分组（空分组）中指定key对应的值
+     * 获取默认分组(空分组)中指定key对应的值
      *
      * @param key 键
-     * @return 默认分组（空分组）中指定key对应的值
+     * @return 默认分组(空分组)中指定key对应的值
      */
     @Override
     public String get(Object key) {
@@ -564,7 +561,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 将指定键值对加入到默认分组（空分组）中
+     * 将指定键值对加入到默认分组(空分组)中
      *
      * @param key   键
      * @param value 值
@@ -576,7 +573,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 移除默认分组（空分组）中指定值
+     * 移除默认分组(空分组)中指定值
      *
      * @param key 键
      * @return 移除的值
@@ -587,7 +584,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 将键值对Map加入默认分组（空分组）中
+     * 将键值对Map加入默认分组(空分组)中
      *
      * @param m Map
      */
@@ -597,7 +594,7 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 清空默认分组（空分组）中的所有键值对
+     * 清空默认分组(空分组)中的所有键值对
      */
     @Override
     public void clear() {
@@ -605,9 +602,9 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 获取默认分组（空分组）中的所有键列表
+     * 获取默认分组(空分组)中的所有键列表
      *
-     * @return 默认分组（空分组）中的所有键列表
+     * @return 默认分组(空分组)中的所有键列表
      */
     @Override
     public Set<String> keySet() {
@@ -615,9 +612,9 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 获取默认分组（空分组）中的所有值列表
+     * 获取默认分组(空分组)中的所有值列表
      *
-     * @return 默认分组（空分组）中的所有值列表
+     * @return 默认分组(空分组)中的所有值列表
      */
     @Override
     public Collection<String> values() {
@@ -625,9 +622,9 @@ public class Setting extends AbsSetting implements Map<String, String> {
     }
 
     /**
-     * 获取默认分组（空分组）中的所有键值对列表
+     * 获取默认分组(空分组)中的所有键值对列表
      *
-     * @return 默认分组（空分组）中的所有键值对列表
+     * @return 默认分组(空分组)中的所有键值对列表
      */
     @Override
     public Set<Entry<String, String>> entrySet() {

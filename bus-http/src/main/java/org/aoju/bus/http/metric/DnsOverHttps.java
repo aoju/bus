@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,6 +27,8 @@ package org.aoju.bus.http.metric;
 import org.aoju.bus.core.io.Buffer;
 import org.aoju.bus.core.io.ByteString;
 import org.aoju.bus.core.lang.MediaType;
+import org.aoju.bus.core.lang.Normal;
+import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.http.*;
 import org.aoju.bus.http.bodys.RequestBody;
 import org.aoju.bus.http.bodys.ResponseBody;
@@ -47,7 +49,7 @@ import java.util.concurrent.CountDownLatch;
  * DNS over HTTPS实施
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class DnsOverHttps implements DnsX {
@@ -393,7 +395,7 @@ public class DnsOverHttps implements DnsX {
 
         try {
             if (!response.isSuccessful()) {
-                throw new IOException("response: " + response.code() + " " + response.message());
+                throw new IOException("response: " + response.code() + Symbol.SPACE + response.message());
             }
 
             ResponseBody body = response.body();
@@ -422,7 +424,7 @@ public class DnsOverHttps implements DnsX {
         if (post) {
             requestBuilder = requestBuilder.url(url).post(RequestBody.create(DNS_MESSAGE, query));
         } else {
-            String encoded = query.base64Url().replace("=", "");
+            String encoded = query.base64Url().replace(Symbol.EQUAL, Normal.EMPTY);
             UnoUrl requestUrl = url.newBuilder().addQueryParameter("dns", encoded).build();
 
             requestBuilder = requestBuilder.url(requestUrl);

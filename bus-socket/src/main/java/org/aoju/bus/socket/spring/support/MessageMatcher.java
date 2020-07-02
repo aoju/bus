@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,6 +26,7 @@ package org.aoju.bus.socket.spring.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.exception.SocketException;
 import org.springframework.util.AntPathMatcher;
@@ -39,7 +40,7 @@ import java.util.Objects;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class MessageMatcher {
@@ -61,10 +62,10 @@ public class MessageMatcher {
         }
         String destination = message.getDestination();
         if (pattern == null) {
-            pattern = "";
+            pattern = Normal.EMPTY;
         }
         if (destination == null) {
-            destination = "";
+            destination = Normal.EMPTY;
         }
         return matcher.match(pattern, destination);
     }

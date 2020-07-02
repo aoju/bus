@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -28,7 +28,7 @@ import org.aoju.bus.core.io.resource.Resource;
 import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.UriUtils;
+import org.aoju.bus.core.toolkit.UriKit;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.util.jar.JarFile;
  * 标准的资源加载器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class StdLoader extends ResourceLoader implements Loader {
@@ -117,20 +117,20 @@ public class StdLoader extends ResourceLoader implements Loader {
                 String protocol = url.getProtocol();
                 if ("file".equalsIgnoreCase(protocol)) {
                     try {
-                        String uri = UriUtils.decode(url.getPath(), Charset.UTF_8);
+                        String uri = UriKit.decode(url.getPath(), Charset.UTF_8);
                         String root = uri.substring(0, uri.lastIndexOf(path));
-                        URL context = new URL(url, "file:" + UriUtils.encodePath(root, Charset.UTF_8));
+                        URL context = new URL(url, Normal.FILE_URL_PREFIX + UriKit.encodePath(root, Charset.UTF_8));
                         File file = new File(root);
                         resources = new FileLoader(context, file).load(path, recursively, filter);
                         return hasMoreElements();
                     } catch (IOException e) {
                         throw new IllegalStateException(e);
                     }
-                } else if ("jar".equalsIgnoreCase(protocol)) {
+                } else if (Normal.URL_PROTOCOL_JAR.equalsIgnoreCase(protocol)) {
                     try {
-                        String uri = UriUtils.decode(url.getPath(), Charset.UTF_8);
+                        String uri = UriKit.decode(url.getPath(), Charset.UTF_8);
                         String root = uri.substring(0, uri.lastIndexOf(path));
-                        URL context = new URL(url, "jar:" + UriUtils.encodePath(root, Charset.UTF_8));
+                        URL context = new URL(url, Normal.JAR_URL_PREFIX + UriKit.encodePath(root, Charset.UTF_8));
                         JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
                         JarFile jarFile = jarURLConnection.getJarFile();
                         resources = new JarLoader(context, jarFile).load(path, recursively, filter);

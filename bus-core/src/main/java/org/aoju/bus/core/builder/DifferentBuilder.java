@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,7 +26,7 @@ package org.aoju.bus.core.builder;
 
 import org.aoju.bus.core.lang.Assert;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.ArrayUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +58,7 @@ import java.util.List;
  * {@link DifferentResult#toString(ToStringStyle)}覆盖此样式选择。.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @see Differentable
  * @see Different
  * @see DifferentResult
@@ -170,12 +170,12 @@ public class DifferentBuilder implements Builder<DifferentResult> {
 
                 @Override
                 public Boolean[] getLeft() {
-                    return ArrayUtils.toObject(lhs);
+                    return ArrayKit.toObject(lhs);
                 }
 
                 @Override
                 public Boolean[] getRight() {
-                    return ArrayUtils.toObject(rhs);
+                    return ArrayKit.toObject(rhs);
                 }
             });
         }
@@ -237,12 +237,12 @@ public class DifferentBuilder implements Builder<DifferentResult> {
 
                 @Override
                 public Byte[] getLeft() {
-                    return ArrayUtils.toObject(lhs);
+                    return ArrayKit.toObject(lhs);
                 }
 
                 @Override
                 public Byte[] getRight() {
-                    return ArrayUtils.toObject(rhs);
+                    return ArrayKit.toObject(rhs);
                 }
             });
         }
@@ -305,12 +305,12 @@ public class DifferentBuilder implements Builder<DifferentResult> {
 
                 @Override
                 public Character[] getLeft() {
-                    return ArrayUtils.toObject(lhs);
+                    return ArrayKit.toObject(lhs);
                 }
 
                 @Override
                 public Character[] getRight() {
-                    return ArrayUtils.toObject(rhs);
+                    return ArrayKit.toObject(rhs);
                 }
             });
         }
@@ -371,12 +371,12 @@ public class DifferentBuilder implements Builder<DifferentResult> {
 
                 @Override
                 public Double[] getLeft() {
-                    return ArrayUtils.toObject(lhs);
+                    return ArrayKit.toObject(lhs);
                 }
 
                 @Override
                 public Double[] getRight() {
-                    return ArrayUtils.toObject(rhs);
+                    return ArrayKit.toObject(rhs);
                 }
             });
         }
@@ -437,12 +437,12 @@ public class DifferentBuilder implements Builder<DifferentResult> {
 
                 @Override
                 public Float[] getLeft() {
-                    return ArrayUtils.toObject(lhs);
+                    return ArrayKit.toObject(lhs);
                 }
 
                 @Override
                 public Float[] getRight() {
-                    return ArrayUtils.toObject(rhs);
+                    return ArrayKit.toObject(rhs);
                 }
             });
         }
@@ -503,12 +503,12 @@ public class DifferentBuilder implements Builder<DifferentResult> {
 
                 @Override
                 public Integer[] getLeft() {
-                    return ArrayUtils.toObject(lhs);
+                    return ArrayKit.toObject(lhs);
                 }
 
                 @Override
                 public Integer[] getRight() {
-                    return ArrayUtils.toObject(rhs);
+                    return ArrayKit.toObject(rhs);
                 }
             });
         }
@@ -569,12 +569,12 @@ public class DifferentBuilder implements Builder<DifferentResult> {
 
                 @Override
                 public Long[] getLeft() {
-                    return ArrayUtils.toObject(lhs);
+                    return ArrayKit.toObject(lhs);
                 }
 
                 @Override
                 public Long[] getRight() {
-                    return ArrayUtils.toObject(rhs);
+                    return ArrayKit.toObject(rhs);
                 }
             });
         }
@@ -635,12 +635,12 @@ public class DifferentBuilder implements Builder<DifferentResult> {
 
                 @Override
                 public Short[] getLeft() {
-                    return ArrayUtils.toObject(lhs);
+                    return ArrayKit.toObject(lhs);
                 }
 
                 @Override
                 public Short[] getRight() {
-                    return ArrayUtils.toObject(rhs);
+                    return ArrayKit.toObject(rhs);
                 }
             });
         }
@@ -782,7 +782,6 @@ public class DifferentBuilder implements Builder<DifferentResult> {
      * @param fieldName       字段名
      * @param differentResult 要附加的{@code DiffResult}
      * @return this
-     * @since 3.5.0
      */
     public DifferentBuilder append(final String fieldName,
                                    final DifferentResult differentResult) {

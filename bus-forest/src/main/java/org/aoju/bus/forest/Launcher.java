@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -48,7 +48,7 @@ import java.util.jar.Manifest;
  * Spring-Boot 启动器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Launcher {
@@ -159,7 +159,7 @@ public class Launcher {
 
         if (hold == null || !Arrays.asList("true", Symbol.ONE, "yes", "y").contains(hold.trim().toLowerCase())) {
             if (keyfile != null && keyfile.exists() && !keyfile.delete() && keyfile.exists()) {
-                throw new IOException("could not delete key file: " + keyfile.getCanonicalPath());
+                throw new IOException("could not delete key file : " + keyfile.getCanonicalPath());
             }
         }
 

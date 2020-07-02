@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,11 +25,15 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.codec.Base64;
 import org.aoju.bus.core.lang.Algorithm;
 import org.aoju.bus.core.lang.Charset;
-import org.aoju.bus.core.utils.DateUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.lang.Normal;
+import org.aoju.bus.core.lang.Symbol;
+import org.aoju.bus.core.toolkit.DateKit;
+import org.aoju.bus.core.toolkit.StringKit;
+import org.aoju.bus.core.toolkit.UriKit;
 import org.aoju.bus.http.Httpx;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
@@ -37,7 +41,6 @@ import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,10 +51,10 @@ import java.util.TreeMap;
  * 今日头条登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class TwitterProvider extends DefaultProvider {
+public class TwitterProvider extends AbstractProvider {
 
     private static final String PREAMBLE = "OAuth";
 
@@ -59,15 +62,15 @@ public class TwitterProvider extends DefaultProvider {
         super(context, Registry.TWITTER);
     }
 
-    public TwitterProvider(Context context, StateCache stateCache) {
-        super(context, Registry.TOUTIAO, stateCache);
+    public TwitterProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.TOUTIAO, extendCache);
     }
 
     /**
-     * Generate nonce with given length
+     * 生成给定长度的随机数
      *
-     * @param len length
-     * @return nonce string
+     * @param len 长度
+     * @return 随机数字符串
      */
     private static String generateNonce(int len) {
         String s = "0123456789QWERTYUIOPLKJHGFDSAZXCVBNMqwertyuioplkjhgfdsazxcvbnm";
@@ -94,23 +97,14 @@ public class TwitterProvider extends DefaultProvider {
     private static String sign(Map<String, String> params, String method, String baseUrl, String apiSecret, String tokenSecret) {
         TreeMap<String, Object> map = new TreeMap<>();
         for (Map.Entry<String, String> e : params.entrySet()) {
-            map.put(urlEncode(e.getKey()), e.getValue());
+            map.put(UriKit.encode(e.getKey()), e.getValue());
         }
-        String str = parseMapToString(map, true);
-        String baseStr = method.toUpperCase() + "&" + urlEncode(baseUrl) + "&" + urlEncode(str);
-        String signKey = apiSecret + "&" + (StringUtils.isEmpty(tokenSecret) ? "" : tokenSecret);
+        String str = Builder.parseMapToString(map, true);
+        String baseStr = method.toUpperCase() + Symbol.AND + UriKit.encode(baseUrl) + Symbol.AND + UriKit.encode(str);
+        String signKey = apiSecret + Symbol.AND + (StringKit.isEmpty(tokenSecret) ? Normal.EMPTY : tokenSecret);
         byte[] signature = sign(signKey.getBytes(Charset.DEFAULT), baseStr.getBytes(Charset.DEFAULT), Algorithm.HmacSHA1);
 
         return new String(Base64.encode(signature, false));
-    }
-
-    @Override
-    protected String userInfoUrl(AccToken authToken) {
-        return Builder.fromUrl(source.userInfo())
-                .queryParam("user_id", authToken.getUserId())
-                .queryParam("screen_name", authToken.getScreenName())
-                .queryParam("include_entities", true)
-                .build();
     }
 
     /**
@@ -120,11 +114,11 @@ public class TwitterProvider extends DefaultProvider {
      * @return access token
      */
     @Override
-    protected AccToken getAccessToken(Callback authCallback) {
+    public AccToken getAccessToken(Callback callback) {
         Map<String, String> oauthParams = buildOauthParams();
-        oauthParams.put("oauth_token", authCallback.getOauthToken());
-        oauthParams.put("oauth_verifier", authCallback.getOauthVerifier());
-        oauthParams.put("oauth_signature", sign(oauthParams, "POST", source.accessToken(), context.getAppSecret(), authCallback
+        oauthParams.put("oauth_token", callback.getOauthToken());
+        oauthParams.put("oauth_verifier", callback.getOauthVerifier());
+        oauthParams.put("oauth_signature", sign(oauthParams, "POST", source.accessToken(), context.getAppSecret(), callback
                 .getOauthToken()));
 
         Map<String, String> header = new HashMap<>();
@@ -132,7 +126,7 @@ public class TwitterProvider extends DefaultProvider {
         header.put("Content-Type", "application/x-www-form-urlencoded");
 
         Map<String, Object> queryMap = new HashMap<>();
-        queryMap.put("oauth_verifier", authCallback.getOauthVerifier());
+        queryMap.put("oauth_verifier", callback.getOauthVerifier());
 
         String response = Httpx.post(source.accessToken(), queryMap, header);
 
@@ -146,37 +140,61 @@ public class TwitterProvider extends DefaultProvider {
                 .build();
     }
 
+    /**
+     * 返回带{@code state}参数的授权url，授权回调时会带上这个{@code state}
+     *
+     * @param state state 验证授权流程的参数，可以防止csrf
+     * @return 返回授权地址
+     */
     @Override
-    protected Property getUserInfo(AccToken authToken) {
+    public String authorize(String state) {
+        AccToken token = this.getRequestToken();
+        return Builder.fromUrl(source.authorize())
+                .queryParam("oauth_token", token.getOauthToken())
+                .build();
+    }
+
+    @Override
+    public String userInfoUrl(AccToken authToken) {
+        return Builder.fromUrl(source.userInfo())
+                .queryParam("user_id", authToken.getUserId())
+                .queryParam("screen_name", authToken.getScreenName())
+                .queryParam("include_entities", true)
+                .build();
+    }
+
+    @Override
+    public Property getUserInfo(AccToken accToken) {
         Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("user_id", authToken.getUserId());
-        queryParams.put("screen_name", authToken.getScreenName());
+        queryParams.put("user_id", accToken.getUserId());
+        queryParams.put("screen_name", accToken.getScreenName());
         queryParams.put("include_entities", Boolean.toString(true));
 
         Map<String, String> oauthParams = buildOauthParams();
-        oauthParams.put("oauth_token", authToken.getOauthToken());
+        oauthParams.put("oauth_token", accToken.getOauthToken());
 
         Map<String, String> params = new HashMap<>(oauthParams);
         params.putAll(queryParams);
-        oauthParams.put("oauth_signature", sign(params, "GET", source.userInfo(), context.getAppSecret(), authToken
+        oauthParams.put("oauth_signature", sign(params, "GET", source.userInfo(), context.getAppSecret(), accToken
                 .getOauthTokenSecret()));
         String header = buildHeader(oauthParams);
 
         Map<String, String> map = new HashMap<>();
         map.put("Authorization", header);
-        String response = Httpx.get(userInfoUrl(authToken), null, map);
-        JSONObject userInfo = JSONObject.parseObject(response);
+        String response = Httpx.get(userInfoUrl(accToken), null, map);
+        JSONObject object = JSONObject.parseObject(response);
 
         return Property.builder()
-                .uuid(userInfo.getString("id_str"))
-                .username(userInfo.getString("screen_name"))
-                .nickname(userInfo.getString("name"))
-                .remark(userInfo.getString("description"))
-                .avatar(userInfo.getString("profile_image_url_https"))
-                .blog(userInfo.getString("url"))
-                .location(userInfo.getString("location"))
+                .rawJson(object)
+                .uuid(object.getString("id_str"))
+                .username(object.getString("screen_name"))
+                .nickname(object.getString("name"))
+                .remark(object.getString("description"))
+                .avatar(object.getString("profile_image_url_https"))
+                .blog(object.getString("url"))
+                .location(object.getString("location"))
                 .source(source.toString())
-                .token(authToken)
+                .token(accToken)
                 .build();
     }
 
@@ -185,22 +203,19 @@ public class TwitterProvider extends DefaultProvider {
         params.put("oauth_consumer_key", context.getAppKey());
         params.put("oauth_nonce", generateNonce(32));
         params.put("oauth_signature_method", "HMAC-SHA1");
-        params.put("oauth_timestamp", "" + DateUtils.timestamp());
+        params.put("oauth_timestamp", Normal.EMPTY + DateKit.timestamp());
         params.put("oauth_version", "1.0");
         return params;
     }
 
-    private String buildHeader(Map<String, String> oauthParams) {
-        final StringBuilder sb = new StringBuilder(PREAMBLE);
+    private String buildHeader(Map<String, String> params) {
+        final StringBuilder sb = new StringBuilder(PREAMBLE + " ");
 
-        for (Map.Entry<String, String> param : oauthParams.entrySet()) {
-            if (sb.length() > PREAMBLE.length()) {
-                sb.append(", ");
-            }
-            sb.append(param.getKey()).append("=\"").append(urlEncode(param.getValue())).append('"');
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            sb.append(param.getKey()).append("=\"").append(UriKit.encode(param.getValue())).append(Symbol.C_DOUBLE_QUOTES).append(", ");
         }
 
-        return sb.toString();
+        return sb.deleteCharAt(sb.length() - 2).toString();
     }
 
     /**

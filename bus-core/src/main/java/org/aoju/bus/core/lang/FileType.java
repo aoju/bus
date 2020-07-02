@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,9 +25,9 @@
 package org.aoju.bus.core.lang;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.FileUtils;
-import org.aoju.bus.core.utils.IoUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.FileKit;
+import org.aoju.bus.core.toolkit.IoKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,10 +37,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 文件类型（扩展名）
+ * 文件类型(扩展名)
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class FileType {
@@ -91,13 +91,18 @@ public class FileType {
      */
     public static final String TYPE_JPEG = "jpeg";
     /**
-     * 英文Bitmap（位图）的简写,它是Windows操作系统中的标准图像文件格式
+     * 英文Bitmap(位图)的简写,它是Windows操作系统中的标准图像文件格式
      */
     public static final String TYPE_BMP = "bmp";
     /**
      * 可移植网络图形
      */
     public static final String TYPE_PNG = "png";
+
+    /**
+     * 纯文本文件
+     */
+    public static final String TYPE_CSV = "csv";
 
     /**
      * 图片
@@ -871,7 +876,7 @@ public class FileType {
      */
     public static String getType(String fileStreamHexHead) {
         for (Map.Entry<String, String> fileTypeEntry : fileTypeMap.entrySet()) {
-            if (StringUtils.startWithIgnoreCase(fileStreamHexHead, fileTypeEntry.getKey())) {
+            if (StringKit.startWithIgnoreCase(fileStreamHexHead, fileTypeEntry.getKey())) {
                 return fileTypeEntry.getValue();
             }
         }
@@ -886,7 +891,7 @@ public class FileType {
      * @throws InstrumentException 读取流引起的异常
      */
     public static String getType(InputStream in) throws InstrumentException {
-        return getType(IoUtils.readHex28Upper(in));
+        return getType(IoKit.readHex28Upper(in));
     }
 
     /**
@@ -899,10 +904,10 @@ public class FileType {
     public static String getType(File file) throws InstrumentException {
         FileInputStream in = null;
         try {
-            in = IoUtils.toStream(file);
+            in = IoKit.toStream(file);
             return getType(in);
         } finally {
-            IoUtils.close(in);
+            IoKit.close(in);
         }
     }
 
@@ -914,7 +919,7 @@ public class FileType {
      * @throws InstrumentException 读取文件引起的异常
      */
     public static String getTypeByPath(String path) throws InstrumentException {
-        return getType(FileUtils.file(path));
+        return getType(FileKit.file(path));
     }
 
 }

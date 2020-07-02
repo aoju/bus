@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,8 +26,8 @@ package org.aoju.bus.limiter.resource;
 
 import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ClassUtils;
-import org.aoju.bus.core.utils.CollUtils;
+import org.aoju.bus.core.toolkit.ClassKit;
+import org.aoju.bus.core.toolkit.CollKit;
 import org.aoju.bus.limiter.Parser;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.io.Resource;
@@ -46,7 +46,7 @@ import java.util.*;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class LimitedResourceScanner implements LimitedResourceSource {
@@ -71,7 +71,7 @@ public class LimitedResourceScanner implements LimitedResourceSource {
     public void scanLimitedResource() {
         try {
             String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
-                    ClassUtils.convertClassNameToResourcePath(basePackage) + Symbol.C_SLASH + this.resourcePattern;
+                    ClassKit.convertClassNameToResourcePath(basePackage) + Symbol.C_SLASH + this.resourcePattern;
             Resource[] resources = this.resourcePatternResolver.getResources(packageSearchPath);
             for (Resource resource : resources) {
                 if (resource.isReadable()) {
@@ -82,7 +82,7 @@ public class LimitedResourceScanner implements LimitedResourceSource {
                     }
                     for (Parser parser : limiterAnnotationParsers) {
                         Set<MethodMetadata> methodMetadata = classVisitor.getAnnotatedMethods(parser.getSupportAnnotation().getName());
-                        if (CollUtils.isEmpty(methodMetadata)) {
+                        if (CollKit.isEmpty(methodMetadata)) {
                             continue;
                         }
                         for (MethodMetadata metadata : methodMetadata) {

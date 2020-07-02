@@ -1,14 +1,43 @@
+/*********************************************************************************
+ *                                                                               *
+ * The MIT License (MIT)                                                         *
+ *                                                                               *
+ * Copyright (c) 2015-2020 aoju.org Greg Messner and other contributors.         *
+ *                                                                               *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy  *
+ * of this software and associated documentation files (the "Software"), to deal *
+ * in the Software without restriction, including without limitation the rights  *
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell     *
+ * copies of the Software, and to permit persons to whom the Software is         *
+ * furnished to do so, subject to the following conditions:                      *
+ *                                                                               *
+ * The above copyright notice and this permission notice shall be included in    *
+ * all copies or substantial portions of the Software.                           *
+ *                                                                               *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR    *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE   *
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER        *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, *
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN     *
+ * THE SOFTWARE.                                                                 *
+ ********************************************************************************/
 package org.aoju.bus.gitlab.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import org.aoju.bus.gitlab.GitLabApiException;
-import org.aoju.bus.gitlab.utils.JacksonJsonEnumHelper;
+import org.aoju.bus.gitlab.JacksonJsonEnumHelper;
+
 
 /**
  * This enum provides constants and value validation for the available GitLab application settings.
  * See <a href="https://docs.gitlab.com/ce/api/settings.html#list-of-settings-that-can-be-accessed-via-api-calls">
  * List of settings that can be accessed via API calls</a> for more information.
+ *
+ * @author Kimi Liu
+ * @version 6.0.1
+ * @since JDK 1.8+
  */
 public enum Setting {
 
@@ -157,6 +186,9 @@ public enum Setting {
      */
     DEFAULT_BRANCH_PROTECTION(Integer.class),
 
+    DEFAULT_CI_CONFIG_PATH(String.class),
+
+
     /**
      * What visibility level new groups receive. Can take private, internal and
      * public as a parameter. Default is private.
@@ -275,6 +307,26 @@ public enum Setting {
      * (PREMIUM | SILVER) AWS IAM secret access key
      */
     ELASTICSEARCH_AWS_SECRET_ACCESS_KEY(String.class),
+
+    /**
+     * Amazon Access Key.
+     */
+    EKS_ACCESS_KEY_ID(String.class),
+
+    /**
+     * Amazon account ID
+     */
+    EKS_ACCOUNT_ID(String.class),
+
+    /**
+     * Enable integration with Amazon EKS.
+     */
+    EKS_INTEGRATION_ENABLED(Boolean.class),
+
+    /**
+     * AWS IAM secret access key
+     */
+    EKS_SECRET_ACCESS_KEY(String.class),
 
     /**
      * (PREMIUM | SILVER) Use the experimental elasticsearch indexer. More info:
@@ -544,8 +596,6 @@ public enum Setting {
     /**
      * NOT DOCUMENTED: but it's returned by a call to /api/v4/application/settings
      * Was added with this commit https://gitlab.com/gitlab-org/gitlab/commit/30e7f01877fd436e21efdf0974d42d8fc83f4883
-     *
-     * @since 2019-07-18
      */
     LOGIN_RECAPTCHA_PROTECTION_ENABLED(Boolean.class),
 
@@ -873,8 +923,13 @@ public enum Setting {
     SLACK_APP_VERIFICATION_TOKEN(String.class),
 
     /**
-     * required by: {@link #SNOWPLOW_ENABLED} The Snowplow collector hostname. (e.g.
-     * snowplow.trx.gitlab.net)
+     * The Snowplow site name / application id. (e.g. gitlab)
+     */
+    SNOWPLOW_APP_ID(String.class),
+
+    /**
+     * required by: {@link #SNOWPLOW_ENABLED} The Snowplow collector hostname.
+     * (e.g. snowplow.trx.gitlab.net)
      */
     SNOWPLOW_COLLECTOR_HOSTNAME(String.class),
 
@@ -890,9 +945,29 @@ public enum Setting {
     SNOWPLOW_ENABLED(Boolean.class),
 
     /**
+     * The Snowplow base Iglu Schema Registry URL to use for custom context and self describing events.
+     */
+    SNOWPLOW_IGLU_REGISTRY_URL(String.class),
+
+    /**
      * The Snowplow site name / application id. (e.g. gitlab)
      */
     SNOWPLOW_SITE_ID(String.class),
+
+    /**
+     * Enables Sourcegraph integration. Default is false. If enabled, requires sourcegraph_url.
+     */
+    SOURCEGRAPH_ENABLED(Boolean.class),
+
+    /**
+     * Blocks Sourcegraph from being loaded on private and internal projects. Defaul is true.
+     */
+    SOURCEGRAPH_PUBLIC_ONLY(Boolean.class),
+
+    /**
+     * The Sourcegraph instance URL for integration.
+     */
+    SOURCEGRAPH_URL(String.class),
 
     /**
      * required by: {@link #PENDO_ENABLED} The Pendo endpoint url with js snippet.
@@ -1052,7 +1127,22 @@ public enum Setting {
     PROTECTED_PATHS_RAW(String.class),
     THROTTLE_PROTECTED_PATHS_ENABLED(Boolean.class),
     THROTTLE_PROTECTED_PATHS_PERIOD_IN_SECONDS(Integer.class),
-    THROTTLE_PROTECTED_PATHS_REQUESTS_PER_PERIOD(Integer.class);
+    THROTTLE_PROTECTED_PATHS_REQUESTS_PER_PERIOD(Integer.class),
+
+    /*
+     * Undocumented settings as of GitLab 12.8
+     * These are reported but not documented.
+     */
+    FORCE_PAGES_ACCESS_CONTROL(Boolean.class),
+    MINIMUM_PASSWORD_LENGTH(Integer.class),
+    SNIPPET_SIZE_LIMIT(Integer.class),
+
+    /*
+     * Undocumented settings as of GitLab 12.9
+     * These are reported but not documented.
+     */
+    EMAIL_RESTRICTIONS_ENABLED(Boolean.class),
+    EMAIL_RESTRICTIONS(String.class);
 
 
     private static JacksonJsonEnumHelper<Setting> enumHelper = new JacksonJsonEnumHelper<>(Setting.class);

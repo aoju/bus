@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.office;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 支持类型
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Registry {
@@ -67,7 +67,7 @@ public class Registry {
      */
     public static Registry getInstance() {
         synchronized (Registry.class) {
-            if (ObjectUtils.isEmpty(instance)) {
+            if (ObjectKit.isEmpty(instance)) {
                 instance = new Registry();
             }
         }
@@ -121,7 +121,7 @@ public class Registry {
      */
     public Object require(String name, Class<?> clazz) {
         Object object = this.require(name);
-        if (ObjectUtils.isEmpty(object)) {
+        if (ObjectKit.isEmpty(object)) {
             object = this.require(clazz.getSimpleName());
         }
         return object;

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,9 +25,10 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.http.Httpx;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
@@ -36,50 +37,45 @@ import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Message;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 /**
  * 百度账号登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class BaiduProvider extends DefaultProvider {
+public class BaiduProvider extends AbstractProvider {
 
     public BaiduProvider(Context context) {
         super(context, Registry.BAIDU);
     }
 
-    public BaiduProvider(Context context, StateCache stateCache) {
-        super(context, Registry.BAIDU, stateCache);
+    public BaiduProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.BAIDU, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        String response = doPostAuthorizationCode(Callback.getCode());
+    public AccToken getAccessToken(Callback callback) {
+        String response = doPostAuthorizationCode(callback.getCode());
         return getAuthToken(response);
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
-        JSONObject object = JSONObject.parseObject(doGetUserInfo(token));
+    public Property getUserInfo(AccToken accToken) {
+        JSONObject object = JSONObject.parseObject(doGetUserInfo(accToken));
         this.checkResponse(object);
         return Property.builder()
+                .rawJson(object)
                 .uuid(object.getString("userid"))
                 .username(object.getString("username"))
                 .nickname(object.getString("username"))
                 .avatar(getAvatar(object))
                 .remark(object.getString("userdetail"))
                 .gender(Normal.Gender.getGender(object.getString("sex")))
-                .token(token)
+                .token(accToken)
                 .source(source.toString())
                 .build();
-    }
-
-    private String getAvatar(JSONObject object) {
-        String protrait = object.getString("portrait");
-        return StringUtils.isEmpty(protrait) ? null : String.format("http://himg.bdimg.com/sys/portrait/item/%s.jpg", protrait);
     }
 
     @Override
@@ -87,20 +83,20 @@ public class BaiduProvider extends DefaultProvider {
         JSONObject object = JSONObject.parseObject(doGetRevoke(token));
         this.checkResponse(object);
         // 返回1表示取消授权成功,否则失败
-        Builder.Status status = object.getIntValue("result") == 1 ? Builder.Status.SUCCESS : Builder.Status.FAILURE;
+        Builder.ErrorCode status = object.getIntValue("result") == 1 ? Builder.ErrorCode.SUCCESS : Builder.ErrorCode.FAILURE;
         return Message.builder().errcode(status.getCode()).errmsg(status.getMsg()).build();
     }
 
     @Override
-    public Message refresh(AccToken token) {
+    public Message refresh(AccToken accToken) {
         String refreshUrl = Builder.fromUrl(this.source.refresh())
                 .queryParam("grant_type", "refresh_token")
-                .queryParam("refresh_token", token.getRefreshToken())
+                .queryParam("refresh_token", accToken.getRefreshToken())
                 .queryParam("client_id", this.context.getAppKey())
                 .queryParam("client_secret", this.context.getAppSecret())
                 .build();
         return Message.builder()
-                .errcode(Builder.Status.SUCCESS.getCode())
+                .errcode(Builder.ErrorCode.SUCCESS.getCode())
                 .data(this.getAuthToken(Httpx.get(refreshUrl)))
                 .build();
     }
@@ -110,7 +106,6 @@ public class BaiduProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {
@@ -135,14 +130,19 @@ public class BaiduProvider extends DefaultProvider {
         }
     }
 
-    private AccToken getAuthToken(String response) {
-        JSONObject accessTokenObject = JSONObject.parseObject(response);
-        this.checkResponse(accessTokenObject);
+    private String getAvatar(JSONObject object) {
+        String protrait = object.getString("portrait");
+        return StringKit.isEmpty(protrait) ? null : String.format("http://himg.bdimg.com/sys/portrait/item/%s.jpg", protrait);
+    }
+
+    private AccToken getAuthToken(String json) {
+        JSONObject object = JSONObject.parseObject(json);
+        this.checkResponse(object);
         return AccToken.builder()
-                .accessToken(accessTokenObject.getString("access_token"))
-                .refreshToken(accessTokenObject.getString("refresh_token"))
-                .scope(accessTokenObject.getString("scope"))
-                .expireIn(accessTokenObject.getIntValue("expires_in"))
+                .accessToken(object.getString("access_token"))
+                .refreshToken(object.getString("refresh_token"))
+                .scope(object.getString("scope"))
+                .expireIn(object.getIntValue("expires_in"))
                 .build();
     }
 

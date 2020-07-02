@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,8 +24,8 @@
  ********************************************************************************/
 package org.aoju.bus.core.lang;
 
-import org.aoju.bus.core.utils.ArrayUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -35,7 +35,7 @@ import java.lang.reflect.Type;
  * {@link ParameterizedType} 接口实现，用于重新定义泛型类型
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Typed implements ParameterizedType, Serializable {
@@ -68,7 +68,7 @@ public class Typed implements ParameterizedType, Serializable {
      * @return {@code buf}
      */
     private static StringBuilder appendAllTo(final StringBuilder buf, final String sep, final Type... types) {
-        if (ArrayUtils.isNotEmpty(types)) {
+        if (ArrayKit.isNotEmpty(types)) {
             boolean isFirst = true;
             for (Type type : types) {
                 if (isFirst) {
@@ -81,7 +81,7 @@ public class Typed implements ParameterizedType, Serializable {
                 if (type instanceof Class) {
                     typeStr = ((Class<?>) type).getName();
                 } else {
-                    typeStr = StringUtils.toString(type);
+                    typeStr = StringKit.toString(type);
                 }
 
                 buf.append(typeStr);
@@ -119,10 +119,10 @@ public class Typed implements ParameterizedType, Serializable {
             } else {
                 buf.append(useOwner.toString());
             }
-            buf.append('.').append(raw.getSimpleName());
+            buf.append(Symbol.C_DOT).append(raw.getSimpleName());
         }
 
-        appendAllTo(buf.append('<'), ", ", this.actualTypeArguments).append('>');
+        appendAllTo(buf.append(Symbol.C_LT), ", ", this.actualTypeArguments).append(Symbol.C_GT);
         return buf.toString();
     }
 

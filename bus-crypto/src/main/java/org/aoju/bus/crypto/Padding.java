@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -30,7 +30,7 @@ package org.aoju.bus.crypto;
  * 需要在最后一个分组中填充一些数据使其凑满一个分组的长度。
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public enum Padding {
@@ -47,6 +47,7 @@ public enum Padding {
     OAEPPadding,
     PKCS1Padding,
     PKCS5Padding,
+    PKCS7Padding,
     SSL3Padding
 
 }

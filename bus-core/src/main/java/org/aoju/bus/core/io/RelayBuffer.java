@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.core.io;
 
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +37,7 @@ import java.io.RandomAccessFile;
  * 这个类保留一个最近从上游读取的字节的小缓冲区。减少文件I/O和数据复制
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 final class RelayBuffer {
@@ -180,7 +180,7 @@ final class RelayBuffer {
             complete = true;
         }
 
-        IoUtils.close(upstream);
+        IoKit.close(upstream);
         upstream = null;
     }
 
@@ -322,7 +322,7 @@ final class RelayBuffer {
             }
 
             if (fileToClose != null) {
-                IoUtils.close(fileToClose);
+                IoKit.close(fileToClose);
             }
         }
     }

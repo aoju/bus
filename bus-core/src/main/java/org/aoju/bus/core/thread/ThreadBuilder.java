@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.core.thread;
 
 import org.aoju.bus.core.builder.Builder;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.Executors;
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * ThreadFactory创建器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class ThreadBuilder implements Builder<ThreadFactory> {
@@ -148,10 +148,10 @@ public class ThreadBuilder implements Builder<ThreadFactory> {
      */
     public ThreadBuilder setPriority(int priority) {
         if (priority < Thread.MIN_PRIORITY) {
-            throw new IllegalArgumentException(StringUtils.format("Thread priority ({}) must be >= {}", priority, Thread.MIN_PRIORITY));
+            throw new IllegalArgumentException(StringKit.format("Thread priority ({}) must be >= {}", priority, Thread.MIN_PRIORITY));
         }
         if (priority > Thread.MAX_PRIORITY) {
-            throw new IllegalArgumentException(StringUtils.format("Thread priority ({}) must be <= {}", priority, Thread.MAX_PRIORITY));
+            throw new IllegalArgumentException(StringKit.format("Thread priority ({}) must be <= {}", priority, Thread.MAX_PRIORITY));
         }
         this.priority = priority;
         return this;
@@ -161,9 +161,11 @@ public class ThreadBuilder implements Builder<ThreadFactory> {
      * 设置未捕获异常的处理方式
      *
      * @param uncaughtExceptionHandler {@link UncaughtExceptionHandler}
+     * @return {@link ThreadBuilder}
      */
-    public void setUncaughtExceptionHandler(UncaughtExceptionHandler uncaughtExceptionHandler) {
+    public ThreadBuilder setUncaughtExceptionHandler(UncaughtExceptionHandler uncaughtExceptionHandler) {
         this.uncaughtExceptionHandler = uncaughtExceptionHandler;
+        return this;
     }
 
     /**

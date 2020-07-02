@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -26,10 +26,11 @@ package org.aoju.bus.core.map;
 
 import org.aoju.bus.core.convert.Convert;
 import org.aoju.bus.core.getter.OptNullObject;
-import org.aoju.bus.core.utils.ArrayUtils;
-import org.aoju.bus.core.utils.BooleanUtils;
-import org.aoju.bus.core.utils.ClassUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.lang.Normal;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.BooleanKit;
+import org.aoju.bus.core.toolkit.ClassKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -43,7 +44,7 @@ import java.util.Set;
  * Map代理,提供各种getXXX方法,并提供默认值支持
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class MapProxy implements Map<Object, Object>, OptNullObject<Object>, InvocationHandler, Serializable {
@@ -140,28 +141,28 @@ public class MapProxy implements Map<Object, Object>, OptNullObject<Object>, Inv
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
         final Class<?>[] parameterTypes = method.getParameterTypes();
-        if (ArrayUtils.isEmpty(parameterTypes)) {
+        if (ArrayKit.isEmpty(parameterTypes)) {
             final Class<?> returnType = method.getReturnType();
             if (null != returnType && void.class != returnType) {
                 // 匹配Getter
                 final String methodName = method.getName();
                 String fieldName = null;
-                if (methodName.startsWith("get")) {
+                if (methodName.startsWith(Normal.GET)) {
                     // 匹配getXXX
-                    fieldName = StringUtils.removePreAndLowerFirst(methodName, 3);
-                } else if (BooleanUtils.isBoolean(returnType) && methodName.startsWith("is")) {
+                    fieldName = StringKit.removePreAndLowerFirst(methodName, 3);
+                } else if (BooleanKit.isBoolean(returnType) && methodName.startsWith(Normal.IS)) {
                     // 匹配isXXX
-                    fieldName = StringUtils.removePreAndLowerFirst(methodName, 2);
-                } else if ("hashCode".equals(methodName)) {
+                    fieldName = StringKit.removePreAndLowerFirst(methodName, 2);
+                } else if (Normal.HASHCODE.equals(methodName)) {
                     return this.hashCode();
-                } else if ("toString".equals(methodName)) {
+                } else if (Normal.TOSTRING.equals(methodName)) {
                     return this.toString();
                 }
 
-                if (StringUtils.isNotBlank(fieldName)) {
+                if (StringKit.isNotBlank(fieldName)) {
                     if (false == this.containsKey(fieldName)) {
                         // 驼峰不存在转下划线尝试
-                        fieldName = StringUtils.toUnderlineCase(fieldName);
+                        fieldName = StringKit.toUnderlineCase(fieldName);
                     }
                     return Convert.convert(method.getGenericReturnType(), this.get(fieldName));
                 }
@@ -170,12 +171,12 @@ public class MapProxy implements Map<Object, Object>, OptNullObject<Object>, Inv
         } else if (1 == parameterTypes.length) {
             // 匹配Setter
             final String methodName = method.getName();
-            if (methodName.startsWith("set")) {
-                final String fieldName = StringUtils.removePreAndLowerFirst(methodName, 3);
-                if (StringUtils.isNotBlank(fieldName)) {
+            if (methodName.startsWith(Normal.SET)) {
+                final String fieldName = StringKit.removePreAndLowerFirst(methodName, 3);
+                if (StringKit.isNotBlank(fieldName)) {
                     this.put(fieldName, args[0]);
                 }
-            } else if ("equals".equals(methodName)) {
+            } else if (Normal.EQUALS.equals(methodName)) {
                 return this.equals(args[0]);
             }
         }
@@ -191,7 +192,7 @@ public class MapProxy implements Map<Object, Object>, OptNullObject<Object>, Inv
      * @return 代理对象
      */
     public <T> T toProxyBean(Class<T> interfaceClass) {
-        return (T) Proxy.newProxyInstance(ClassUtils.getClassLoader(), new Class<?>[]{interfaceClass}, this);
+        return (T) Proxy.newProxyInstance(ClassKit.getClassLoader(), new Class<?>[]{interfaceClass}, this);
     }
 
 }

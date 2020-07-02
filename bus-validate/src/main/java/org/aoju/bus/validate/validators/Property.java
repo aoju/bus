@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,8 +27,8 @@ package org.aoju.bus.validate.validators;
 import lombok.Data;
 import org.aoju.bus.core.lang.exception.ValidateException;
 import org.aoju.bus.core.text.Substitute;
-import org.aoju.bus.core.utils.CollUtils;
-import org.aoju.bus.core.utils.MapUtils;
+import org.aoju.bus.core.toolkit.CollKit;
+import org.aoju.bus.core.toolkit.MapKit;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import java.util.Map;
  * 校验注解所包含的通用属性
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 @Data
@@ -97,7 +97,7 @@ public class Property {
      * @param property 属性
      */
     public void addParentProperty(Property property) {
-        if (CollUtils.isEmpty(this.list)) {
+        if (CollKit.isEmpty(this.list)) {
             this.list = new ArrayList<>();
         }
         this.list.add(property);
@@ -110,7 +110,7 @@ public class Property {
      * @param value 插值
      */
     public void addParam(String name, Object value) {
-        if (MapUtils.isEmpty(this.param)) {
+        if (MapKit.isEmpty(this.param)) {
             this.param = new HashMap<>();
         }
         if (this.param.containsKey(name)) {

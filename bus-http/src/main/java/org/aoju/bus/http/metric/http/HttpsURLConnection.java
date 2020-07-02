@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -34,7 +34,7 @@ import java.net.URL;
 
 /**
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class HttpsURLConnection extends DelegatingConnection {
@@ -85,7 +85,6 @@ public final class HttpsURLConnection extends DelegatingConnection {
         if (sslSocketFactory == null) {
             throw new IllegalArgumentException("sslSocketFactory == null");
         }
-        // This fails in JDK 9 because OkHttp is unable to extract the trust manager.
         delegate.client = delegate.client.newBuilder()
                 .sslSocketFactory(sslSocketFactory)
                 .build();

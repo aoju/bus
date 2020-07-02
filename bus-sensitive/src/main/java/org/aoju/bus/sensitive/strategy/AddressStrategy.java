@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,8 +24,10 @@
  ********************************************************************************/
 package org.aoju.bus.sensitive.strategy;
 
-import org.aoju.bus.core.utils.ObjectUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.CollKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.core.toolkit.StringKit;
+import org.aoju.bus.extra.emoji.EmojiKit;
 import org.aoju.bus.sensitive.Context;
 import org.aoju.bus.sensitive.annotation.Shield;
 import org.aoju.bus.sensitive.provider.AbstractProvider;
@@ -36,29 +38,32 @@ import org.aoju.bus.sensitive.provider.AbstractProvider;
  * 例子：北京市海淀区****
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class AddressStrategy extends AbstractProvider {
 
     @Override
     public String build(Object object, Context context) {
-        if (ObjectUtils.isEmpty(object)) {
+        if (ObjectKit.isEmpty(object)) {
             return null;
+        }
+        String value = object.toString();
+        if (CollKit.isNotEmpty(EmojiKit.extractEmojis(value))) {
+            return value;
         }
         final int RIGHT = 10;
         final int LEFT = 6;
 
         final Shield shield = context.getShield();
-        String address = object.toString();
-        int length = StringUtils.length(address);
+        int length = StringKit.length(value);
         if (length > RIGHT + LEFT) {
-            return StringUtils.rightPad(StringUtils.left(address, length - RIGHT), length, shield.shadow());
+            return StringKit.rightPad(StringKit.left(value, length - RIGHT), length, shield.shadow());
         }
         if (length <= LEFT) {
-            return address;
+            return value;
         } else {
-            return address.substring(0, LEFT + 1).concat(StringUtils.fill(5, shield.shadow()));
+            return value.substring(0, LEFT + 1).concat(StringKit.fill(5, shield.shadow()));
         }
     }
 

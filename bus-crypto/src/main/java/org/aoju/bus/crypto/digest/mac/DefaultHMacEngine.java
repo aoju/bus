@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.crypto.digest.mac;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.IoUtils;
+import org.aoju.bus.core.toolkit.IoKit;
 import org.aoju.bus.crypto.Builder;
 
 import javax.crypto.Mac;
@@ -33,13 +33,14 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Key;
 
 /**
  * 默认的HMAC算法实现引擎，使用{@link Mac} 实现摘要
  * 当引入BouncyCastle库时自动使用其作为Provider
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class DefaultHMacEngine implements MacEngine {
@@ -62,7 +63,7 @@ public class DefaultHMacEngine implements MacEngine {
      * @param algorithm 算法
      * @param key       密钥
      */
-    public DefaultHMacEngine(String algorithm, SecretKey key) {
+    public DefaultHMacEngine(String algorithm, Key key) {
         init(algorithm, key);
     }
 
@@ -85,7 +86,7 @@ public class DefaultHMacEngine implements MacEngine {
      * @return this
      * @throws InstrumentException Cause by IOException
      */
-    public DefaultHMacEngine init(String algorithm, SecretKey key) {
+    public DefaultHMacEngine init(String algorithm, Key key) {
         try {
             mac = Builder.createMac(algorithm);
             if (null == key) {
@@ -101,7 +102,7 @@ public class DefaultHMacEngine implements MacEngine {
     @Override
     public byte[] digest(InputStream data, int bufferLength) {
         if (bufferLength < 1) {
-            bufferLength = IoUtils.DEFAULT_BUFFER_SIZE;
+            bufferLength = IoKit.DEFAULT_BUFFER_SIZE;
         }
         byte[] buffer = new byte[bufferLength];
 
@@ -129,6 +130,16 @@ public class DefaultHMacEngine implements MacEngine {
      */
     public Mac getMac() {
         return mac;
+    }
+
+    @Override
+    public int getMacLength() {
+        return mac.getMacLength();
+    }
+
+    @Override
+    public String getAlgorithm() {
+        return this.mac.getAlgorithm();
     }
 
 }

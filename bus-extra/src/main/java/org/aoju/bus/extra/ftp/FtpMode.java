@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,11 +27,8 @@ package org.aoju.bus.extra.ftp;
 /**
  * FTP连接模式
  *
- * <p>
- * 见：https://www.cnblogs.com/huhaoshida/p/5412615.html
- *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public enum FtpMode {

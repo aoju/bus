@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.core.swing;
 
-import org.aoju.bus.core.utils.SwingUtils;
+import org.aoju.bus.core.toolkit.SwingKit;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -35,7 +35,7 @@ import java.io.Serializable;
  * 剪贴板字符串内容监听
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public abstract class StringListener implements ClipboardListener, Serializable {
@@ -45,7 +45,7 @@ public abstract class StringListener implements ClipboardListener, Serializable 
     @Override
     public Transferable onChange(Clipboard clipboard, Transferable contents) {
         if (contents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-            return onChange(clipboard, SwingUtils.getStr(contents));
+            return onChange(clipboard, SwingKit.getStr(contents));
         }
         return null;
     }

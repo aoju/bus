@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,8 +27,9 @@ package org.aoju.bus.core.io.file;
 import org.aoju.bus.core.lang.Assert;
 import org.aoju.bus.core.lang.copier.Duplicate;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.FileUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
+import org.aoju.bus.core.toolkit.FileKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 文件拷贝器
@@ -46,7 +48,7 @@ import java.util.ArrayList;
  * 4、目录下的文件和目录复制到另一个目录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class FileCopier extends Duplicate<File, FileCopier> {
@@ -82,12 +84,12 @@ public class FileCopier extends Duplicate<File, FileCopier> {
     /**
      * 新建一个文件复制器
      *
-     * @param srcPath  源文件路径（相对ClassPath路径或绝对路径）
-     * @param destPath 目标文件路径（相对ClassPath路径或绝对路径）
+     * @param srcPath  源文件路径(相对ClassPath路径或绝对路径)
+     * @param destPath 目标文件路径(相对ClassPath路径或绝对路径)
      * @return {@link FileCopier}
      */
     public static FileCopier create(String srcPath, String destPath) {
-        return new FileCopier(FileUtils.file(srcPath), FileUtils.file(destPath));
+        return new FileCopier(FileKit.file(srcPath), FileKit.file(destPath));
     }
 
     /**
@@ -186,7 +188,7 @@ public class FileCopier extends Duplicate<File, FileCopier> {
      * 拷贝规则为：
      * <pre>
      * 1、源为文件,目标为已存在目录,则拷贝到目录下,文件名不变
-     * 2、源为文件,目标为不存在路径,则目标以文件对待（自动创建父级目录）比如：/dest/aaa,如果aaa不存在,则aaa被当作文件名
+     * 2、源为文件,目标为不存在路径,则目标以文件对待(自动创建父级目录)比如：/dest/aaa,如果aaa不存在,则aaa被当作文件名
      * 3、源为文件,目标是一个已存在的文件,则当{@link #setOverride(boolean)}设为true时会被覆盖,默认不覆盖
      * 4、源为目录,目标为已存在目录,当{@link #setCopyContentIfDir(boolean)}为true时,只拷贝目录中的内容到目标目录中,否则整个源目录连同其目录拷贝到目标目录中
      * 5、源为目录,目标为不存在路径,则自动创建目标为新目录,然后按照规则4复制
@@ -207,7 +209,7 @@ public class FileCopier extends Duplicate<File, FileCopier> {
             throw new InstrumentException("File not exist: " + src);
         }
         Assert.notNull(dest, "Destination File or directiory is null !");
-        if (FileUtils.equals(src, dest)) {
+        if (FileKit.equals(src, dest)) {
             throw new InstrumentException("Files '{" + src + "}' and '{" + dest + "}' are equal");
         }
 
@@ -216,7 +218,7 @@ public class FileCopier extends Duplicate<File, FileCopier> {
                 //源为目录,目标为文件,抛出IO异常
                 throw new InstrumentException("Src is a directory but dest is a file!");
             }
-            final File subDest = isCopyContentIfDir ? dest : FileUtils.mkdir(FileUtils.file(dest, src.getName()));
+            final File subDest = isCopyContentIfDir ? dest : FileKit.mkdir(FileKit.file(dest, src.getName()));
             internalCopyDirContent(src, subDest);
         } else {// 复制文件
             internalCopyFile(src, dest);
@@ -242,20 +244,22 @@ public class FileCopier extends Duplicate<File, FileCopier> {
             //目标为不存在路径,创建为目录
             dest.mkdirs();
         } else if (false == dest.isDirectory()) {
-            throw new InstrumentException(StringUtils.format("Src [{}] is a directory but dest [{}] is a file!", src.getPath(), dest.getPath()));
+            throw new InstrumentException(StringKit.format("Src [{}] is a directory but dest [{}] is a file!", src.getPath(), dest.getPath()));
         }
 
         final String[] files = src.list();
-        File srcFile;
-        File destFile;
-        for (String file : files) {
-            srcFile = new File(src, file);
-            destFile = this.isOnlyCopyFile ? dest : new File(dest, file);
-            // 递归复制
-            if (srcFile.isDirectory()) {
-                internalCopyDirContent(srcFile, destFile);
-            } else {
-                internalCopyFile(srcFile, destFile);
+        if (ArrayKit.isNotEmpty(files)) {
+            File srcFile;
+            File destFile;
+            for (String file : files) {
+                srcFile = new File(src, file);
+                destFile = this.isOnlyCopyFile ? dest : new File(dest, file);
+                // 递归复制
+                if (srcFile.isDirectory()) {
+                    internalCopyDirContent(srcFile, destFile);
+                } else {
+                    internalCopyFile(srcFile, destFile);
+                }
             }
         }
     }
@@ -264,7 +268,7 @@ public class FileCopier extends Duplicate<File, FileCopier> {
      * 拷贝文件,只用于内部,不做任何安全检查
      * 情况如下：
      * <pre>
-     * 1、如果目标是一个不存在的路径,则目标以文件对待（自动创建父级目录）比如：/dest/aaa,如果aaa不存在,则aaa被当作文件名
+     * 1、如果目标是一个不存在的路径,则目标以文件对待(自动创建父级目录)比如：/dest/aaa,如果aaa不存在,则aaa被当作文件名
      * 2、如果目标是一个已存在的目录,则文件拷贝到此目录下,文件名与原文件名一致
      * </pre>
      *
@@ -294,7 +298,7 @@ public class FileCopier extends Duplicate<File, FileCopier> {
             dest.getParentFile().mkdirs();
         }
 
-        final ArrayList<CopyOption> optionList = new ArrayList<>(2);
+        final List<CopyOption> optionList = new ArrayList<>(2);
         if (isOverride) {
             optionList.add(StandardCopyOption.REPLACE_EXISTING);
         }
@@ -303,7 +307,7 @@ public class FileCopier extends Duplicate<File, FileCopier> {
         }
 
         try {
-            Files.copy(src.toPath(), dest.toPath(), optionList.toArray(new CopyOption[optionList.size()]));
+            Files.copy(src.toPath(), dest.toPath(), optionList.toArray(new CopyOption[0]));
         } catch (IOException e) {
             throw new InstrumentException(e);
         }

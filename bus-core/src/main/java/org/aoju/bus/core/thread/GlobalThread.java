@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -34,7 +34,7 @@ import java.util.concurrent.Future;
  * 全局公共线程池
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class GlobalThread {
@@ -113,7 +113,6 @@ public class GlobalThread {
      *
      * @param runnable 可运行对象
      * @return {@link Future}
-     * @since 3.1.9
      */
     public static Future<?> submit(Runnable runnable) {
         return executor.submit(runnable);

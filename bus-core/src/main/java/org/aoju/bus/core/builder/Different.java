@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,8 @@
 package org.aoju.bus.core.builder;
 
 import org.aoju.bus.core.lang.tuple.Pair;
-import org.aoju.bus.core.utils.ObjectUtils;
-import org.aoju.bus.core.utils.TypeUtils;
+import org.aoju.bus.core.toolkit.ObjectKit;
+import org.aoju.bus.core.toolkit.TypeKit;
 
 import java.lang.reflect.Type;
 
@@ -37,7 +37,7 @@ import java.lang.reflect.Type;
  *
  * @param <T> 这个{@code Diff}中包含的对象类型.
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public abstract class Different<T> extends Pair<T, T> {
@@ -57,8 +57,8 @@ public abstract class Different<T> extends Pair<T, T> {
      * @param fieldName 字段的名称
      */
     protected Different(final String fieldName) {
-        this.type = ObjectUtils.defaultIfNull(
-                TypeUtils.getTypeArguments(getClass(), Different.class).get(
+        this.type = ObjectKit.defaultIfNull(
+                TypeKit.getTypeArguments(getClass(), Different.class).get(
                         Different.class.getTypeParameters()[0]), Object.class);
         this.fieldName = fieldName;
     }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.validate.strategy;
 
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 import org.aoju.bus.validate.Context;
 import org.aoju.bus.validate.annotation.Blank;
 import org.aoju.bus.validate.validators.Matcher;
@@ -34,14 +34,14 @@ import org.aoju.bus.validate.validators.Validator;
  * BLANK 校验
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class BlankStrategy implements Validator<String>, Matcher<String, Blank> {
 
     @Override
     public boolean on(String object, Context context) {
-        return StringUtils.isBlank(object);
+        return StringKit.isBlank(object);
     }
 
     @Override

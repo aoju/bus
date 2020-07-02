@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,7 @@
 package org.aoju.bus.core.thread;
 
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.lang.exception.NotInitedException;
-import org.aoju.bus.core.utils.ThreadUtils;
+import org.aoju.bus.core.toolkit.ThreadKit;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -40,7 +39,7 @@ import java.util.concurrent.ExecutorService;
  * 不能保证同时开始
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class SyncFinisher {
@@ -67,7 +66,7 @@ public class SyncFinisher {
     public SyncFinisher(int threadSize) {
         this.beginLatch = new CountDownLatch(1);
         this.threadSize = threadSize;
-        this.executorService = ThreadUtils.newExecutor(threadSize);
+        this.executorService = ThreadKit.newExecutor(threadSize);
         this.workers = new LinkedHashSet<>();
     }
 
@@ -153,21 +152,6 @@ public class SyncFinisher {
                 throw new InstrumentException(e);
             }
         }
-    }
-
-    /**
-     * 等待所有Worker工作结束，否则阻塞
-     *
-     * @throws InterruptedException 用户中断
-     * @deprecated 使用start方法指定是否阻塞等待
-     */
-    @Deprecated
-    public void await() throws InterruptedException {
-        if (endLatch == null) {
-            throw new NotInitedException("Please call start() method first!");
-        }
-
-        endLatch.await();
     }
 
     /**

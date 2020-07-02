@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.http.metric.http;
 
 import org.aoju.bus.core.lang.Normal;
+import org.aoju.bus.core.lang.Symbol;
 import org.aoju.bus.http.Builder;
 import org.aoju.bus.http.Cookie;
 import org.aoju.bus.http.UnoUrl;
@@ -43,7 +44,7 @@ import java.util.Map;
  * 委托cookie 给{@link java.net.CookieHandler}
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class NetCookieJar implements CookieJar {
@@ -100,16 +101,16 @@ public final class NetCookieJar implements CookieJar {
     }
 
     /**
-     * Convert a request header to OkHttp's cookies via {@link HttpCookie}. That extra step handles
+     * Convert a request header to Httpd's cookies via {@link HttpCookie}. That extra step handles
      * multiple cookies in a single request header, which  doesn't support.
      */
     private List<Cookie> decodeHeaderAsJavaNetCookies(UnoUrl url, String header) {
         List<Cookie> result = new ArrayList<>();
         for (int pos = 0, limit = header.length(), pairEnd; pos < limit; pos = pairEnd + 1) {
             pairEnd = Builder.delimiterOffset(header, pos, limit, ";,");
-            int equalsSign = Builder.delimiterOffset(header, pos, pairEnd, '=');
+            int equalsSign = Builder.delimiterOffset(header, pos, pairEnd, Symbol.C_EQUAL);
             String name = Builder.trimSubstring(header, pos, equalsSign);
-            if (name.startsWith("$")) continue;
+            if (name.startsWith(Symbol.DOLLAR)) continue;
 
             // We have either name=value or just a name.
             String value = equalsSign < pairEnd

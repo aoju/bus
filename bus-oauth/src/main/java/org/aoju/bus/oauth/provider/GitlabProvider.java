@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
 import org.aoju.bus.oauth.Builder;
@@ -33,28 +34,27 @@ import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 /**
  * Gitlab登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class GitlabProvider extends DefaultProvider {
+public class GitlabProvider extends AbstractProvider {
 
     public GitlabProvider(Context context) {
         super(context, Registry.GITLAB);
     }
 
-    public GitlabProvider(Context context, StateCache stateCache) {
-        super(context, Registry.GITLAB, stateCache);
+    public GitlabProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.GITLAB, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        JSONObject object = JSONObject.parseObject(doPostAuthorizationCode(Callback.getCode()));
+    public AccToken getAccessToken(Callback callback) {
+        JSONObject object = JSONObject.parseObject(doPostAuthorizationCode(callback.getCode()));
 
         this.checkResponse(object);
 
@@ -68,12 +68,13 @@ public class GitlabProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
-        JSONObject object = JSONObject.parseObject(doGetUserInfo(token));
+    public Property getUserInfo(AccToken accToken) {
+        JSONObject object = JSONObject.parseObject(doGetUserInfo(accToken));
 
         this.checkResponse(object);
 
         return Property.builder()
+                .rawJson(object)
                 .uuid(object.getString("id"))
                 .username(object.getString("username"))
                 .nickname(object.getString("name"))
@@ -84,7 +85,7 @@ public class GitlabProvider extends DefaultProvider {
                 .email(object.getString("email"))
                 .remark(object.getString("bio"))
                 .gender(Normal.Gender.UNKNOWN)
-                .token(token)
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
@@ -105,7 +106,6 @@ public class GitlabProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 2.0.1
      */
     @Override
     public String authorize(String state) {

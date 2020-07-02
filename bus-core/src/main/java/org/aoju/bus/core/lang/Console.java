@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,17 +24,17 @@
  ********************************************************************************/
 package org.aoju.bus.core.lang;
 
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.lang.System;
 import java.util.Scanner;
 
 /**
- * 命令行（控制台）工具方法类
+ * 命令行(控制台)工具方法类
  * 此类主要针对{@link java.lang.System#out} 和 {@link java.lang.System#err} 做封装
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Console {
@@ -89,7 +89,6 @@ public class Console {
      * 打印控制台日志
      *
      * @param obj 要打印的对象
-     * @since 3.3.1
      */
     public static void print(Object obj) {
         print(Symbol.DELIM, obj);
@@ -100,10 +99,9 @@ public class Console {
      *
      * @param template 文本模板,被替换的部分用 {} 表示
      * @param values   值
-     * @since 3.3.1
      */
     public static void print(String template, Object... values) {
-        System.out.println(StringUtils.format(template, values));
+        System.out.println(StringKit.format(template, values));
     }
 
     /**
@@ -113,7 +111,7 @@ public class Console {
      * @param len      打印长度
      */
     public static void printProgress(char showChar, int len) {
-        print("{}{}", Symbol.CR, StringUtils.repeat(showChar, len));
+        print("{}{}", Symbol.CR, StringKit.repeat(showChar, len));
     }
 
     /**
@@ -167,7 +165,7 @@ public class Console {
      * @param values   值
      */
     public static void error(Throwable t, String template, Object... values) {
-        System.err.println(StringUtils.format(template, values));
+        System.err.println(StringKit.format(template, values));
         if (null != t) {
             t.printStackTrace(System.err);
             System.err.flush();
@@ -175,10 +173,9 @@ public class Console {
     }
 
     /**
-     * 读取用户输入的内容（在控制台敲回车前的内容）
+     * 读取用户输入的内容(在控制台敲回车前的内容)
      *
      * @return 用户输入的内容
-     * @since 3.3.1
      */
     public static String input() {
         return scanner().next();
@@ -188,7 +185,6 @@ public class Console {
      * 创建从控制台读取内容的{@link Scanner}
      *
      * @return {@link Scanner}
-     * @since 3.3.1
      */
     public static Scanner scanner() {
         return new Scanner(System.in);

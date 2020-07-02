@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -24,7 +24,7 @@
  ********************************************************************************/
 package org.aoju.bus.office.process;
 
-import org.aoju.bus.core.utils.ArrayUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  * 这也适用于Solaris，这将影响{@link #find(ProcessQuery)}
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class UnixProcessManager extends AbstractProcessManager {
@@ -93,7 +93,7 @@ public class UnixProcessManager extends AbstractProcessManager {
      * @param runAsArgs sudo命令参数
      */
     public void setRunAsArgs(final String[] runAsArgs) {
-        this.runAsArgs = ArrayUtils.clone(runAsArgs);
+        this.runAsArgs = ArrayKit.clone(runAsArgs);
     }
 
     private static class DefaultHolder {

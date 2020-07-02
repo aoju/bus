@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -37,7 +37,7 @@ import org.aoju.bus.oauth.magic.Message;
  * {@link Provider#refresh(AccToken)}
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public interface Provider {
@@ -49,7 +49,7 @@ public interface Provider {
      * @return 返回授权地址
      */
     default String authorize(String state) {
-        throw new AuthorizedException(Builder.Status.NOT_IMPLEMENTED.getCode());
+        throw new AuthorizedException(Builder.ErrorCode.NOT_IMPLEMENTED.getCode());
     }
 
     /**
@@ -59,7 +59,7 @@ public interface Provider {
      * @return 返回登录成功后的用户信息
      */
     default Message login(Callback callback) {
-        throw new AuthorizedException(Builder.Status.NOT_IMPLEMENTED.getCode());
+        throw new AuthorizedException(Builder.ErrorCode.NOT_IMPLEMENTED.getCode());
     }
 
     /**
@@ -69,17 +69,17 @@ public interface Provider {
      * @return AuthResponse
      */
     default Message revoke(AccToken token) {
-        throw new AuthorizedException(Builder.Status.NOT_IMPLEMENTED.getCode());
+        throw new AuthorizedException(Builder.ErrorCode.NOT_IMPLEMENTED.getCode());
     }
 
     /**
-     * 刷新access token （续期）
+     * 刷新access token (续期)
      *
      * @param token 登录成功后返回的Token信息
      * @return AuthResponse
      */
     default Message refresh(AccToken token) {
-        throw new AuthorizedException(Builder.Status.NOT_IMPLEMENTED.getCode());
+        throw new AuthorizedException(Builder.ErrorCode.NOT_IMPLEMENTED.getCode());
     }
 
 }

@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,14 +25,13 @@
 package org.aoju.bus.core.io.file;
 
 import org.aoju.bus.core.io.LineHandler;
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.CharsetUtils;
-import org.aoju.bus.core.utils.FileUtils;
-import org.aoju.bus.core.utils.IoUtils;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.FileKit;
+import org.aoju.bus.core.toolkit.IoKit;
+import org.aoju.bus.core.toolkit.StringKit;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +40,7 @@ import java.util.List;
  * 文件读取器
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class FileReader extends FileWrapper {
@@ -52,7 +51,7 @@ public class FileReader extends FileWrapper {
      * @param file    文件
      * @param charset 编码
      */
-    public FileReader(File file, Charset charset) {
+    public FileReader(File file, java.nio.charset.Charset charset) {
         super(file, charset);
         checkFile();
     }
@@ -64,7 +63,7 @@ public class FileReader extends FileWrapper {
      * @param charset 编码
      */
     public FileReader(File file, String charset) {
-        this(file, CharsetUtils.charset(charset));
+        this(file, Charset.charset(charset));
     }
 
     /**
@@ -73,8 +72,8 @@ public class FileReader extends FileWrapper {
      * @param filePath 文件路径,相对路径会被转换为相对于ClassPath的路径
      * @param charset  编码
      */
-    public FileReader(String filePath, Charset charset) {
-        this(FileUtils.file(filePath), charset);
+    public FileReader(String filePath, java.nio.charset.Charset charset) {
+        this(FileKit.file(filePath), charset);
     }
 
     /**
@@ -84,7 +83,7 @@ public class FileReader extends FileWrapper {
      * @param charset  编码
      */
     public FileReader(String filePath, String charset) {
-        this(FileUtils.file(filePath), CharsetUtils.charset(charset));
+        this(FileKit.file(filePath), Charset.charset(charset));
     }
 
     /**
@@ -114,7 +113,7 @@ public class FileReader extends FileWrapper {
      * @param charset 编码
      * @return {@link FileReader}
      */
-    public static FileReader create(File file, Charset charset) {
+    public static FileReader create(File file, java.nio.charset.Charset charset) {
         return new FileReader(file, charset);
     }
 
@@ -148,12 +147,12 @@ public class FileReader extends FileWrapper {
             in = new FileInputStream(file);
             readLength = in.read(bytes);
             if (readLength < len) {
-                throw new IOException(StringUtils.format("File length is [{}] but read [{}]!", len, readLength));
+                throw new IOException(StringKit.format("File length is [{}] but read [{}]!", len, readLength));
             }
         } catch (Exception e) {
             throw new InstrumentException(e);
         } finally {
-            IoUtils.close(in);
+            IoKit.close(in);
         }
 
         return bytes;
@@ -180,7 +179,7 @@ public class FileReader extends FileWrapper {
     public <T extends Collection<String>> T readLines(T collection) throws InstrumentException {
         BufferedReader reader = null;
         try {
-            reader = FileUtils.getReader(file, charset);
+            reader = FileKit.getReader(file, charset);
             String line;
             while (true) {
                 line = reader.readLine();
@@ -193,7 +192,7 @@ public class FileReader extends FileWrapper {
         } catch (IOException e) {
             throw new InstrumentException(e);
         } finally {
-            IoUtils.close(reader);
+            IoKit.close(reader);
         }
     }
 
@@ -202,15 +201,14 @@ public class FileReader extends FileWrapper {
      *
      * @param lineHandler 行处理器
      * @throws InstrumentException 异常
-     * @since 3.1.9
      */
     public void readLines(LineHandler lineHandler) throws InstrumentException {
         BufferedReader reader = null;
         try {
-            reader = FileUtils.getReader(file, charset);
-            IoUtils.readLines(reader, lineHandler);
+            reader = FileKit.getReader(file, charset);
+            IoKit.readLines(reader, lineHandler);
         } finally {
-            IoUtils.close(reader);
+            IoKit.close(reader);
         }
     }
 
@@ -236,12 +234,12 @@ public class FileReader extends FileWrapper {
         BufferedReader reader = null;
         T result;
         try {
-            reader = FileUtils.getReader(this.file, charset);
+            reader = FileKit.getReader(this.file, charset);
             result = readerHandler.handle(reader);
         } catch (IOException e) {
             throw new InstrumentException(e);
         } finally {
-            IoUtils.close(reader);
+            IoKit.close(reader);
         }
         return result;
     }
@@ -253,7 +251,7 @@ public class FileReader extends FileWrapper {
      * @throws InstrumentException 异常
      */
     public BufferedReader getReader() throws InstrumentException {
-        return IoUtils.getReader(getInputStream(), this.charset);
+        return IoKit.getReader(getInputStream(), this.charset);
     }
 
     /**
@@ -277,17 +275,12 @@ public class FileReader extends FileWrapper {
      * @return File
      * @throws InstrumentException 异常
      */
-    public File writeToStream(OutputStream out) throws InstrumentException {
-        FileInputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            IoUtils.copy(in, out);
+    public long writeToStream(OutputStream out) throws InstrumentException {
+        try (FileInputStream in = new FileInputStream(this.file)) {
+            return IoKit.copy(in, out);
         } catch (IOException e) {
             throw new InstrumentException(e);
-        } finally {
-            IoUtils.close(in);
         }
-        return this.file;
     }
 
     /**
@@ -297,10 +290,10 @@ public class FileReader extends FileWrapper {
      */
     private void checkFile() throws InstrumentException {
         if (false == file.exists()) {
-            throw new InstrumentException("File not exist: " + file);
+            throw new InstrumentException("File not exist : " + file);
         }
         if (false == file.isFile()) {
-            throw new InstrumentException("Not a file:" + file);
+            throw new InstrumentException("Not a file :" + file);
         }
     }
 

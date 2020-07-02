@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.core.builder;
 
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.ArrayUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -69,7 +69,7 @@ import java.util.Comparator;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class CompareBuilder implements Builder<Integer> {
@@ -207,7 +207,7 @@ public class CompareBuilder implements Builder<Integer> {
         AccessibleObject.setAccessible(fields, true);
         for (int i = 0; i < fields.length && builder.comparison == 0; i++) {
             final Field f = fields[i];
-            if (!ArrayUtils.contains(excludeFields, f.getName())
+            if (!ArrayKit.contains(excludeFields, f.getName())
                     && !f.getName().contains(Symbol.DOLLAR)
                     && (useTransients || !Modifier.isTransient(f.getModifiers()))
                     && !Modifier.isStatic(f.getModifiers())) {
@@ -832,7 +832,6 @@ public class CompareBuilder implements Builder<Integer> {
      *
      * @return 最终的比较结果为整数
      * @see #toComparison()
-     * @since 3.0
      */
     @Override
     public Integer build() {

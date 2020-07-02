@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,6 +25,7 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
 import org.aoju.bus.oauth.Builder;
@@ -33,28 +34,27 @@ import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
 
 /**
  * 腾讯云登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class TencentProvider extends DefaultProvider {
+public class TencentProvider extends AbstractProvider {
 
     public TencentProvider(Context context) {
         super(context, Registry.TENCENT);
     }
 
-    public TencentProvider(Context context, StateCache stateCache) {
-        super(context, Registry.TENCENT, stateCache);
+    public TencentProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.TENCENT, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        JSONObject object = JSONObject.parseObject(doGetAuthorizationCode(Callback.getCode()));
+    public AccToken getAccessToken(Callback callback) {
+        JSONObject object = JSONObject.parseObject(doGetAuthorizationCode(callback.getCode()));
         this.checkResponse(object);
         return AccToken.builder()
                 .accessToken(object.getString("access_token"))
@@ -64,12 +64,13 @@ public class TencentProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
-        JSONObject object = JSONObject.parseObject(doGetUserInfo(token));
+    public Property getUserInfo(AccToken accToken) {
+        JSONObject object = JSONObject.parseObject(doGetUserInfo(accToken));
         this.checkResponse(object);
 
         object = object.getJSONObject("data");
         return Property.builder()
+                .rawJson(object)
                 .uuid(object.getString("id"))
                 .username(object.getString("name"))
                 .avatar("https://dev.tencent.com/" + object.getString("avatar"))
@@ -80,7 +81,7 @@ public class TencentProvider extends DefaultProvider {
                 .gender(Normal.Gender.getGender(object.getString("sex")))
                 .email(object.getString("email"))
                 .remark(object.getString("slogan"))
-                .token(token)
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
@@ -101,7 +102,6 @@ public class TencentProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {

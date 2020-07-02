@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -27,7 +27,7 @@ package org.aoju.bus.core.text;
 import org.aoju.bus.core.builder.Builder;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.Symbol;
-import org.aoju.bus.core.utils.ArrayUtils;
+import org.aoju.bus.core.toolkit.ArrayKit;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -40,7 +40,7 @@ import java.util.Objects;
  * 提供比StringBuffer更灵活和更强大的API.
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class StrBuilder implements CharSequence, Appendable, Serializable, Builder<String> {
@@ -116,7 +116,7 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      * @param strs 初始字符串
      */
     public StrBuilder(CharSequence... strs) {
-        this(ArrayUtils.isEmpty(strs) ? CAPACITY : (totalLength(strs) + CAPACITY));
+        this(ArrayKit.isEmpty(strs) ? CAPACITY : (totalLength(strs) + CAPACITY));
         for (int i = 0; i < strs.length; i++) {
             append(strs[i]);
         }
@@ -166,6 +166,19 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
         return totalLength;
     }
 
+    @Override
+    public int length() {
+        return size;
+    }
+
+    @Override
+    public char charAt(final int index) {
+        if (index < 0 || index >= length()) {
+            throw new StringIndexOutOfBoundsException(index);
+        }
+        return buffer[index];
+    }
+
     public String getNewLineText() {
         return newLine;
     }
@@ -185,11 +198,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
         }
         this.nullText = nullText;
         return this;
-    }
-
-    @Override
-    public int length() {
-        return size;
     }
 
     /**
@@ -258,13 +266,16 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
         return this;
     }
 
-    @Override
-    public char charAt(final int index) {
-        if (index < 0 || index >= length()) {
-            throw new StringIndexOutOfBoundsException(index);
-        }
-        return buffer[index];
+    /**
+     * 删除全部字符，位置归零
+     *
+     * @return this
+     */
+    public StrBuilder reset() {
+        this.position = 0;
+        return this;
     }
+
 
     /**
      * 在指定的索引处设置字符
@@ -345,7 +356,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      * @param readable 读取对象
      * @return 读取的字符数
      * @throws IOException 如果发生I/O错误
-     * @since 3.5.0
      */
     public int readFrom(final Readable readable) throws IOException {
         final int oldSize = size;
@@ -425,7 +435,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      *
      * @param seq 要附加的字符序列
      * @return this
-     * @since 3.0.0
      */
     @Override
     public StrBuilder append(final CharSequence seq) {
@@ -455,7 +464,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      * @param startIndex 起始索引(包括起始索引)必须有效
      * @param length     要追加的长度必须有效
      * @return this
-     * @since 3.0.0
      */
     @Override
     public StrBuilder append(final CharSequence seq, final int startIndex, final int length) {
@@ -521,7 +529,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      * @param objs   要在格式字符串中使用的对象
      * @return this
      * @see String#format(String, Object...)
-     * @since 3.2.0
      */
     public StrBuilder append(final String format, final Object... objs) {
         return append(String.format(format, objs));
@@ -533,7 +540,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      *
      * @param buf 要附加的字符缓冲区
      * @return this
-     * @since 3.5.0
      */
     public StrBuilder append(final CharBuffer buf) {
         if (buf == null) {
@@ -559,7 +565,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      * @param startIndex 起始索引(包括起始索引)必须有效
      * @param length     要追加的长度必须有效
      * @return this
-     * @since 3.5.0
      */
     public StrBuilder append(final CharBuffer buf, final int startIndex, final int length) {
         if (buf == null) {
@@ -638,7 +643,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      *
      * @param str 要追加的字符串
      * @return this
-     * @since 3.2.0
      */
     public StrBuilder append(final StringBuilder str) {
         if (str == null) {
@@ -662,7 +666,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      * @param startIndex 起始索引(包括起始索引)必须有效
      * @param length     要追加的长度必须有效
      * @return this
-     * @since 3.2.0
      */
     public StrBuilder append(final StringBuilder str, final int startIndex, final int length) {
         if (str == null) {
@@ -810,7 +813,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      *
      * @param ch 要附加的值
      * @return this
-     * @since 3.0.0
      */
     @Override
     public StrBuilder append(final char ch) {
@@ -902,7 +904,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      * @param objs   要在格式字符串中使用的对象
      * @return this
      * @see String#format(String, Object...)
-     * @since 3.2.0
      */
     public StrBuilder appendln(final String format, final Object... objs) {
         return append(format, objs).appendNewLine();
@@ -2315,7 +2316,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      * 获取字符串生成器的StringBuilder版本，在每次调用该方法时创建一个新实例
      *
      * @return 构建器一个 StringBuilder
-     * @since 3.2.0
      */
     public StringBuilder toStringBuilder() {
         return new StringBuilder(size).append(buffer, 0, size);
@@ -2326,7 +2326,6 @@ public class StrBuilder implements CharSequence, Appendable, Serializable, Build
      *
      * @return 构建器一个 String
      * @see #toString()
-     * @since 3.2.0
      */
     @Override
     public String build() {

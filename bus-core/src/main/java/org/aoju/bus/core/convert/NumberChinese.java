@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,7 +25,7 @@
 package org.aoju.bus.core.convert;
 
 import org.aoju.bus.core.lang.Normal;
-import org.aoju.bus.core.utils.StringUtils;
+import org.aoju.bus.core.toolkit.StringKit;
 
 /**
  * 数字转中文类
@@ -37,7 +37,7 @@ import org.aoju.bus.core.utils.StringUtils;
  * </pre>
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class NumberChinese {
@@ -92,59 +92,67 @@ public class NumberChinese {
 
         boolean beforeWanIsZero = true; // 标志“万”下面一级是不是 0
 
-        String chineseStr = Normal.EMPTY;
+        StringBuilder val = new StringBuilder();
         for (int i = 0; i < numParts; i++) {
             String partChinese = toChinese(parts[i], isUseTraditional);
             if (i % 2 == 0) {
-                beforeWanIsZero = StringUtils.isEmpty(partChinese);
+                beforeWanIsZero = StringKit.isEmpty(partChinese);
             }
 
             if (i != 0) {
                 if (i % 2 == 0) {
-                    chineseStr = "亿" + chineseStr;
+                    val.insert(0, "亿");
                 } else {
-                    if ("".equals(partChinese) && false == beforeWanIsZero) {
+                    if (Normal.EMPTY.equals(partChinese) && false == beforeWanIsZero) {
                         // 如果“万”对应的 part 为 0,而“万”下面一级不为 0,则不加“万”,而加“零”
-                        chineseStr = "零" + chineseStr;
+                        val.insert(0, "零");
                     } else {
                         if (parts[i - 1] < 1000 && parts[i - 1] > 0) {
                             // 如果"万"的部分不为 0, 而"万"前面的部分小于 1000 大于 0, 则万后面应该跟“零”
-                            chineseStr = "零" + chineseStr;
+                            val.insert(0, "零");
                         }
-                        chineseStr = "万" + chineseStr;
+                        if (parts[i] > 0) {
+                            // 如果"万"的部分不为 0 则增加万
+                            val.insert(0, "万");
+                        }
                     }
                 }
             }
-            chineseStr = partChinese + chineseStr;
+            val.insert(0, partChinese);
         }
 
         // 整数部分为 0, 则表达为"零"
-        if (Normal.EMPTY.equals(chineseStr)) {
-            chineseStr = numArray[0];
+        if (Normal.EMPTY.equals(val.toString())) {
+            val = new StringBuilder(numArray[0]);
         }
         //负数
         if (negative) { // 整数部分不为 0
-            chineseStr = "负" + chineseStr;
+            val.insert(0, "负");
         }
 
         // 小数部分
         if (numFen != 0 || numJiao != 0) {
             if (numFen == 0) {
-                chineseStr += (isMoneyMode ? "元" : "点") + numArray[numJiao] + (isMoneyMode ? "角" : "");
+                val.append(isMoneyMode ? "元" : "点").append(numArray[numJiao]).append(isMoneyMode ? "角" : Normal.EMPTY);
             } else { // “分”数不为 0
                 if (numJiao == 0) {
-                    chineseStr += (isMoneyMode ? "元零" : "点零") + numArray[numFen] + (isMoneyMode ? "分" : "");
+                    val.append(isMoneyMode ? "元零" : "点零")
+                            .append(numArray[numFen])
+                            .append(isMoneyMode ? "分" : Normal.EMPTY);
                 } else {
-                    chineseStr += (isMoneyMode ? "元" : "点") + numArray[numJiao] + (isMoneyMode ? "角" : "") + numArray[numFen] + (isMoneyMode ? "分" : "");
+                    val.append(isMoneyMode ? "元" : "点")
+                            .append(numArray[numJiao])
+                            .append(isMoneyMode ? "角" : Normal.EMPTY)
+                            .append(numArray[numFen])
+                            .append(isMoneyMode ? "分" : Normal.EMPTY);
                 }
             }
         } else if (isMoneyMode) {
             //无小数部分的金额结尾
-            chineseStr += "元整";
+            val.append("元整");
         }
 
-        return chineseStr;
-
+        return val.toString();
     }
 
     /**
@@ -160,7 +168,7 @@ public class NumberChinese {
 
         int temp = amountPart;
 
-        String chineseStr = "";
+        String chineseStr = Normal.EMPTY;
         boolean lastIsZero = true; // 在从低位往高位循环时,记录上一位数字是不是 0
         for (int i = 0; temp > 0; i++) {
             if (temp == 0) {
@@ -181,6 +189,22 @@ public class NumberChinese {
             temp = temp / 10;
         }
         return chineseStr;
+    }
+
+    /**
+     * 数字字符转中文，非数字字符原样返回
+     *
+     * @param c                数字字符
+     * @param isUseTraditional 是否繁体
+     * @return 中文字符
+     */
+    public static String toChinese(char c, boolean isUseTraditional) {
+        String[] numArray = isUseTraditional ? Normal.TRADITIONAL_DIGITS : Normal.SIMPLE_DIGITS;
+        int index = c - 48;
+        if (index < 0 || index >= numArray.length) {
+            return String.valueOf(c);
+        }
+        return numArray[index];
     }
 
 }

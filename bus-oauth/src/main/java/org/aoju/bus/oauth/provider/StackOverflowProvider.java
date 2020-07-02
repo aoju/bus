@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,8 +25,11 @@
 package org.aoju.bus.oauth.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aoju.bus.cache.metric.ExtendCache;
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.Normal;
 import org.aoju.bus.core.lang.exception.AuthorizedException;
+import org.aoju.bus.core.toolkit.UriKit;
 import org.aoju.bus.http.Httpx;
 import org.aoju.bus.oauth.Builder;
 import org.aoju.bus.oauth.Context;
@@ -34,29 +37,33 @@ import org.aoju.bus.oauth.Registry;
 import org.aoju.bus.oauth.magic.AccToken;
 import org.aoju.bus.oauth.magic.Callback;
 import org.aoju.bus.oauth.magic.Property;
-import org.aoju.bus.oauth.metric.StateCache;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Stack Overflow登录
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
-public class StackOverflowProvider extends DefaultProvider {
+public class StackOverflowProvider extends AbstractProvider {
 
     public StackOverflowProvider(Context context) {
         super(context, Registry.STACKOVERFLOW);
     }
 
-    public StackOverflowProvider(Context context, StateCache stateCache) {
-        super(context, Registry.STACKOVERFLOW, stateCache);
+    public StackOverflowProvider(Context context, ExtendCache extendCache) {
+        super(context, Registry.STACKOVERFLOW, extendCache);
     }
 
     @Override
-    protected AccToken getAccessToken(Callback Callback) {
-        String accessTokenUrl = accessTokenUrl(Callback.getCode());
-        String response = Httpx.post(source.accessToken(), parseQueryToMap(accessTokenUrl));
+    public AccToken getAccessToken(Callback callback) {
+        String accessTokenUrl = accessTokenUrl(callback.getCode());
+        Map<String, Object> paramMap = new HashMap<>();
+        UriKit.decodeVal(accessTokenUrl, Charset.DEFAULT_UTF_8).forEach(paramMap::put);
+        String response = Httpx.post(source.accessToken(), paramMap);
         JSONObject object = JSONObject.parseObject(response);
 
         this.checkResponse(object);
@@ -68,24 +75,25 @@ public class StackOverflowProvider extends DefaultProvider {
     }
 
     @Override
-    protected Property getUserInfo(AccToken token) {
+    public Property getUserInfo(AccToken accToken) {
         String userInfoUrl = Builder.fromUrl(this.source.userInfo())
-                .queryParam("access_token", token.getAccessToken())
+                .queryParam("access_token", accToken.getAccessToken())
                 .queryParam("site", "stackoverflow")
                 .queryParam("key", this.context.getOverflowKey())
                 .build();
-        JSONObject object = JSONObject.parseObject(Httpx.get(userInfoUrl));
-        this.checkResponse(object);
-        JSONObject userObj = object.getJSONArray("items").getJSONObject(0);
+        JSONObject jsonObject = JSONObject.parseObject(Httpx.get(userInfoUrl));
+        this.checkResponse(jsonObject);
+        JSONObject object = jsonObject.getJSONArray("items").getJSONObject(0);
 
         return Property.builder()
-                .uuid(userObj.getString("user_id"))
-                .avatar(userObj.getString("profile_image"))
-                .location(userObj.getString("location"))
-                .nickname(userObj.getString("display_name"))
-                .blog(userObj.getString("website_url"))
+                .rawJson(object)
+                .uuid(object.getString("user_id"))
+                .avatar(object.getString("profile_image"))
+                .location(object.getString("location"))
+                .nickname(object.getString("display_name"))
+                .blog(object.getString("website_url"))
                 .gender(Normal.Gender.UNKNOWN)
-                .token(token)
+                .token(accToken)
                 .source(source.toString())
                 .build();
     }
@@ -95,7 +103,6 @@ public class StackOverflowProvider extends DefaultProvider {
      *
      * @param state state 验证授权流程的参数,可以防止csrf
      * @return 返回授权地址
-     * @since 1.9.3
      */
     @Override
     public String authorize(String state) {

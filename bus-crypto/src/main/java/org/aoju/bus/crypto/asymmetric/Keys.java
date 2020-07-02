@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -40,7 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 非对称基础，提供锁、私钥和公钥的持有
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public class Keys<T extends Keys<T>> {
@@ -76,7 +76,7 @@ public class Keys<T extends Keys<T>> {
 
     /**
      * 私钥和公钥同时为空时生成一对新的私钥和公钥
-     * 私钥和公钥可以单独传入一个，如此则只能使用此钥匙来做加密（签名）或者解密（校验）
+     * 私钥和公钥可以单独传入一个，如此则只能使用此钥匙来做加密(签名)或者解密(校验)
      *
      * @param algorithm  算法
      * @param privateKey 私钥
@@ -184,7 +184,8 @@ public class Keys<T extends Keys<T>> {
      * @return 获得私钥
      */
     public String getPrivateKeyBase64() {
-        return Base64.encode(getPrivateKey().getEncoded());
+        final PrivateKey privateKey = getPrivateKey();
+        return (null == privateKey) ? null : Base64.encode(privateKey.getEncoded());
     }
 
     /**

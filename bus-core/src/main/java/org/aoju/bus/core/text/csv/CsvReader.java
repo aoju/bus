@@ -1,6 +1,6 @@
 /*********************************************************************************
  *                                                                               *
- * The MIT License                                                               *
+ * The MIT License (MIT)                                                         *
  *                                                                               *
  * Copyright (c) 2015-2020 aoju.org and other contributors.                      *
  *                                                                               *
@@ -25,25 +25,26 @@
 package org.aoju.bus.core.text.csv;
 
 import org.aoju.bus.core.lang.Assert;
+import org.aoju.bus.core.lang.Charset;
 import org.aoju.bus.core.lang.exception.InstrumentException;
-import org.aoju.bus.core.utils.FileUtils;
-import org.aoju.bus.core.utils.IoUtils;
-import org.aoju.bus.core.utils.ObjectUtils;
+import org.aoju.bus.core.toolkit.FileKit;
+import org.aoju.bus.core.toolkit.IoKit;
+import org.aoju.bus.core.toolkit.ObjectKit;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * CSV文件读取器,参考：FastCSV
  *
  * @author Kimi Liu
- * @version 5.8.2
+ * @version 6.0.1
  * @since JDK 1.8+
  */
 public final class CsvReader {
@@ -63,7 +64,7 @@ public final class CsvReader {
      * @param config 配置项
      */
     public CsvReader(CsvReadConfig config) {
-        this.config = ObjectUtils.defaultIfNull(config, CsvReadConfig.defaultConfig());
+        this.config = ObjectKit.defaultIfNull(config, CsvReadConfig.defaultConfig());
     }
 
     /**
@@ -119,7 +120,7 @@ public final class CsvReader {
      * @throws InstrumentException IO异常
      */
     public CsvData read(File file) throws InstrumentException {
-        return read(file, org.aoju.bus.core.lang.Charset.UTF_8);
+        return read(file, Charset.UTF_8);
     }
 
     /**
@@ -130,7 +131,7 @@ public final class CsvReader {
      * @return {@link CsvData},包含数据列表和行信息
      * @throws InstrumentException IO异常
      */
-    public CsvData read(File file, Charset charset) throws InstrumentException {
+    public CsvData read(File file, java.nio.charset.Charset charset) throws InstrumentException {
         return read(Objects.requireNonNull(file.toPath(), "file must not be null"), charset);
     }
 
@@ -142,7 +143,7 @@ public final class CsvReader {
      * @throws InstrumentException IO异常
      */
     public CsvData read(Path path) throws InstrumentException {
-        return read(path, org.aoju.bus.core.lang.Charset.UTF_8);
+        return read(path, Charset.UTF_8);
     }
 
     /**
@@ -153,9 +154,9 @@ public final class CsvReader {
      * @return {@link CsvData},包含数据列表和行信息
      * @throws InstrumentException IO异常
      */
-    public CsvData read(Path path, Charset charset) throws InstrumentException {
+    public CsvData read(Path path, java.nio.charset.Charset charset) throws InstrumentException {
         Assert.notNull(path, "path must not be null");
-        try (Reader reader = FileUtils.getReader(path, charset)) {
+        try (Reader reader = FileKit.getReader(path, charset)) {
             return read(reader);
         } catch (IOException e) {
             throw new InstrumentException(e);
@@ -201,8 +202,43 @@ public final class CsvReader {
                 rowHandler.handle(csvRow);
             }
         } finally {
-            IoUtils.close(csvParser);
+            IoKit.close(csvParser);
         }
+    }
+
+    /**
+     * 从Reader中读取CSV数据，结果为Map，读取后关闭Reader
+     * 此方法默认识别首行为标题行
+     *
+     * @param reader Reader
+     * @return {@link CsvData}，包含数据列表和行信息
+     * @throws InstrumentException IO异常
+     */
+    public List<Map<String, String>> readMapList(Reader reader) throws InstrumentException {
+        // 此方法必须包含标题
+        this.config.setContainsHeader(true);
+
+        final List<Map<String, String>> result = new ArrayList<>();
+        read(reader, (row) -> result.add(row.getFieldMap()));
+        return result;
+    }
+
+    /**
+     * 从Reader中读取CSV数据并转换为Bean列表，读取后关闭Reader
+     * 此方法默认识别首行为标题行
+     *
+     * @param <T>    Bean类型
+     * @param reader Reader
+     * @param clazz  Bean类型
+     * @return Bean列表
+     */
+    public <T> List<T> read(Reader reader, Class<T> clazz) {
+        // 此方法必须包含标题
+        this.config.setContainsHeader(true);
+
+        final List<T> result = new ArrayList<>();
+        read(reader, (row) -> result.add(row.toBean(clazz)));
+        return result;
     }
 
     /**
