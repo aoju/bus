@@ -46,7 +46,7 @@ public final class Formats {
     public static final String HEX_ERROR = "0x%08X";
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
-     * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
+     * (https://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
      * <p>
      * Should be used for most representations of bytes
      */

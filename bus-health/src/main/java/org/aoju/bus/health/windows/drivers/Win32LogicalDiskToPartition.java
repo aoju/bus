@@ -59,7 +59,7 @@ public final class Win32LogicalDiskToPartition {
      * Links disk drives to partitions
      */
     public enum DiskToPartitionProperty {
-        ANTECEDENT, DEPENDENT
+        ANTECEDENT, DEPENDENT, ENDINGADDRESS, STARTINGADDRESS
     }
 
 }
