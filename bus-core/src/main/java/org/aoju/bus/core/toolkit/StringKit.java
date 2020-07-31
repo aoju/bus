@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
  * 用于MD5,加解密和字符串编码转换
  *
  * @author Kimi Liu
- * @version 6.0.2
+ * @version 6.0.3
  * @since JDK 1.8+
  */
 public class StringKit {
@@ -118,23 +118,22 @@ public class StringKit {
     }
 
     /**
-     * 删除字符串两端的控制字符(char &lt;= 32)，如果字符串在修剪后为空("")，
-     * 或者如果字符串为{@code null}，则返回{@code null}.
-     *
+     * 删除字符串两端的空白字符(char &lt;= 32)，如果字符串在修剪后为空("")
+     * 或者如果字符串为{@code null}，则返回{@code null}
      * <pre>
-     * StringKit.trimToNull(null)          = null
-     * StringKit.trimToNull("")            = null
-     * StringKit.trimToNull("     ")       = null
-     * StringKit.trimToNull("abc")         = "abc"
-     * StringKit.trimToNull("    abc    ") = "abc"
+     * StringKit.trimToNull(null)           = null
+     * StringKit.trimToNull("")             = null
+     * StringKit.trimToNull("     ")        = null
+     * StringKit.trimToNull("abc")          = "abc"
+     * StringKit.trimToEmpty("    abc    ") = "abc"
      * </pre>
      *
-     * @param str 要被裁剪的字符串可能是空的
-     * @return 如果只包含字符 &lt;= 32，则为空字符串或空字符串输入
+     * @param str 字符串
+     * @return 去除两边空白符后的字符串, 如果为空返回null
      */
-    public static String trimToNull(final String str) {
-        final String ts = trim(str);
-        return isEmpty(ts) ? null : ts;
+    public static String trimToNull(CharSequence str) {
+        final String trimStr = trim(str);
+        return Normal.EMPTY.equals(trimStr) ? null : trimStr;
     }
 
     /**
@@ -3207,7 +3206,7 @@ public class StringKit {
         String result = toString(str);
         if (isNotEmpty(str)) {
             for (CharSequence strToRemove : strsToRemove) {
-                result = removeAll(str, strToRemove);
+                result = removeAll(result, strToRemove);
             }
         }
         return result;
@@ -3912,7 +3911,6 @@ public class StringKit {
         return builder.toString();
     }
 
-
     /**
      * 清理空白字符
      *
@@ -3935,7 +3933,6 @@ public class StringKit {
         }
         return sb.toString();
     }
-
 
     /**
      * 包装指定字符串
@@ -4660,7 +4657,6 @@ public class StringKit {
             return str.concat(new String(padding));
         }
     }
-
 
     /**
      * 向右填充指定字符的字符串
@@ -5996,6 +5992,30 @@ public class StringKit {
         Arrays.sort(strArray);
 
         return String.valueOf(strArray);
+    }
+
+    /**
+     * 制定字符覆盖原字符串。
+     * 注意参数:
+     * StringKit.hide()是  开始位置,到结束位置
+     * StringKit.cover()是 开始位置,指定长度
+     *
+     * @param str       原字符串
+     * @param start     开始位置
+     * @param len       覆盖的长度
+     * @param character 覆盖的符号
+     * @return 返回值类型        符号覆盖字符后的字符串
+     */
+    public CharSequence cover(String str, int start, int len, Character character) {
+        if (start < 0 || len > str.length()) {
+            throw new IndexOutOfBoundsException();
+        }
+        int end = start + len;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            sb.append((start <= i && i < end) ? character : str.charAt(i));
+        }
+        return sb;
     }
 
 }

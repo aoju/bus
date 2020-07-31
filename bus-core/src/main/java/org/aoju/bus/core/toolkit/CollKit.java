@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * 集合相关工具类
  *
  * @author Kimi Liu
- * @version 6.0.2
+ * @version 6.0.3
  * @since JDK 1.8+
  */
 public class CollKit {
@@ -360,24 +360,22 @@ public class CollKit {
      * @return 并集的集合，返回 {@link LinkedHashSet}
      */
     public static <T> Set<T> intersectOne(Collection<T> coll1, Collection<T> coll2, Collection<T>... otherColls) {
-        final Set<T> result;
-        if (isEmpty(coll1)) {
-            result = new LinkedHashSet<>();
-        } else {
-            result = new LinkedHashSet<>(coll1);
+        if (isEmpty(coll1) || isEmpty(coll2)) {
+            return new LinkedHashSet<>();
         }
 
-        if (isNotEmpty(coll2)) {
-            result.retainAll(coll2);
-        }
+        final Set<T> result = new LinkedHashSet<>(coll1);
 
         if (ArrayKit.isNotEmpty(otherColls)) {
             for (Collection<T> otherColl : otherColls) {
                 if (isNotEmpty(otherColl)) {
                     result.retainAll(otherColl);
+                } else {
+                    return new LinkedHashSet<>();
                 }
             }
         }
+        result.retainAll(coll2);
         return result;
     }
 
@@ -2866,6 +2864,40 @@ public class CollKit {
             if (isNotEmpty(collection)) {
                 collection.clear();
             }
+        }
+    }
+
+    /**
+     * 填充List，以达到最小长度
+     *
+     * @param list   列表
+     * @param minLen 最小长度
+     * @param padObj 填充的对象
+     * @param <T>    集合元素类型
+     */
+    public static <T> void padLeft(List<T> list, int minLen, T padObj) {
+        Objects.requireNonNull(list);
+        if (list.isEmpty()) {
+            padRight(list, minLen, padObj);
+            return;
+        }
+        for (int i = list.size(); i < minLen; i++) {
+            list.add(0, padObj);
+        }
+    }
+
+    /**
+     * 填充List，以达到最小长度
+     *
+     * @param list   列表
+     * @param minLen 最小长度
+     * @param padObj 填充的对象
+     * @param <T>    集合元素类型
+     */
+    public static <T> void padRight(Collection<T> list, int minLen, T padObj) {
+        Objects.requireNonNull(list);
+        for (int i = list.size(); i < minLen; i++) {
+            list.add(padObj);
         }
     }
 
