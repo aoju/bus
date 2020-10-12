@@ -70,4 +70,22 @@ public class Tracer extends OAuth2 {
     @Transient
     protected String x_remote_ip;
 
+    /**
+     * 请求者渠道类型: 1-WEB, 2-APP, 3-钉钉，4-微信小程序，5-其他；
+     */
+    @Transient
+    protected String x_remote_channel;
+
+    /**
+     * 请求者终端类型: 1-PC, 2-Android, 3-iPhone, 4-iPad, 5-WinPhone, 6-HarmonyOS，7-其他
+     */
+    @Transient
+    protected String x_remote_terminal;
+
+    /**
+     * 请求者浏览器信息: APP 原生则传系统版本
+     */
+    @Transient
+    protected String x_remote_browser;
+
 }
