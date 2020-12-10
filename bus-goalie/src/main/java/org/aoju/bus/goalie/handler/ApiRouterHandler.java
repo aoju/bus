@@ -73,7 +73,6 @@ public class ApiRouterHandler {
         MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
         multiValueMap.setAll(params);
         if (HttpMethod.GET.equals(assets.getHttpMethod())) {
-
             builder.queryParams(multiValueMap);
         }
         WebClient.RequestBodySpec bodySpec = webClient
@@ -88,7 +87,9 @@ public class ApiRouterHandler {
                 if (contentType.contains(MediaType.MULTIPART_FORM_DATA_VALUE)) {
                     MultiValueMap<String, Part> partMap = new LinkedMultiValueMap<>();
                     partMap.setAll(context.getFilePartMap());
-                    bodySpec.body(BodyInserters.fromMultipartData(partMap).with(new LinkedMultiValueMap(multiValueMap)));
+                    BodyInserters.MultipartInserter multipartInserter = BodyInserters.fromMultipartData(partMap);
+                    multiValueMap.forEach(multipartInserter::with);
+                    bodySpec.body(multipartInserter);
                 } else {
                     bodySpec.bodyValue(multiValueMap);
                 }
