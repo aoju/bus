@@ -23,102 +23,68 @@
  * THE SOFTWARE.                                                                 *
  *                                                                               *
  ********************************************************************************/
-package org.aoju.bus.starter;
+package org.aoju.bus.starter.elastic;
 
+import lombok.Data;
 import org.aoju.bus.core.lang.Symbol;
+import org.aoju.bus.starter.BusXExtend;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * 全局扩展配置
+ * <p>@description ElasticSearch 配置属性类 </p>
  *
- * @author Kimi Liu
+ * @author <a href="mailto:congchun.zheng@gmail.com">Sixawn.ZHENG</a>
  * @version 6.3.1
- * @since JDK 1.8+
+ * @since JDK1.8+
  */
-public class BusXExtend {
+@Data
+@ConfigurationProperties(prefix = BusXExtend.ELASTIC)
+public class ElasticProperties {
+    /**
+     * 集群主机地址, 多个用英文逗号,隔开
+     * 格式: ip1:port,ip2:port
+     */
+    private String hosts;
+    /**
+     * 通讯协议
+     */
+    private String schema = "http";
 
     /**
-     * Spring配置
+     * 建立连接超时时间: 毫秒, 默认 6000， 0 - 无限制，-1 - OS 适配
      */
-    public static final String SPRING = "spring";
+    private int connectTimeout = 6000;
     /**
-     * 扩展配置
+     * 读超时: 毫秒，默认 60000， 0 - 无限制，-1 - OS 适配
      */
-    public static final String EXTEND = "extend";
+    private int socketTimeout = 60000;
     /**
-     * 数据源配置
+     * 连接请求超时: 毫秒，默认 6000， 0 - 无限制，-1 - OS 适配
      */
-    public static final String DATASOURCE = SPRING + Symbol.DOT + "datasource";
-    /**
-     * 缓存配置
-     */
-    public static final String CACHE = EXTEND + Symbol.DOT + "cache";
-    /**
-     * 跨域支持
-     */
-    public static final String CORS = EXTEND + Symbol.DOT + "cors";
-    /**
-     * Druid监控
-     */
-    public static final String DRUID = EXTEND + Symbol.DOT + "druid";
-    /**
-     * Druid监控
-     */
-    public static final String DUBBO = EXTEND + Symbol.DOT + "dubbo";
-    /**
-     * 路由配置
-     */
-    public static final String GOALIE = EXTEND + Symbol.DOT + "goalie";
-    /**
-     * 国际化支持
-     */
-    public static final String I18N = EXTEND + Symbol.DOT + "i18n";
-    /**
-     * 图像解析
-     */
-    public static final String IMAGE = EXTEND + Symbol.DOT + "image";
-    /**
-     * 限流支持
-     */
-    public static final String LIMITER = EXTEND + Symbol.DOT + "limiter";
-    /**
-     * Mybatis/Mapper
-     */
-    public static final String MYBATIS = EXTEND + Symbol.DOT + "mybatis";
-    /**
-     * 消息通知
-     */
-    public static final String NOTIFY = EXTEND + Symbol.DOT + "notify";
-    /**
-     * 授权登陆
-     */
-    public static final String OAUTH = EXTEND + Symbol.DOT + "oauth";
-    /**
-     * 文件预览
-     */
-    public static final String OFFICE = EXTEND + Symbol.DOT + "office";
-    /**
-     * 数据脱敏
-     */
-    public static final String SENSITIVE = EXTEND + Symbol.DOT + "sensitive";
-    /**
-     * socket
-     */
-    public static final String SOCKET = EXTEND + Symbol.DOT + "socket";
-    /**
-     * 存储设置
-     */
-    public static final String STORAGE = EXTEND + Symbol.DOT + "storage";
-    /**
-     * XSS/重复读取失效
-     */
-    public static final String WRAPPER = EXTEND + Symbol.DOT + "wrapper";
-    /**
-     * 工作/临时目录等
-     */
-    public static final String WORK = EXTEND + Symbol.DOT + "work";
-    /**
-     * Elastic支持
-     */
-    public static final String ELASTIC = EXTEND + Symbol.DOT + "elastic";
+    private int connectionRequestTimeout = 6000;
 
+    /**
+     * 最大连接数: 默认 2000， 0 - 无限制，-1 - OS 适配
+     */
+    private int maxConnectTotal = 2000;
+    /**
+     * 最大每批连接数: 默认 200， 0 - 无限制，-1 - OS 适配
+     */
+    private int maxConnectPerRoute = 500;
+
+    /**
+     * 集群主机地址列表
+     */
+    private List<String> hostList;
+
+    public List<String> getHostList() {
+        if (null == this.hosts || "".equalsIgnoreCase(this.hosts.trim())) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(this.hosts.split(Symbol.COMMA));
+    }
 }
