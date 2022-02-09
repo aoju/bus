@@ -47,7 +47,7 @@
         <dubbo.version>3.0.1</dubbo.version>
         <servlet.version>4.0.1</servlet.version>
         <cxf.version>2.7.18</cxf.version>
-        <httpclient.version>4.5.2</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <httpclient5.version>5.0</httpclient5.version>
         <quartz.version>2.3.2</quartz.version>
     </properties>
