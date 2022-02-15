@@ -282,7 +282,6 @@ public class Lunar {
             put("北", "玄武");
         }
     };
-
     /**
      * 天干四冲（无情之克中克得最严重的4个）
      */
@@ -296,7 +295,6 @@ public class Lunar {
             put("癸", "丁");
         }
     };
-
     /**
      * 天干五合（有情之克中最有情的5个）
      */
@@ -6045,24 +6043,6 @@ public class Lunar {
          */
         public String getPositionTaiSuiDesc() {
             return POSITION_DESC.get(getPositionTaiSui());
-        }
-
-        /**
-         * 获取三元
-         *
-         * @return 元
-         */
-        public String getYuan() {
-            return YUAN[((year + 2696) / 60) % 3] + "元";
-        }
-
-        /**
-         * 获取九运
-         *
-         * @return 运
-         */
-        public String getYun() {
-            return YUN[((year + 2696) / 20) % 9] + "运";
         }
 
         /**
