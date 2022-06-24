@@ -144,6 +144,9 @@ public class BaseAdvice extends Controller {
     @ExceptionHandler(value = ValidateException.class)
     public Object validateException(ValidateException e) {
         Logger.error(RuntimeKit.getStackTrace(e));
+        if (StringKit.isEmpty(e.getErrcode())) {
+            return write(ErrorCode.EM_FAILURE, StringKit.isEmpty(e.getErrmsg()) ? e.getMessage() : e.getErrmsg());
+        }
         return write(e.getErrcode(), e.getErrmsg());
     }
 
