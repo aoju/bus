@@ -69,7 +69,6 @@ public class MinioOssProvider extends AbstractProvider {
         Assert.notBlank(StringKit.toString(this.context.getReadTimeout()), "[readTimeout] not defined");
         Assert.notBlank(StringKit.toString(this.context.getConnectTimeout()), "[connectTimeout] not defined");
         Assert.notBlank(StringKit.toString(this.context.getWriteTimeout()), "[writeTimeout] not defined");
-        Assert.notBlank(StringKit.toString(this.context.getReadTimeout()), "[readTimeout] not defined");
 
         this.client = MinioClient.builder()
                 .endpoint(this.context.getEndpoint())
@@ -113,6 +112,10 @@ public class MinioOssProvider extends AbstractProvider {
             InputStream inputStream = this.client.getObject(GetObjectArgs.builder().bucket(bucket).object(fileName).build());
             OutputStream outputStream = new FileOutputStream(file);
             IoKit.copy(inputStream, outputStream);
+            return Message.builder()
+                    .errcode(Builder.ErrorCode.SUCCESS.getCode())
+                    .errmsg(Builder.ErrorCode.SUCCESS.getMsg())
+                    .build();
         } catch (Exception e) {
             Logger.error("file download failed", e.getMessage());
         }
